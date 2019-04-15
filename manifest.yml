@@ -1,0 +1,11 @@
+applications:
+  - name: backendtesi
+    routes:
+      - route: digitalid-api.eu-gb.mybluemix.net
+    buildpack: https://github.com/cloudfoundry/java-buildpack.git
+    path: build/libs/backendtesi-0.0.1.jar
+    memory: 1024M
+    instances: 1
+    timeout: 100
+    env:
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version:  11.0.1_13 } }'

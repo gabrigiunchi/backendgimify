@@ -1,0 +1,36 @@
+package com.gabrigiunchi.backendtesi.model
+
+import com.gabrigiunchi.backendtesi.util.DateDecorator
+import java.util.*
+import javax.persistence.*
+
+@Entity
+class User(
+        @Id @GeneratedValue(strategy = GenerationType.AUTO) val id: Int,
+
+        val username: String,
+        val password: String,
+        val name: String,
+        val surname: String,
+
+        @ManyToMany(fetch = FetchType.EAGER)
+        val roles: MutableCollection<UserRole>,
+
+        val validFrom: Date,
+        val expireDate: Date) {
+
+    var isActive = true
+
+    constructor(username: String, password: String, name: String, surname: String, roles: MutableCollection<UserRole>) :
+            this(-1, username, password, name, surname, roles, Date(),
+                    DateDecorator.now().plusMinutes(2 * 30 * 24 * 60).date)
+
+
+    constructor(username: String, password: String, name: String, surname: String) :
+            this(username, password, name, surname, mutableListOf())
+
+
+    override fun toString(): String {
+        return "{id:$id, username:$username, password:$password, name:$name, surname:$surname}"
+    }
+}
