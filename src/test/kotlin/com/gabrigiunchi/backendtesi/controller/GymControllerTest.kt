@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class GymControllerTest: AbstractControllerTest() {
+class GymControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var gymDAO: GymDAO
@@ -28,7 +28,7 @@ class GymControllerTest: AbstractControllerTest() {
 
     @Test
     fun `Should get a gym by its id`() {
-        val gym = this.gymDAO.save(Gym(-1, "gym dsjad", "address"))
+        val gym = this.gymDAO.save(Gym("gym dsjad", "address"))
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -46,7 +46,7 @@ class GymControllerTest: AbstractControllerTest() {
 
     @Test
     fun `Should create a gym`() {
-        val gym = Gym(-1, "gym dnjsnjdaj", "address")
+        val gym = Gym("gym dnjsnjdaj", "address")
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(gym)))
@@ -57,7 +57,7 @@ class GymControllerTest: AbstractControllerTest() {
 
     @Test
     fun `Should update a gym`() {
-        val gym = this.gymDAO.save(Gym(-1, "gymaaa1", "address"))
+        val gym = this.gymDAO.save(Gym("gymaaa1", "address"))
         val savedGym = this.gymDAO.save(gym)
         gym.name = "newName"
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/${savedGym.id}")
@@ -70,7 +70,7 @@ class GymControllerTest: AbstractControllerTest() {
 
     @Test
     fun `Should not update a gym if it does not exist`() {
-        val gym = this.gymDAO.save(Gym(-1, "gymnnnn1", "address"))
+        val gym = this.gymDAO.save(Gym("gymnnnn1", "address"))
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(gym)))
@@ -80,7 +80,7 @@ class GymControllerTest: AbstractControllerTest() {
 
     @Test
     fun `Should not create a gym if its id already exist`() {
-        val gym = this.gymDAO.save(Gym(-1, "gym dsjad", "address"))
+        val gym = this.gymDAO.save(Gym("gym dsjad", "address"))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(gym)))
@@ -90,7 +90,7 @@ class GymControllerTest: AbstractControllerTest() {
 
     @Test
     fun `Should delete a gym`() {
-        val gym = this.gymDAO.save(Gym(-1, "gym dsjad", "address"))
+        val gym = this.gymDAO.save(Gym("gym dsjad", "address"))
         val savedId = this.gymDAO.save(gym).id
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/$savedId")
                 .contentType(MediaType.APPLICATION_JSON))
