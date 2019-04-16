@@ -37,6 +37,13 @@ class DateDecorator(val date: Date) {
         return DateDecorator(c.time)
     }
 
+    fun plusDays(days: Int): DateDecorator {
+        val c = Calendar.getInstance()
+        c.time = this.date
+        c.add(Calendar.DATE, days)
+        return DateDecorator(c.time)
+    }
+
     fun minusMinutes(minutes: Int): DateDecorator
     {
         val c = Calendar.getInstance()

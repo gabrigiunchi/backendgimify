@@ -86,4 +86,17 @@ class DateDecoratorTest {
         Assertions.assertThat(max.date.time).isEqualTo(Long.MAX_VALUE)
         Assertions.assertThat(max.date.after(DateDecorator.now().date)).isTrue()
     }
+
+    @Test
+    fun `Should add days`() {
+        val d1 = DateDecorator.of("2018-03-10T10:00:00+0000")
+        Assertions.assertThat(d1.plusDays(1).format("yyyy-MM-dd")).isEqualTo("2018-03-11")
+        Assertions.assertThat(d1.plusDays(2).format("yyyy-MM-dd")).isEqualTo("2018-03-12")
+        Assertions.assertThat(d1.plusDays(5).format("yyyy-MM-dd")).isEqualTo("2018-03-15")
+        Assertions.assertThat(d1.plusDays(7).format("yyyy-MM-dd")).isEqualTo("2018-03-17")
+        Assertions.assertThat(d1.plusDays(20).format("yyyy-MM-dd")).isEqualTo("2018-03-30")
+        Assertions.assertThat(d1.plusDays(20).format("yyyy-MM-dd")).isEqualTo("2018-03-30")
+        Assertions.assertThat(d1.plusDays(30).format("yyyy-MM-dd")).isEqualTo("2018-04-09")
+        Assertions.assertThat(d1.plusDays(365).format("yyyy-MM-dd")).isEqualTo("2019-03-10")
+    }
 }
