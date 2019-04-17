@@ -14,7 +14,7 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/intervals")
 class IntervalController(private val intervalDAO: IntervalDAO) {
 
-    private val logger = LoggerFactory.getLogger(GymController::class.java)
+    private val logger = LoggerFactory.getLogger(IntervalController::class.java)
 
     @GetMapping
     fun getAllIntervals(): ResponseEntity<Iterable<Interval>> {

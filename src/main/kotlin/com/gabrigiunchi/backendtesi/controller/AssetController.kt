@@ -15,7 +15,7 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/assets")
 class AssetController {
 
-    private val logger = LoggerFactory.getLogger(AssetKindController::class.java)
+    private val logger = LoggerFactory.getLogger(AssetController::class.java)
 
     @Autowired
     private lateinit var assetDAO: AssetDAO
