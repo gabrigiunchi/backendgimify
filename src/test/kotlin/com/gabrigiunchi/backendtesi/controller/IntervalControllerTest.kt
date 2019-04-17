@@ -5,7 +5,6 @@ import com.gabrigiunchi.backendtesi.dao.IntervalDAO
 import com.gabrigiunchi.backendtesi.model.Interval
 import com.gabrigiunchi.backendtesi.model.dto.IntervalDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
-import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Test
@@ -14,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.OffsetTime
 
 class IntervalControllerTest : AbstractControllerTest() {
 
@@ -21,11 +21,10 @@ class IntervalControllerTest : AbstractControllerTest() {
     private lateinit var intervalDAO: IntervalDAO
 
     private val intervals = listOf(
-            Interval(DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
-            Interval(DateDecorator.of("2019-01-01T10:00:00+0000").date, DateDecorator.of("2019-01-01T12:00:00+0000").date),
-            Interval(DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
-            Interval(DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
-    )
+            Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
+            Interval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
+            Interval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
+            Interval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
 
     @Test
     fun `Should get all intervals`() {
@@ -56,18 +55,19 @@ class IntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create an interval`() {
-        this.intervalDAO.saveAll(this.intervals)
-        val intervalDTO = IntervalDTO(DateDecorator.now().date, DateDecorator.now().plusMinutes(120).date)
+        val intervalDTO = IntervalDTO(OffsetTime.parse("10:00Z"), OffsetTime.parse("12:00Z"))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(intervalDTO)))
+                .content(intervalDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.start", Matchers.`is`("10:00Z")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.end", Matchers.`is`("12:00Z")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should NOT create an interval if the start is after the end`() {
-        val intervalDTO = IntervalDTO(DateDecorator.now().date, DateDecorator.now().minusMinutes(120).date)
+        val intervalDTO = IntervalDTO(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00"))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(intervalDTO)))

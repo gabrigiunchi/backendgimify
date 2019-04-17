@@ -7,7 +7,6 @@ import com.gabrigiunchi.backendtesi.model.Interval
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
-import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Test
@@ -17,8 +16,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.DayOfWeek
+import java.time.OffsetTime
 
-class ScheduleControllerTest: AbstractControllerTest() {
+class ScheduleControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var scheduleDAO: ScheduleDAO
@@ -27,11 +27,10 @@ class ScheduleControllerTest: AbstractControllerTest() {
     private lateinit var intervalDAO: IntervalDAO
 
     private val intervals = listOf(
-            Interval(DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
-            Interval(DateDecorator.of("2019-01-01T10:00:00+0000").date, DateDecorator.of("2019-01-01T12:00:00+0000").date),
-            Interval(DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
-            Interval(DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
-    )
+            Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
+            Interval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
+            Interval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
+            Interval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
 
     private val schedules = listOf(
             Schedule(DayOfWeek.MONDAY, this.intervals.take(2).toSet()),
@@ -68,12 +67,11 @@ class ScheduleControllerTest: AbstractControllerTest() {
 
     @Test
     fun `Should create a schedule`() {
-        this.scheduleDAO.saveAll(this.schedules)
-        val interval = Interval(DateDecorator.now().date, DateDecorator.now().plusMinutes(120).date)
+        val interval = Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00"))
         val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, setOf(interval))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.SCHEDULES)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(scheduleDTO)))
+                .content(scheduleDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andDo(MockMvcResultHandlers.print())
     }

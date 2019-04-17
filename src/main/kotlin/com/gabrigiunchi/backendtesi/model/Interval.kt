@@ -1,8 +1,7 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.dto.IntervalDTO
-import java.lang.IllegalArgumentException
-import java.util.*
+import java.time.OffsetTime
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -13,15 +12,23 @@ class Interval(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
-        val start: Date,
-        val end: Date
+        val start: OffsetTime,
+        val end: OffsetTime
 ) {
-    constructor(start: Date, end: Date): this(-1, start, end)
-    constructor(intervalDTO: IntervalDTO): this(-1, intervalDTO.start, intervalDTO.end)
+    constructor(start: OffsetTime, end: OffsetTime) : this(-1, start, end)
+    constructor(intervalDTO: IntervalDTO) : this(-1, intervalDTO.start, intervalDTO.end)
 
     init {
-        if (this.start.after(this.end)) {
+        if (this.start.isAfter(this.end)) {
             throw IllegalArgumentException("start is after the end")
         }
+    }
+
+    fun toMap(): Map<String, String> {
+        return mapOf(
+                Pair("id", this.id.toString()),
+                Pair("start", this.start.toString()),
+                Pair("end", this.end.toString())
+        )
     }
 }
