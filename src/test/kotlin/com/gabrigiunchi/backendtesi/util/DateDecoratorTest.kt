@@ -2,8 +2,17 @@ package com.gabrigiunchi.backendtesi.util
 
 import org.assertj.core.api.Assertions
 import org.junit.Test
+import java.util.*
 
 class DateDecoratorTest {
+
+    @Test
+    fun `Should create from a date object`()
+    {
+        val dateObject = Date()
+        val decorator = DateDecorator.of(dateObject)
+        Assertions.assertThat(decorator.date.time).isEqualTo(dateObject.time)
+    }
 
     @Test
     fun `Should create from a string`()
