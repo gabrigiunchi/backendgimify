@@ -9,4 +9,5 @@ object ApiUrls {
     const val GYMS = "$BASE_URL/gyms"
     const val RESERVATIONS = "$BASE_URL/reservations"
     const val ASSET_KIND = "$BASE_URL/asset_kinds"
+    const val INTERVALS = "$BASE_URL/intervals"
 }
