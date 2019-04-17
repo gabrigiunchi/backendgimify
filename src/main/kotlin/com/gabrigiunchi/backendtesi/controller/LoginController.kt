@@ -22,30 +22,22 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/login")
-class LoginController {
+class LoginController(
+        private val authenticationManager: AuthenticationManager,
+        private val userDAO: UserDAO,
+        private val jwtTokenProvider: JwtTokenProvider
+) {
 
     private val logger = LoggerFactory.getLogger(LoginController::class.java)
-
-    @Autowired
-    internal var authenticationManager: AuthenticationManager? = null
-
-    @Autowired
-    internal var jwtTokenProvider: JwtTokenProvider? = null
-
-    @Autowired
-    internal var users: UserDAO? = null
-
-    @Autowired
-    private lateinit var tokenProvider: JwtTokenProvider
 
     @PostMapping
     fun login(@RequestBody @Valid credentials: ValidateUserDTO): ResponseEntity<Token> {
         this.logger.info("Login request: {username:" + credentials.username + ", password:" + credentials.password + "}")
         try {
             val username = credentials.username
-            authenticationManager!!.authenticate(UsernamePasswordAuthenticationToken(username, credentials.password))
+            this.authenticationManager.authenticate(UsernamePasswordAuthenticationToken(username, credentials.password))
 
-            val optionalUser = this.users!!.findByUsername(username)
+            val optionalUser = this.userDAO.findByUsername(username)
 
             if (optionalUser.isEmpty) {
                 throw BadCredentialsException("Invalid username/password supplied")
@@ -53,7 +45,7 @@ class LoginController {
 
             val user = optionalUser.get()
             val roles = user.roles.map(UserRole::name)
-            val token = jwtTokenProvider!!.createToken(username, roles)
+            val token = this.jwtTokenProvider.createToken(username, roles)
 
             return ResponseEntity(Token(credentials.username, token), HttpStatus.OK)
         } catch (e: AuthenticationException) {
@@ -65,7 +57,7 @@ class LoginController {
     fun loginWithToken(@RequestBody token: String): ResponseEntity<Boolean> {
         this.logger.info("Login with token")
         val valid = try {
-            this.tokenProvider.validateToken(token)
+            this.jwtTokenProvider.validateToken(token)
         } catch (e: AccessDeniedException) {
             false
         }
