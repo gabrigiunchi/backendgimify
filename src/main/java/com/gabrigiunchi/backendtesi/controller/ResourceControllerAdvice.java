@@ -52,4 +52,12 @@ public class ResourceControllerAdvice
     {
         return new VndErrors("Bad credentials", ex.getMessage());
     }
+
+    @ResponseBody
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    VndErrors invalidArgumentHandler(IllegalArgumentException ex)
+    {
+        return new VndErrors("Illegal arguments", ex.getMessage());
+    }
 }

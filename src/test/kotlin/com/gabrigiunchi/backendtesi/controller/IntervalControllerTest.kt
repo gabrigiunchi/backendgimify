@@ -66,6 +66,16 @@ class IntervalControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should NOT create an interval if the start is after the end`() {
+        val intervalDTO = IntervalDTO(DateDecorator.now().date, DateDecorator.now().minusMinutes(120).date)
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.INTERVALS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(intervalDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should delete an interval`() {
         val savedId = this.intervalDAO.save(this.intervals[0]).id
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.INTERVALS}/$savedId")
