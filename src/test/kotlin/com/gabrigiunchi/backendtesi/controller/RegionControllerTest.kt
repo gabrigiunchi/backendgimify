@@ -66,7 +66,6 @@ class RegionControllerTest: AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(region)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(region.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(region.name)))
                 .andDo(MockMvcResultHandlers.print())
 
@@ -83,7 +82,7 @@ class RegionControllerTest: AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isConflict)
                 .andDo(MockMvcResultHandlers.print())
 
-        Assertions.assertThat(this.regionDAO.count()).isEqualTo(0)
+        Assertions.assertThat(this.regionDAO.count()).isEqualTo(1)
     }
 
     @Test
@@ -99,7 +98,7 @@ class RegionControllerTest: AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isConflict)
                 .andDo(MockMvcResultHandlers.print())
 
-        Assertions.assertThat(this.regionDAO.count()).isEqualTo(0)
+        Assertions.assertThat(this.regionDAO.count()).isEqualTo(1)
     }
 
     @Test
