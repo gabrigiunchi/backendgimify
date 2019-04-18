@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
+import com.gabrigiunchi.backendtesi.model.type.RegionEnum
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -26,8 +27,12 @@ class DBInitializer {
     @Autowired
     private lateinit var gymDAO: GymDAO
 
+    @Autowired
+    private lateinit var regionDAO: RegionDAO
+
 
     fun initDB() {
+        this.initRegions()
         this.initUserRole()
         this.initUsers()
         this.initGyms()
@@ -74,5 +79,7 @@ class DBInitializer {
         ))
     }
 
-
+    fun initRegions() {
+        this.regionDAO.saveAll(RegionEnum.values().map { Region(it) })
+    }
 }
