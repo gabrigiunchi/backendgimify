@@ -12,9 +12,9 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/timeIntervals")
-class IntervalController(private val timeIntervalDAO: TimeIntervalDAO) {
+class TimeIntervalController(private val timeIntervalDAO: TimeIntervalDAO) {
 
-    private val logger = LoggerFactory.getLogger(IntervalController::class.java)
+    private val logger = LoggerFactory.getLogger(TimeIntervalController::class.java)
 
     @GetMapping
     fun getAllIntervals(): ResponseEntity<Iterable<TimeInterval>> {
