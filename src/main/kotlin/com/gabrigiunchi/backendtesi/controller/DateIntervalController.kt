@@ -1,8 +1,8 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.dao.DateTimeIntervalDAO
-import com.gabrigiunchi.backendtesi.model.DateTimeInterval
-import com.gabrigiunchi.backendtesi.model.dto.DateTimeIntervalDTO
+import com.gabrigiunchi.backendtesi.dao.DateIntervalDAO
+import com.gabrigiunchi.backendtesi.model.DateInterval
+import com.gabrigiunchi.backendtesi.model.dto.DateIntervalDTO
 import org.slf4j.LoggerFactory
 import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.http.HttpStatus
@@ -12,39 +12,39 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/date_intervals")
-class DateIntervalController(private val dateTimeIntervalDAO: DateTimeIntervalDAO) {
+class DateIntervalController(private val dateIntervalDAO: DateIntervalDAO) {
 
     private val logger = LoggerFactory.getLogger(DateIntervalController::class.java)
 
     @GetMapping
-    fun getAllDateIntervals(): ResponseEntity<Iterable<DateTimeInterval>> {
+    fun getAllDateIntervals(): ResponseEntity<Iterable<DateInterval>> {
         this.logger.info("GET all date intervals")
-        return ResponseEntity(this.dateTimeIntervalDAO.findAll(), HttpStatus.OK)
+        return ResponseEntity(this.dateIntervalDAO.findAll(), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
-    fun findDateIntervalById(@PathVariable id: Int): ResponseEntity<DateTimeInterval> {
+    fun findDateIntervalById(@PathVariable id: Int): ResponseEntity<DateInterval> {
         this.logger.info("GET date interval #$id")
         return ResponseEntity(
-                this.dateTimeIntervalDAO.findById(id).map { it }.orElseThrow { ResourceNotFoundException("date interval #$id not found") },
+                this.dateIntervalDAO.findById(id).map { it }.orElseThrow { ResourceNotFoundException("date interval #$id not found") },
                 HttpStatus.OK)
     }
 
     @PostMapping
-    fun createDateInterval(@Valid @RequestBody intervalDTO: DateTimeIntervalDTO): ResponseEntity<DateTimeInterval> {
+    fun createDateInterval(@Valid @RequestBody intervalDTO: DateIntervalDTO): ResponseEntity<DateInterval> {
         this.logger.info("POST date interval")
-        return ResponseEntity(this.dateTimeIntervalDAO.save(DateTimeInterval(intervalDTO)), HttpStatus.CREATED)
+        return ResponseEntity(this.dateIntervalDAO.save(DateInterval(intervalDTO)), HttpStatus.CREATED)
     }
 
     @DeleteMapping("/{id}")
     fun deleteDateInterval(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE date interval #$id")
 
-        if (this.dateTimeIntervalDAO.findById(id).isEmpty) {
+        if (this.dateIntervalDAO.findById(id).isEmpty) {
             throw ResourceNotFoundException("date interval #$id not found")
         }
 
-        this.dateTimeIntervalDAO.deleteById(id)
+        this.dateIntervalDAO.deleteById(id)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

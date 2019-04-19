@@ -16,12 +16,12 @@ class Schedule(
         val intervals: Set<Interval>,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
-        val exceptions: Set<DateTimeInterval>
+        val exceptions: Set<DateInterval>
 ) {
         constructor(scheduleDTO: ScheduleDTO): this(-1, scheduleDTO.dayOfWeek, scheduleDTO.intervals, scheduleDTO.exceptions)
         constructor(dayOfWeek: DayOfWeek): this(-1, dayOfWeek, emptySet(), emptySet())
         constructor(dayOfWeek: DayOfWeek, intervals: Set<Interval>): this(-1, dayOfWeek, intervals, emptySet())
-        constructor(dayOfWeek: DayOfWeek, intervals: Set<Interval>, exceptions: Set<DateTimeInterval>): this(-1, dayOfWeek, intervals, exceptions)
+        constructor(dayOfWeek: DayOfWeek, intervals: Set<Interval>, exceptions: Set<DateInterval>): this(-1, dayOfWeek, intervals, exceptions)
 
         fun toMap(): Map<String, Any> {
                 return mapOf(

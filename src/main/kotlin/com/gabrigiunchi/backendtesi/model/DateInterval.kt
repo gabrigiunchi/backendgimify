@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.model.dto.DateTimeIntervalDTO
+import com.gabrigiunchi.backendtesi.model.dto.DateIntervalDTO
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -8,7 +8,7 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-class DateTimeInterval(
+class DateInterval(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
@@ -16,7 +16,7 @@ class DateTimeInterval(
         val end: Date
 ) {
     constructor(start: Date, end: Date) : this(-1, start, end)
-    constructor(dateTimeIntervalDTO: DateTimeIntervalDTO): this(-1, dateTimeIntervalDTO.start, dateTimeIntervalDTO.end)
+    constructor(dateIntervalDTO: DateIntervalDTO): this(-1, dateIntervalDTO.start, dateIntervalDTO.end)
 
     init {
         if (this.start.after(this.end)) {

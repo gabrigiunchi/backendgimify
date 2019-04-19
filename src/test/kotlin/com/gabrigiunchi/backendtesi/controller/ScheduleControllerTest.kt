@@ -3,7 +3,7 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.dao.IntervalDAO
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
-import com.gabrigiunchi.backendtesi.model.DateTimeInterval
+import com.gabrigiunchi.backendtesi.model.DateInterval
 import com.gabrigiunchi.backendtesi.model.Interval
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
@@ -75,7 +75,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
                 Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")))
 
         val exceptions = setOf(
-            DateTimeInterval(DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date))
+            DateInterval(DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date))
         val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, intervals, exceptions)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.SCHEDULES)
                 .contentType(MediaType.APPLICATION_JSON)

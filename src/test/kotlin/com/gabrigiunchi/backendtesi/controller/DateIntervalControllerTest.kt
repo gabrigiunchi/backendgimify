@@ -1,9 +1,9 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
-import com.gabrigiunchi.backendtesi.dao.DateTimeIntervalDAO
-import com.gabrigiunchi.backendtesi.model.DateTimeInterval
-import com.gabrigiunchi.backendtesi.model.dto.DateTimeIntervalDTO
+import com.gabrigiunchi.backendtesi.dao.DateIntervalDAO
+import com.gabrigiunchi.backendtesi.model.DateInterval
+import com.gabrigiunchi.backendtesi.model.dto.DateIntervalDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
@@ -19,10 +19,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 class DateIntervalControllerTest : AbstractControllerTest() {
 
     @Autowired
-    private lateinit var dateIntervalDAO: DateTimeIntervalDAO
+    private lateinit var dateIntervalDAO: DateIntervalDAO
 
     private val intervals = listOf(
-            DateTimeInterval(DateDecorator.of("2018-10-10T10:00:00+0000").date, DateDecorator.of("2018-10-10T12:00:00+0000").date))
+            DateInterval(DateDecorator.of("2018-10-10T10:00:00+0000").date, DateDecorator.of("2018-10-10T12:00:00+0000").date))
 
     @Before
     fun clearDB() {
@@ -58,7 +58,7 @@ class DateIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a date interval`() {
-        val intervalDTO = DateTimeIntervalDTO(DateDecorator.of(
+        val intervalDTO = DateIntervalDTO(DateDecorator.of(
                 "2018-10-10T10:00:00+0000").date,
                 DateDecorator.of("2018-10-10T12:00:00+0000").date)
 
@@ -73,7 +73,7 @@ class DateIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should NOT create a date interval if the start is after the end`() {
-        val intervalDTO = DateTimeIntervalDTO(DateDecorator.of(
+        val intervalDTO = DateIntervalDTO(DateDecorator.of(
                 "2018-10-10T16:00:00+0000").date,
                 DateDecorator.of("2018-10-10T12:00:00+0000").date)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.DATE_INTERVALS)
