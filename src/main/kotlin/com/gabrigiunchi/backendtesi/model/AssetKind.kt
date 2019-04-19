@@ -11,9 +11,10 @@ class AssetKind(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
-        val name: String
+        val name: String,
+        val maxReservationTime: Int // minutes
 ) {
-        constructor(name: String): this(-1, name)
-        constructor(kind: AssetKindEnum): this(-1, kind)
-        constructor(id: Int,kind: AssetKindEnum): this(id, kind.name)
+        constructor(name: String, maxReservationTime: Int): this(-1, name, maxReservationTime)
+        constructor(kind: AssetKindEnum, maxReservationTime: Int): this(-1, kind, maxReservationTime)
+        constructor(id: Int,kind: AssetKindEnum, maxReservationTime: Int): this(id, kind.name, maxReservationTime)
 }

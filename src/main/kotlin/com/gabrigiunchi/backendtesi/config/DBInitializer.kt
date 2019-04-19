@@ -32,6 +32,12 @@ class DBInitializer {
 
     private var regions = listOf<Region>()
 
+    private val maxReservationTimes = mapOf(
+            Pair(AssetKindEnum.CICLETTE, 60),
+            Pair(AssetKindEnum.PANCA, 20),
+            Pair(AssetKindEnum.PRESSA, 20),
+            Pair(AssetKindEnum.TAPIS_ROULANT, 60))
+
     fun initDB() {
         this.initRegions()
         this.initUserRole()
@@ -67,7 +73,7 @@ class DBInitializer {
     }
 
     fun initAssetKinds() {
-        this.assetKindDAO.saveAll(AssetKindEnum.values().map { e -> AssetKind(e) })
+        this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it]?:20) })
     }
 
     fun initAssets() {

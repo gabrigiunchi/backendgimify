@@ -1,11 +1,8 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.IntervalDAO
-import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
