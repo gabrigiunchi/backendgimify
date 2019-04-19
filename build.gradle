@@ -55,3 +55,7 @@ compileTestKotlin {
 		jvmTarget = '1.8'
 	}
 }
+
+test {
+	maxHeapSize = "512m"
+}
