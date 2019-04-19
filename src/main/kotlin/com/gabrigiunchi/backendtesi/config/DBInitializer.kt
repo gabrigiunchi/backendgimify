@@ -30,6 +30,7 @@ class DBInitializer {
     @Autowired
     private lateinit var regionDAO: RegionDAO
 
+    private var regions = listOf<Region>()
 
     fun initDB() {
         this.initRegions()
@@ -59,10 +60,10 @@ class DBInitializer {
 
     fun initGyms() {
         this.gymDAO.saveAll(listOf(
-                Gym("gym1", "Via1"),
-                Gym("gym2", "Via2"),
-                Gym("gym3", "Via3"),
-                Gym("gym4", "Via4")))
+                Gym("gym1", "Via1", this.regions[0]),
+                Gym("gym2", "Via2", this.regions[0]),
+                Gym("gym3", "Via3", this.regions[1]),
+                Gym("gym4", "Via4", this.regions[2])))
     }
 
     fun initAssetKinds() {
@@ -80,6 +81,6 @@ class DBInitializer {
     }
 
     fun initRegions() {
-        this.regionDAO.saveAll(RegionEnum.values().map { Region(it) })
+        this.regions = this.regionDAO.saveAll(RegionEnum.values().map { Region(it) }).toList()
     }
 }

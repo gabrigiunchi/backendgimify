@@ -51,8 +51,16 @@ class RegionControllerTest: AbstractControllerTest() {
     }
 
     @Test
-    fun `Should not get a region if it does not exist`() {
+    fun `Should not get a region by id if it does not exist`() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.REGIONS}/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get a region by name if it does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.REGIONS}/by_name/ndakjsnjad")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())

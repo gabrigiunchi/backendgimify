@@ -63,7 +63,7 @@ class ReservationController(
     /********************************* MY RESERVATIONS *****************************************************/
 
     @GetMapping("/me")
-    fun getAllReservationsByUser(): ResponseEntity<Collection<Reservation>> {
+    fun getAllReservationsOfLoggedUser(): ResponseEntity<Collection<Reservation>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all reservations of user #${user.id}")
         return ResponseEntity(this.reservationDAO.findByUser(user), HttpStatus.OK)

@@ -1,9 +1,8 @@
 package com.gabrigiunchi.backendtesi.model
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
+import javax.persistence.*
 
 @Entity
 class Gym(
@@ -11,7 +10,11 @@ class Gym(
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
         var name: String,
-        val address: String
+        val address: String,
+
+        @ManyToOne
+        @OnDelete(action = OnDeleteAction.CASCADE)
+        val region: Region
 ) {
-    constructor(name: String, address: String) : this(-1, name, address)
+    constructor(name: String, address: String, region: Region) : this(-1, name, address, region)
 }

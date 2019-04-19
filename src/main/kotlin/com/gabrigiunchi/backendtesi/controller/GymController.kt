@@ -1,11 +1,11 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.GymDAO
+import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Gym
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -13,12 +13,10 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/gyms")
-class GymController {
+class GymController(private val gymDAO: GymDAO,
+                    private val regionDAO: RegionDAO) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
 
     @GetMapping
     fun getGyms(): ResponseEntity<Iterable<Gym>> {
@@ -27,11 +25,19 @@ class GymController {
     }
 
     @GetMapping("/{id}")
-    fun getGymByInd(@PathVariable id: Int): ResponseEntity<Gym> {
+    fun getGymById(@PathVariable id: Int): ResponseEntity<Gym> {
         this.logger.info("GET gym #$id")
         return this.gymDAO.findById(id)
                 .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException(id) }
+    }
+
+    @GetMapping("/by_region/{regionId}")
+    fun getGymByRegion(@PathVariable regionId: Int): ResponseEntity<List<Gym>> {
+        this.logger.info("GET gym by region #$regionId")
+        return this.regionDAO.findById(regionId)
+                .map { ResponseEntity(this.gymDAO.findByRegion(it), HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException("region #$regionId does not exist") }
     }
 
     @PostMapping
