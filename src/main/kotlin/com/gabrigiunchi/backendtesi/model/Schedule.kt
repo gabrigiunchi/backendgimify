@@ -18,4 +18,12 @@ class Schedule(
         constructor(dayOfWeek: DayOfWeek): this(-1, dayOfWeek, emptySet())
         constructor(dayOfWeek: DayOfWeek, intervals: Set<Interval>): this(-1, dayOfWeek, intervals)
         constructor(scheduleDTO: ScheduleDTO): this(-1, scheduleDTO.dayOfWeek, scheduleDTO.intervals)
+
+
+        fun toMap(): Map<String, Any> {
+                return mapOf(
+                        Pair("id", this.id.toString()),
+                        Pair("dayOfWeek", this.dayOfWeek.toString()),
+                        Pair("intervals", this.intervals.map { it.toMap() }))
+        }
 }

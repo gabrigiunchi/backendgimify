@@ -34,7 +34,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
 
     private val schedules = listOf(
             Schedule(DayOfWeek.MONDAY, this.intervals.take(2).toSet()),
-            Schedule(DayOfWeek.TUESDAY, setOf(this.intervals[0], this.intervals[2])),
+            Schedule(DayOfWeek.TUESDAY, setOf(this.intervals[2], this.intervals[3])),
             Schedule(DayOfWeek.FRIDAY),
             Schedule(DayOfWeek.WEDNESDAY))
 

@@ -4,7 +4,9 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.Interval
 import com.gabrigiunchi.backendtesi.model.Region
+import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.type.RegionEnum
 import com.gabrigiunchi.backendtesi.util.ApiUrls
 import org.hamcrest.Matchers
@@ -15,6 +17,8 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.DayOfWeek
+import java.time.OffsetTime
 
 class GymControllerTest : AbstractControllerTest() {
 
@@ -31,6 +35,18 @@ class GymControllerTest : AbstractControllerTest() {
         this.regionDAO.deleteAll()
         this.region = this.regionDAO.save(this.region)
     }
+
+    private val intervals = listOf(
+            Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
+            Interval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
+            Interval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
+            Interval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
+
+    private val schedules = listOf(
+            Schedule(DayOfWeek.MONDAY, this.intervals.take(2).toSet()),
+            Schedule(DayOfWeek.TUESDAY, setOf(this.intervals[2], this.intervals[3])),
+            Schedule(DayOfWeek.FRIDAY),
+            Schedule(DayOfWeek.WEDNESDAY))
 
     @Test
     fun `Should get all gyms`() {
@@ -99,24 +115,25 @@ class GymControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a gym`() {
-        val gym = Gym("gym dnjsnjdaj", "address", region)
+        val gym = Gym("gym dnjsnjdaj", "Via Pacchioni 43", region, this.schedules.take(2))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(gym.name)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.region.name", Matchers.`is`(gym.region.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(2)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should update a gym`() {
-        val gym = this.gymDAO.save(Gym("gymaaa1", "address", this.region))
+        val gym = this.gymDAO.save(Gym("gymaaa1", "Via Pacchioni 43", this.region, this.schedules.take(1)))
         val savedGym = this.gymDAO.save(gym)
         gym.name = "newName"
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/${savedGym.id}")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(gym.name)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.region.name", Matchers.`is`(gym.region.name)))
