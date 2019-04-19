@@ -1,10 +1,10 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
-import com.gabrigiunchi.backendtesi.dao.IntervalDAO
+import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import com.gabrigiunchi.backendtesi.model.DateInterval
-import com.gabrigiunchi.backendtesi.model.Interval
+import com.gabrigiunchi.backendtesi.model.TimeInterval
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
@@ -26,13 +26,13 @@ class ScheduleControllerTest : AbstractControllerTest() {
     private lateinit var scheduleDAO: ScheduleDAO
 
     @Autowired
-    private lateinit var intervalDAO: IntervalDAO
+    private lateinit var timeIntervalDAO: TimeIntervalDAO
 
     private val intervals = listOf(
-            Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
-            Interval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
-            Interval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
-            Interval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
+            TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
 
     private val schedules = listOf(
             Schedule(DayOfWeek.MONDAY, this.intervals.take(2).toSet()),
@@ -72,7 +72,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
     fun `Should create a schedule`() {
         this.scheduleDAO.deleteAll()
         val intervals = setOf(
-                Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")))
+                TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")))
 
         val exceptions = setOf(
             DateInterval(DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date))
@@ -83,19 +83,19 @@ class ScheduleControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.dayOfWeek", Matchers.`is`(scheduleDTO.dayOfWeek.toString())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.exceptions.length()", Matchers.`is`(scheduleDTO.exceptions.size)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.intervals.length()", Matchers.`is`(scheduleDTO.intervals.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals.length()", Matchers.`is`(scheduleDTO.timeIntervals.size)))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(1)
         val savedSchedule = this.scheduleDAO.findAll().first()
 
 
-        Assertions.assertThat(savedSchedule.intervals.size).isEqualTo(scheduleDTO.intervals.size)
-        Assertions.assertThat(savedSchedule.intervals.toList()[0].start)
-                .isEqualTo(scheduleDTO.intervals.toList()[0].start)
+        Assertions.assertThat(savedSchedule.timeIntervals.size).isEqualTo(scheduleDTO.timeIntervals.size)
+        Assertions.assertThat(savedSchedule.timeIntervals.toList()[0].start)
+                .isEqualTo(scheduleDTO.timeIntervals.toList()[0].start)
 
-        Assertions.assertThat(savedSchedule.intervals.toList()[0].end)
-                .isEqualTo(scheduleDTO.intervals.toList()[0].end)
+        Assertions.assertThat(savedSchedule.timeIntervals.toList()[0].end)
+                .isEqualTo(scheduleDTO.timeIntervals.toList()[0].end)
         Assertions.assertThat(savedSchedule.dayOfWeek).isEqualTo(scheduleDTO.dayOfWeek)
     }
 
@@ -104,7 +104,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
         val savedSchedule = this.scheduleDAO.save(this.schedules[0])
 
         Assertions.assertThat(this.scheduleDAO.findById(savedSchedule.id).isPresent).isTrue()
-        savedSchedule.intervals.none { this.intervalDAO.findById(it.id).isEmpty }
+        savedSchedule.timeIntervals.none { this.timeIntervalDAO.findById(it.id).isEmpty }
 
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.SCHEDULES}/${savedSchedule.id}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -112,7 +112,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.scheduleDAO.findById(savedSchedule.id).isEmpty).isTrue()
-        savedSchedule.intervals.none { this.intervalDAO.findById(it.id).isPresent }
+        savedSchedule.timeIntervals.none { this.timeIntervalDAO.findById(it.id).isPresent }
     }
 
     @Test

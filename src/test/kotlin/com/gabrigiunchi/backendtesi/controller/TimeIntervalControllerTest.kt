@@ -1,9 +1,9 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
-import com.gabrigiunchi.backendtesi.dao.IntervalDAO
-import com.gabrigiunchi.backendtesi.model.Interval
-import com.gabrigiunchi.backendtesi.model.dto.IntervalDTO
+import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
+import com.gabrigiunchi.backendtesi.model.TimeInterval
+import com.gabrigiunchi.backendtesi.model.dto.TimeIntervalDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -15,20 +15,20 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.OffsetTime
 
-class IntervalControllerTest : AbstractControllerTest() {
+class TimeIntervalControllerTest : AbstractControllerTest() {
 
     @Autowired
-    private lateinit var intervalDAO: IntervalDAO
+    private lateinit var timeIntervalDAO: TimeIntervalDAO
 
     private val intervals = listOf(
-            Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
-            Interval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
-            Interval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
-            Interval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
+            TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
 
     @Test
     fun `Should get all intervals`() {
-        this.intervalDAO.saveAll(this.intervals)
+        this.timeIntervalDAO.saveAll(this.intervals)
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -38,7 +38,7 @@ class IntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get an interval by its id`() {
-        val interval = this.intervalDAO.save(this.intervals[0])
+        val interval = this.timeIntervalDAO.save(this.intervals[0])
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.INTERVALS}/${interval.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -55,7 +55,7 @@ class IntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create an interval`() {
-        val intervalDTO = IntervalDTO(OffsetTime.parse("10:00Z"), OffsetTime.parse("12:00Z"))
+        val intervalDTO = TimeIntervalDTO(OffsetTime.parse("10:00Z"), OffsetTime.parse("12:00Z"))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(intervalDTO.toJson()))
@@ -67,7 +67,7 @@ class IntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should NOT create an interval if the start is after the end`() {
-        val intervalDTO = IntervalDTO(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00"))
+        val intervalDTO = TimeIntervalDTO(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00"))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(intervalDTO)))
@@ -77,13 +77,13 @@ class IntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete an interval`() {
-        val savedId = this.intervalDAO.save(this.intervals[0]).id
+        val savedId = this.timeIntervalDAO.save(this.intervals[0]).id
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.INTERVALS}/$savedId")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
                 .andDo(MockMvcResultHandlers.print())
 
-        Assertions.assertThat(this.intervalDAO.findById(savedId).isEmpty).isTrue()
+        Assertions.assertThat(this.timeIntervalDAO.findById(savedId).isEmpty).isTrue()
     }
 
     @Test

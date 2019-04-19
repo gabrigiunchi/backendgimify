@@ -18,7 +18,7 @@ class DateIntervalController(private val dateIntervalDAO: DateIntervalDAO) {
 
     @GetMapping
     fun getAllDateIntervals(): ResponseEntity<Iterable<DateInterval>> {
-        this.logger.info("GET all date intervals")
+        this.logger.info("GET all date timeIntervals")
         return ResponseEntity(this.dateIntervalDAO.findAll(), HttpStatus.OK)
     }
 

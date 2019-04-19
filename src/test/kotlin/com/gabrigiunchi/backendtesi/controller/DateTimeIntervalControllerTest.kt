@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class DateIntervalControllerTest : AbstractControllerTest() {
+class DateTimeIntervalControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var dateIntervalDAO: DateIntervalDAO

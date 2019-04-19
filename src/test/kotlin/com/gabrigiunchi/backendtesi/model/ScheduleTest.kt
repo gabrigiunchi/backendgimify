@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
-import com.gabrigiunchi.backendtesi.dao.IntervalDAO
+import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import org.assertj.core.api.Assertions
 import org.junit.Before
@@ -15,13 +15,13 @@ class ScheduleTest : AbstractControllerTest() {
     private lateinit var scheduleDAO: ScheduleDAO
 
     @Autowired
-    private lateinit var intervalDAO: IntervalDAO
+    private lateinit var timeIntervalDAO: TimeIntervalDAO
 
     private val intervals = listOf(
-            Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
-            Interval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
-            Interval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
-            Interval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
+            TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
+            TimeInterval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
 
     private val schedules = listOf(
             Schedule(DayOfWeek.MONDAY, this.intervals.take(2).toSet()),
@@ -31,24 +31,24 @@ class ScheduleTest : AbstractControllerTest() {
 
     @Before
     fun clearDB() {
-        this.intervalDAO.deleteAll()
+        this.timeIntervalDAO.deleteAll()
         this.scheduleDAO.deleteAll()
     }
 
     fun `Should create a schedule and save in cascade also the intervals`() {
         this.scheduleDAO.save(schedules[0])
         Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(1)
-        Assertions.assertThat(this.intervalDAO.count()).isEqualTo(2)
+        Assertions.assertThat(this.timeIntervalDAO.count()).isEqualTo(2)
     }
 
     @Test
     fun `Should delete also the intervals when deleting a schedule`() {
         val saved = this.scheduleDAO.save(schedules[0])
         Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(1)
-        Assertions.assertThat(this.intervalDAO.count()).isEqualTo(2)
+        Assertions.assertThat(this.timeIntervalDAO.count()).isEqualTo(2)
 
         this.scheduleDAO.delete(saved)
-        Assertions.assertThat(this.intervalDAO.count()).isEqualTo(0)
+        Assertions.assertThat(this.timeIntervalDAO.count()).isEqualTo(0)
         Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(0)
     }
 }

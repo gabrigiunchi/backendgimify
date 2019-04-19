@@ -13,21 +13,21 @@ class Schedule(
         val dayOfWeek: DayOfWeek,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
-        val intervals: Set<Interval>,
+        val timeIntervals: Set<TimeInterval>,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
         val exceptions: Set<DateInterval>
 ) {
-        constructor(scheduleDTO: ScheduleDTO): this(-1, scheduleDTO.dayOfWeek, scheduleDTO.intervals, scheduleDTO.exceptions)
+        constructor(scheduleDTO: ScheduleDTO): this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals, scheduleDTO.exceptions)
         constructor(dayOfWeek: DayOfWeek): this(-1, dayOfWeek, emptySet(), emptySet())
-        constructor(dayOfWeek: DayOfWeek, intervals: Set<Interval>): this(-1, dayOfWeek, intervals, emptySet())
-        constructor(dayOfWeek: DayOfWeek, intervals: Set<Interval>, exceptions: Set<DateInterval>): this(-1, dayOfWeek, intervals, exceptions)
+        constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>): this(-1, dayOfWeek, timeIntervals, emptySet())
+        constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>, exceptions: Set<DateInterval>): this(-1, dayOfWeek, timeIntervals, exceptions)
 
         fun toMap(): Map<String, Any> {
                 return mapOf(
                         Pair("id", this.id.toString()),
                         Pair("dayOfWeek", this.dayOfWeek.toString()),
-                        Pair("intervals", this.intervals.map { it.toMap() }),
+                        Pair("timeIntervals", this.timeIntervals.map { it.toMap() }),
                         Pair("exceptions", this.exceptions))
         }
 }

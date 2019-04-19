@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.dao.IntervalDAO
+import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
@@ -14,7 +14,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/schedules")
 class ScheduleController(
-        private val intervalDAO: IntervalDAO,
+        private val timeIntervalDAO: TimeIntervalDAO,
         private val scheduleDAO: ScheduleDAO) {
 
     private val logger = LoggerFactory.getLogger(ScheduleController::class.java)
@@ -36,7 +36,7 @@ class ScheduleController(
     @PostMapping
     fun createSchedule(@Valid @RequestBody scheduleDTO: ScheduleDTO): ResponseEntity<Schedule> {
         this.logger.info("POST schedule")
-        this.intervalDAO.saveAll(scheduleDTO.intervals)
+        this.timeIntervalDAO.saveAll(scheduleDTO.timeIntervals)
         return ResponseEntity(this.scheduleDAO.save(Schedule(scheduleDTO)), HttpStatus.CREATED)
     }
 
