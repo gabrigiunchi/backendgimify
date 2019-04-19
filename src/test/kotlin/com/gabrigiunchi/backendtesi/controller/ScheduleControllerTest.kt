@@ -68,6 +68,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a schedule`() {
+        this.scheduleDAO.deleteAll()
         val interval = Interval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00"))
         val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, setOf(interval))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.SCHEDULES)
@@ -75,6 +76,18 @@ class ScheduleControllerTest : AbstractControllerTest() {
                 .content(scheduleDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(1)
+        val savedSchedule = this.scheduleDAO.findAll().first()
+
+
+        Assertions.assertThat(savedSchedule.intervals.size).isEqualTo(scheduleDTO.intervals.size)
+        Assertions.assertThat(savedSchedule.intervals.toList()[0].start)
+                .isEqualTo(scheduleDTO.intervals.toList()[0].start)
+
+        Assertions.assertThat(savedSchedule.intervals.toList()[0].end)
+                .isEqualTo(scheduleDTO.intervals.toList()[0].end)
+        Assertions.assertThat(savedSchedule.dayOfWeek).isEqualTo(scheduleDTO.dayOfWeek)
     }
 
     @Test
