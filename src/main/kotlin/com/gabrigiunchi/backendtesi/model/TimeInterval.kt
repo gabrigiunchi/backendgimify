@@ -1,7 +1,9 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.dto.TimeIntervalDTO
+import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.OffsetTime
+import java.util.*
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -23,6 +25,8 @@ class TimeInterval(
             throw IllegalArgumentException("start is after the end")
         }
     }
+
+    fun contains(date: Date): Boolean = OffsetTime.parse(DateDecorator.of(date).format("HH:mm+00:00")) in this.start..this.end
 
     fun toMap(): Map<String, String> {
         return mapOf(

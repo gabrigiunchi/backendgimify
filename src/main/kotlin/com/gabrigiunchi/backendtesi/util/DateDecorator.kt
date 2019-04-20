@@ -135,5 +135,10 @@ class DateDecorator(val date: Date) {
             calendar.time = Date(Long.MAX_VALUE)
             return DateDecorator(calendar.time)
         }
+
+        @JvmStatic
+        fun createDate(date: String): DateDecorator {
+            return Companion.of(date, "yyyy-MM-dd")
+        }
     }
 }

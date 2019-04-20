@@ -1,7 +1,9 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
+import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -15,14 +17,21 @@ class Schedule(
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
         val timeIntervals: Set<TimeInterval>
 ) {
-        constructor(scheduleDTO: ScheduleDTO): this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals)
-        constructor(dayOfWeek: DayOfWeek): this(-1, dayOfWeek, emptySet())
-        constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>): this(-1, dayOfWeek, timeIntervals)
+    constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals)
+    constructor(dayOfWeek: DayOfWeek) : this(-1, dayOfWeek, emptySet())
+    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals)
 
-        fun toMap(): Map<String, Any> {
-                return mapOf(
-                        Pair("id", this.id.toString()),
-                        Pair("dayOfWeek", this.dayOfWeek.toString()),
-                        Pair("timeIntervals", this.timeIntervals.map { it.toMap() }))
-        }
+    fun contains(date: Date): Boolean {
+        return if (DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value)
+        {
+            this.timeIntervals.any { it.contains(date) }
+        } else false
+    }
+
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+                Pair("id", this.id.toString()),
+                Pair("dayOfWeek", this.dayOfWeek.toString()),
+                Pair("timeIntervals", this.timeIntervals.map { it.toMap() }))
+    }
 }

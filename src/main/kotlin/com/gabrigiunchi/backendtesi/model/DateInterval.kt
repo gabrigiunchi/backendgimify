@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.dto.DateIntervalDTO
+import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -17,6 +18,8 @@ class DateInterval(
 ) {
     constructor(start: Date, end: Date) : this(-1, start, end)
     constructor(dateIntervalDTO: DateIntervalDTO): this(-1, dateIntervalDTO.start, dateIntervalDTO.end)
+
+    fun contains(date: Date): Boolean = date in this.start..this.end
 
     init {
         if (this.start.after(this.end)) {
