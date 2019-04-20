@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.RegionDAO
-import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.type.RegionEnum
 import org.assertj.core.api.Assertions
 import org.junit.Before

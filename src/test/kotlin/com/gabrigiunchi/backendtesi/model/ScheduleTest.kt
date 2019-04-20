@@ -1,14 +1,13 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.DayOfWeek
-import java.time.OffsetTime
 
 class ScheduleTest : AbstractControllerTest() {
     @Autowired
@@ -17,17 +16,7 @@ class ScheduleTest : AbstractControllerTest() {
     @Autowired
     private lateinit var timeIntervalDAO: TimeIntervalDAO
 
-    private val intervals = listOf(
-            TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
-            TimeInterval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
-            TimeInterval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
-            TimeInterval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
-
-    private val schedules = listOf(
-            Schedule(DayOfWeek.MONDAY, this.intervals.take(2).toSet()),
-            Schedule(DayOfWeek.TUESDAY, setOf(this.intervals[2], this.intervals[3])),
-            Schedule(DayOfWeek.FRIDAY),
-            Schedule(DayOfWeek.WEDNESDAY))
+    private val schedules = MockEntities.mockSchedules.toList()
 
     @Before
     fun clearDB() {

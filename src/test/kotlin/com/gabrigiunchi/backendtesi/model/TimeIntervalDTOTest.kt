@@ -5,7 +5,7 @@ import org.assertj.core.api.Assertions
 import org.junit.Test
 import java.time.OffsetTime
 
-class TimeTimeIntervalDTOTest {
+class TimeIntervalDTOTest {
 
     @Test
     fun `Should serialize into a json` () {

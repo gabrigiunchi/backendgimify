@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.dto.TimetableDTO
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
