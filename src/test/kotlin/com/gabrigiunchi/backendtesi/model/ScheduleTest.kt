@@ -1,8 +1,8 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
-import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
+import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test

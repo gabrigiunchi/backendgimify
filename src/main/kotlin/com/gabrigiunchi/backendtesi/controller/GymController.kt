@@ -43,8 +43,13 @@ class GymController(private val gymDAO: GymDAO,
     @PostMapping
     fun createGym(@Valid @RequestBody gym: Gym): ResponseEntity<Gym> {
         this.logger.info("CREATE gym")
-        if (this.gymDAO.findById(gym.id).isPresent) {
+
+        if (this.gymDAO.findById(gym.id).isPresent || this.gymDAO.findByName(gym.name).isPresent) {
             throw ResourceAlreadyExistsException(gym.id)
+        }
+
+        if (this.regionDAO.findById(gym.region.id).isEmpty) {
+            throw ResourceNotFoundException("region #${gym.region.id} does not exists")
         }
 
         return ResponseEntity(this.gymDAO.save(gym), HttpStatus.CREATED)

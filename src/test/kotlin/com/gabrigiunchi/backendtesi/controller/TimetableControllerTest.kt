@@ -1,0 +1,252 @@
+package com.gabrigiunchi.backendtesi.controller
+
+import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.MockEntities
+import com.gabrigiunchi.backendtesi.dao.GymDAO
+import com.gabrigiunchi.backendtesi.dao.RegionDAO
+import com.gabrigiunchi.backendtesi.dao.TimetableDAO
+import com.gabrigiunchi.backendtesi.model.*
+import com.gabrigiunchi.backendtesi.model.dto.TimeIntervalDTO
+import com.gabrigiunchi.backendtesi.model.dto.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.util.ApiUrls
+import com.gabrigiunchi.backendtesi.util.DateDecorator
+import org.assertj.core.api.Assertions
+import org.hamcrest.Matchers
+import org.junit.Before
+import org.junit.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.DayOfWeek
+import java.time.OffsetTime
+
+class TimetableControllerTest : AbstractControllerTest() {
+
+    @Autowired
+    private lateinit var gymDAO: GymDAO
+
+    @Autowired
+    private lateinit var timetableDAO: TimetableDAO
+
+    @Autowired
+    private lateinit var regionDAO: RegionDAO
+
+    private var gyms = emptyList<Gym>()
+
+    private val dateIntervals = MockEntities.mockDateIntervals
+    private val schedules = MockEntities.mockSchedules
+    private var timetables = listOf<Timetable>()
+
+    @Before
+    fun clearDB() {
+        this.regionDAO.deleteAll()
+        this.timetableDAO.deleteAll()
+        this.gymDAO.deleteAll()
+
+        val region = this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))
+        this.gyms = this.gymDAO.saveAll(listOf(
+                Gym("gym1", "via1", region),
+                Gym("gym2", "via2", region),
+                Gym("gym3", "via3", region),
+                Gym("gym4", "via4", region)
+        )).toList()
+
+        this.timetables = listOf(
+                Timetable(gym = gyms[0], closingDays = this.dateIntervals.take(1).toSet(), openings = this.schedules.take(2).toSet()),
+                Timetable(gym = gyms[1]),
+                Timetable(gym = gyms[2]),
+                Timetable(gym = gyms[3])
+        )
+    }
+
+    @Test
+    fun `Should get all timetables`() {
+        this.timetableDAO.saveAll(this.timetables)
+        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.TIMETABLES)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get a timetable by its id`() {
+        val timetable = this.timetableDAO.save(this.timetables[0])
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/${timetable.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get a timetable by its gym id`() {
+        val timetable = this.timetableDAO.save(this.timetables[0])
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/${timetable.gym.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetable.openings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get a timetable if it does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+
+    @Test
+    fun `Should not get a timetable by gym if the gym does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get a timetable by gym if the gym exists but the timetable does not`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/${this.gyms[0].id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should create a timetable`() {
+        val timetableDTO = TimetableDTO(this.gyms[0].id, emptySet(), emptySet(), emptySet())
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(timetableDTO.toJson()))
+                .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Should NOT create a timetable if the gym does not exist`() {
+        this.gymDAO.deleteAll()
+        val timetableDTO = TimetableDTO(this.gyms[0].id, emptySet(), emptySet(), emptySet())
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(timetableDTO.toJson()))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.timetableDAO.count()).isEqualTo(0)
+    }
+
+    @Test
+    fun `Should update a timetable`() {
+        val timetable = this.timetableDAO.save(this.timetables[0])
+        val openings = this.schedules.toList().takeLast(2)
+        val timetableDTO = TimetableDTO(
+                gymId = timetable.gym.id,
+                openings = openings.toSet(),
+                openingExceptions = emptySet(),
+                closingDays = emptySet()
+        )
+
+        Assertions.assertThat(timetable.id).isNotEqualTo(-1)
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.TIMETABLES}/${timetable.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(timetableDTO.toJson()))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Should NOT update a timetable if it does not exist`() {
+        val timetable = this.timetableDAO.save(this.timetables[0])
+        val openings = this.schedules.toList().takeLast(2)
+        val timetableDTO = TimetableDTO(
+                gymId = timetable.gym.id,
+                openings = openings.toSet(),
+                openingExceptions = emptySet(),
+                closingDays = emptySet()
+        )
+
+        Assertions.assertThat(timetable.id).isNotEqualTo(-1)
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.TIMETABLES}/-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(timetableDTO.toJson()))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should NOT update a timetable if the gym does not exist`() {
+        val timetable = this.timetableDAO.save(this.timetables[0])
+        val openings = this.schedules.toList().takeLast(2)
+        val timetableDTO = TimetableDTO(
+                gymId = -1,
+                openings = openings.toSet(),
+                openingExceptions = emptySet(),
+                closingDays = emptySet()
+        )
+
+        Assertions.assertThat(timetable.id).isNotEqualTo(-1)
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.TIMETABLES}/${timetable.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(timetableDTO.toJson()))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should delete a timetable by its id`() {
+        val savedId = this.timetableDAO.save(this.timetables[0]).id
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/$savedId")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent)
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.timetableDAO.findById(savedId).isEmpty).isTrue()
+    }
+
+    @Test
+    fun `Should delete a timetable by its gym id`() {
+        val saved = this.timetableDAO.save(this.timetables[0])
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/${saved.gym.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent)
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.timetableDAO.findById(saved.id).isEmpty).isTrue()
+    }
+
+    @Test
+    fun `Should NOT delete a timetable by its gym id if the gym does not exist`() {
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should NOT delete a timetable by its gym id if the timetable does not exist`() {
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/${this.gyms[0].id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not delete a timetable if its id does not exist`() {
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+}

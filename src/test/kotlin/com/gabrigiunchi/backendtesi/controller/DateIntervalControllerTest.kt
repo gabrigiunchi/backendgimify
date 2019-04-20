@@ -1,8 +1,8 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.DateIntervalDAO
-import com.gabrigiunchi.backendtesi.model.DateInterval
 import com.gabrigiunchi.backendtesi.model.dto.DateIntervalDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
 import com.gabrigiunchi.backendtesi.util.DateDecorator
@@ -16,13 +16,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class DateTimeIntervalControllerTest : AbstractControllerTest() {
+class DateIntervalControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var dateIntervalDAO: DateIntervalDAO
 
-    private val intervals = listOf(
-            DateInterval(DateDecorator.of("2018-10-10T10:00:00+0000").date, DateDecorator.of("2018-10-10T12:00:00+0000").date))
+    private val dateIntervals = MockEntities.mockDateIntervals.toList()
 
     @Before
     fun clearDB() {
@@ -31,17 +30,17 @@ class DateTimeIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all date intervals`() {
-        this.dateIntervalDAO.saveAll(this.intervals)
+        this.dateIntervalDAO.saveAll(this.dateIntervals)
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.DATE_INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(this.intervals.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(this.dateIntervals.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should get a date interval by its id`() {
-        val interval = this.dateIntervalDAO.save(this.intervals[0])
+        val interval = this.dateIntervalDAO.save(this.dateIntervals[0])
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.DATE_INTERVALS}/${interval.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -85,7 +84,7 @@ class DateTimeIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete a date interval`() {
-        val savedId = this.dateIntervalDAO.save(this.intervals[0]).id
+        val savedId = this.dateIntervalDAO.save(this.dateIntervals[0]).id
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.DATE_INTERVALS}/$savedId")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)

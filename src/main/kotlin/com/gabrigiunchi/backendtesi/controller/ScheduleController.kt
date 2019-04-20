@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
+import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
 import org.slf4j.LoggerFactory

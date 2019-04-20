@@ -1,14 +1,12 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
-import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
-import com.gabrigiunchi.backendtesi.model.DateInterval
+import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.model.TimeInterval
-import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
-import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Test
@@ -28,17 +26,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var timeIntervalDAO: TimeIntervalDAO
 
-    private val intervals = listOf(
-            TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")),
-            TimeInterval(OffsetTime.parse("12:00:00+00:00"), OffsetTime.parse("14:00:00+00:00")),
-            TimeInterval(OffsetTime.parse("14:00:00+00:00"), OffsetTime.parse("16:00:00+00:00")),
-            TimeInterval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00")))
-
-    private val schedules = listOf(
-            Schedule(DayOfWeek.MONDAY, this.intervals.take(2).toSet()),
-            Schedule(DayOfWeek.TUESDAY, setOf(this.intervals[2], this.intervals[3])),
-            Schedule(DayOfWeek.FRIDAY),
-            Schedule(DayOfWeek.WEDNESDAY))
+    private val schedules = MockEntities.mockSchedules.toList()
 
     @Test
     fun `Should get all schedules`() {
@@ -74,15 +62,12 @@ class ScheduleControllerTest : AbstractControllerTest() {
         val intervals = setOf(
                 TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")))
 
-        val exceptions = setOf(
-            DateInterval(DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date))
-        val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, intervals, exceptions)
+        val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, intervals)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.SCHEDULES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(scheduleDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.dayOfWeek", Matchers.`is`(scheduleDTO.dayOfWeek.toString())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptions.length()", Matchers.`is`(scheduleDTO.exceptions.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals.length()", Matchers.`is`(scheduleDTO.timeIntervals.size)))
                 .andDo(MockMvcResultHandlers.print())
 
