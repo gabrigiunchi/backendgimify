@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.util
 
 import org.assertj.core.api.Assertions
 import org.junit.Test
+import java.time.DayOfWeek
 import java.util.*
 
 class DateDecoratorTest {
@@ -107,5 +108,36 @@ class DateDecoratorTest {
         Assertions.assertThat(d1.plusDays(20).format("yyyy-MM-dd")).isEqualTo("2018-03-30")
         Assertions.assertThat(d1.plusDays(30).format("yyyy-MM-dd")).isEqualTo("2018-04-09")
         Assertions.assertThat(d1.plusDays(365).format("yyyy-MM-dd")).isEqualTo("2019-03-10")
+    }
+
+    @Test
+    fun `Should return the day of the week`() {
+        // MONDAY
+        val monday = DateDecorator.of("2019-04-15", "yyyy-MM-dd")
+        Assertions.assertThat(monday.dayOfWeek).isEqualTo(DayOfWeek.MONDAY.value)
+
+        // TUESDAY
+        val tuesday = DateDecorator.of("2019-04-16", "yyyy-MM-dd")
+        Assertions.assertThat(tuesday.dayOfWeek).isEqualTo(DayOfWeek.TUESDAY.value)
+
+        // WEDNESDAY
+        val wednesday = DateDecorator.of("2019-04-17", "yyyy-MM-dd")
+        Assertions.assertThat(wednesday.dayOfWeek).isEqualTo(DayOfWeek.WEDNESDAY.value)
+
+        // THURSDAY
+        val thursday = DateDecorator.of("2019-04-18", "yyyy-MM-dd")
+        Assertions.assertThat(thursday.dayOfWeek).isEqualTo(DayOfWeek.THURSDAY.value)
+
+        // FRIDAY
+        val friday = DateDecorator.of("2019-04-19", "yyyy-MM-dd")
+        Assertions.assertThat(friday.dayOfWeek).isEqualTo(DayOfWeek.FRIDAY.value)
+
+        // SATURDAY
+        val saturday = DateDecorator.of("2019-04-20", "yyyy-MM-dd")
+        Assertions.assertThat(saturday.dayOfWeek).isEqualTo(DayOfWeek.SATURDAY.value)
+
+        // SUNDAY
+        val sunday = DateDecorator.of("2019-04-21", "yyyy-MM-dd")
+        Assertions.assertThat(sunday.dayOfWeek).isEqualTo(DayOfWeek.SUNDAY.value)
     }
 }

@@ -20,6 +20,12 @@ class DateDecorator(val date: Date) {
     val day: Int
         get() = this.calendar.get(Calendar.DAY_OF_MONTH)
 
+    val dayOfWeek: Int
+        get() {
+            val value = this.calendar.get(Calendar.DAY_OF_WEEK)
+            return if (value == 1) 7 else value -1
+        }
+
     val hour: Int
         get() = this.calendar.get(Calendar.HOUR_OF_DAY)
 
