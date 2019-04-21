@@ -141,4 +141,56 @@ class TimeIntervalTest {
                         DateDecorator.of("2019-04-22T14:00:00+0000").date))
         ).isFalse()
     }
+
+    /*************************************** OVERLAPS *************************************************************/
+    @Test
+    fun `Should say it overlaps a date interval if the date interval is not within the same day`() {
+        val timeInterval = TimeInterval(OffsetTime.parse("10:00+00:00"), OffsetTime.parse("16:00+00:00"))
+
+        Assertions.assertThat(timeInterval.overlaps(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T11:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T14:00:00+0000").date))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if it overlaps a date interval`() {
+        val timeInterval = TimeInterval(OffsetTime.parse("10:00+00:00"), OffsetTime.parse("16:00+00:00"))
+
+        Assertions.assertThat(timeInterval.overlaps(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T08:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+        ).isTrue()
+
+        Assertions.assertThat(timeInterval.overlaps(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T11:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T19:00:00+0000").date))
+        ).isTrue()
+
+        Assertions.assertThat(timeInterval.overlaps(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T11:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if it does not overlap a date interval`() {
+        val timeInterval = TimeInterval(OffsetTime.parse("10:00+00:00"), OffsetTime.parse("16:00+00:00"))
+
+        Assertions.assertThat(timeInterval.overlaps(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T19:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T22:00:00+0000").date))
+        ).isFalse()
+
+        Assertions.assertThat(timeInterval.overlaps(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T05:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T06:00:00+0000").date))
+        ).isFalse()
+    }
 }

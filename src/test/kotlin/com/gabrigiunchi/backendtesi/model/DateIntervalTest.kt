@@ -171,7 +171,7 @@ class DateIntervalTest {
         Assertions.assertThat(
                 DateInterval(
                         DateDecorator.of("2019-01-01T08:00:00+0000").date,
-                        DateDecorator.of("2019-01-01T16:00:00+0000").date
+                        DateDecorator.of("2019-01-01T23:59:59+0000").date
                 ).isWithinSameDay()
         ).isTrue()
     }
