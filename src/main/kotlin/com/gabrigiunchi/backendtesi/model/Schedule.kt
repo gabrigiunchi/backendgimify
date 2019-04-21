@@ -31,7 +31,7 @@ class Schedule(
 
 
     fun contains(dateInterval: DateInterval): Boolean {
-        return if (dateInterval.isWithinSameDay()) {
+        return if (dateInterval.isWithinSameDay() && this.isSameDay(dateInterval.start)) {
             this.timeIntervals.any { it.contains(dateInterval.start) && it.contains(dateInterval.end) }
         } else false
     }

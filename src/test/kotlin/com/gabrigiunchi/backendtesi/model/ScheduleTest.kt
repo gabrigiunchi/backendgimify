@@ -264,6 +264,19 @@ class ScheduleTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should say if does not contain a date interval if the interval is not the same weekday`() {
+        val schedule = Schedule(DayOfWeek.MONDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("20:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T10:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T12:00:00+0000").date))
+        ).isFalse()
+    }
+
+    @Test
     fun `Should say if does not contain a date interval (edge case with overlapping interval)`() {
         val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
                 TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("10:00+00:00")),
