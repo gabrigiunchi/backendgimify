@@ -13,12 +13,13 @@ class DateIntervalTest {
                 DateDecorator.createDate("2019-01-30").date
         )
 
+        Assertions.assertThat(dateInterval.contains(DateDecorator.of("2019-01-01T01:00:00+0000").date)).isTrue()
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-01-01").date)).isTrue()
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-01-02").date)).isTrue()
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-01-03").date)).isTrue()
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-01-04").date)).isTrue()
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-01-20").date)).isTrue()
-        Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-01-30").date)).isTrue()
+
     }
 
     @Test
@@ -34,5 +35,6 @@ class DateIntervalTest {
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-03-04").date)).isFalse()
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2019-04-20").date)).isFalse()
         Assertions.assertThat(dateInterval.contains(DateDecorator.createDate("2020-01-30").date)).isFalse()
+        Assertions.assertThat(dateInterval.contains(DateDecorator.of("2019-01-30T01:00:00+0000").date)).isFalse()
     }
 }

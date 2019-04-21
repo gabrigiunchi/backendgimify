@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.model.dto.TimetableDTO
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -25,7 +26,24 @@ class Timetable(
         val openingExceptions: Set<DateInterval>
 ) {
     constructor(gym: Gym) : this(-1, gym, emptySet(), emptySet(), emptySet())
-    constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>) : this(-1, gym, openings, closingDays, emptySet())
+    constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>) :
+            this(-1, gym, openings, closingDays, emptySet())
+
+    constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>, openingExceptions: Set<DateInterval>) :
+            this(-1, gym, openings, closingDays, openingExceptions)
+
+
+    fun contains(date: Date): Boolean {
+        if (this.openingExceptions.any { it.contains(date) }) {
+            return true
+        }
+
+        if (this.closingDays.any { it.contains(date) }) {
+            return false
+        }
+
+        return this.openings.any { it.contains(date) }
+    }
 
     constructor(id: Int, timetableDTO: TimetableDTO, gym: Gym) :
             this(

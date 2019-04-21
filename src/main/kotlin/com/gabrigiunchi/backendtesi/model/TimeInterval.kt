@@ -17,6 +17,7 @@ class TimeInterval(
         val start: OffsetTime,
         val end: OffsetTime
 ) {
+    constructor(start: String, end: String): this(OffsetTime.parse(start), OffsetTime.parse(end))
     constructor(start: OffsetTime, end: OffsetTime) : this(-1, start, end)
     constructor(timeIntervalDTO: TimeIntervalDTO) : this(-1, timeIntervalDTO.start, timeIntervalDTO.end)
 
