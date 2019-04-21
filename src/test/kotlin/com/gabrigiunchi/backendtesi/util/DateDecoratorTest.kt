@@ -142,7 +142,7 @@ class DateDecoratorTest {
 
         Assertions.assertThat(
                 DateDecorator.of("2019-01-01T10:00:00+0000")
-                        .isSameDay(DateDecorator.of("2019-01-01T16:00:00+0000"))
+                        .isSameDay(DateDecorator.of("2019-01-01T23:59:59+0000"))
         ).isTrue()
     }
 

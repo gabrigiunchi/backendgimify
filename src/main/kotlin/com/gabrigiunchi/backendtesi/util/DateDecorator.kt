@@ -5,7 +5,7 @@ import java.util.*
 
 class DateDecorator(val date: Date) {
 
-    private val calendar = Calendar.getInstance()
+    private val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
 
     init {
         calendar.time = this.date
