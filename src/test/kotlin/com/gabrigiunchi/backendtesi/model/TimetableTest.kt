@@ -88,6 +88,117 @@ class TimetableTest : AbstractControllerTest() {
         Assertions.assertThat(timetable.contains(DateDecorator.of("2019-04-30T10:00:00+0000").date)).isTrue()
     }
 
+    /******************************** DATE INTERVALS *************************************************************/
+
+    @Test
+    fun `Should say if it contains a date interval`() {
+        val timetable = this.createTimetable()
+
+        // Regular openings
+        Assertions.assertThat(timetable.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-22T10:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T11:00:00+0000").date
+                ))
+        ).isTrue()
+
+        Assertions.assertThat(timetable.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-22T08:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T12:00:00+0000").date
+                ))
+        ).isTrue()
+
+        // Exceptional opening
+        Assertions.assertThat(timetable.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-30T08:00:00+0000").date,
+                        DateDecorator.of("2019-04-30T12:00:00+0000").date
+                ))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if it does not contain a date interval (out of range, too early)`() {
+        Assertions.assertThat(this.createTimetable().contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-22T05:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T07:00:00+0000").date
+                ))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if it does not contain a date interval (out of range, too late)`() {
+        Assertions.assertThat(this.createTimetable().contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-22T19:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T20:00:00+0000").date
+                ))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if it does not contain a date interval (overlapping)`() {
+        Assertions.assertThat(this.createTimetable().contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-22T05:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T10:00:00+0000").date
+                ))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if it does not contain a date interval (closing day)`() {
+        Assertions.assertThat(this.createTimetable().contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-29T08:00:00+0000").date,
+                        DateDecorator.of("2019-04-29T12:00:00+0000").date
+                ))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if it does not contain a date interval (exceptional opening but wron time)`() {
+        Assertions.assertThat(this.createTimetable().contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-30T05:00:00+0000").date,
+                        DateDecorator.of("2019-04-30T07:00:00+0000").date
+                ))
+        ).isFalse()
+    }
+
+    private fun createTimetable(): Timetable {
+        val openings = setOf(
+                Schedule(DayOfWeek.MONDAY, setOf(
+                        TimeInterval("08:00+00:00", "12:00+00:00"),
+                        TimeInterval("13:00+00:00", "19:00+00:00")
+                )),
+
+                Schedule(DayOfWeek.WEDNESDAY, setOf(
+                        TimeInterval("08:00+00:00", "12:00+00:00"),
+                        TimeInterval("13:00+00:00", "19:00+00:00")
+                )),
+
+                Schedule(DayOfWeek.FRIDAY, setOf(
+                        TimeInterval("08:00+00:00", "12:00+00:00"),
+                        TimeInterval("13:00+00:00", "19:00+00:00")
+                ))
+        )
+        val closingDays = setOf(
+                // Monday 29 April 2019
+                DateInterval(DateDecorator.createDate("2019-04-29").date, DateDecorator.createDate("2019-04-30").date)
+        )
+        val exceptionalOpenings = setOf(
+                // Tuesday 30 April 2019
+                DateInterval(
+                        DateDecorator.of("2019-04-30T08:00:00+0000").date,
+                        DateDecorator.of("2019-04-30T12:00:00+0000").date
+                )
+        )
+        return Timetable(gym = this.createGym(), openings = openings, openingExceptions = exceptionalOpenings, closingDays = closingDays)
+    }
+
     private fun createGym(): Gym {
         return this.gymDAO.save(Gym("Gym1", "Via 2", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
     }

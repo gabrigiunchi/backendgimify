@@ -34,15 +34,13 @@ class Timetable(
 
 
     fun contains(date: Date): Boolean {
-        if (this.openingExceptions.any { it.contains(date) }) {
-            return true
-        }
+        return this.openingExceptions.any { it.contains(date) } ||
+                (this.closingDays.none { it.contains(date) } && this.openings.any { it.contains(date) })
+    }
 
-        if (this.closingDays.any { it.contains(date) }) {
-            return false
-        }
-
-        return this.openings.any { it.contains(date) }
+    fun contains(dateInterval: DateInterval): Boolean {
+        return this.openingExceptions.any { it.contains(dateInterval) } ||
+                (this.closingDays.none { it.overlaps(dateInterval) } && this.openings.any { it.contains(dateInterval) })
     }
 
     constructor(id: Int, timetableDTO: TimetableDTO, gym: Gym) :
