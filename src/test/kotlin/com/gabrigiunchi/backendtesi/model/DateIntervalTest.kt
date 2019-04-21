@@ -185,4 +185,48 @@ class DateIntervalTest {
                 ).isWithinSameDay()
         ).isFalse()
     }
+
+    /************************************ OVERLAPS ************************************************************/
+
+    @Test
+    fun `Should say if a date interval overlaps another one`() {
+        val i1 = DateInterval(
+                DateDecorator.of("2019-04-10T08:00:00+0000").date,
+                DateDecorator.of("2019-04-10T16:00:00+0000").date
+        )
+
+        val i2 = DateInterval(
+                DateDecorator.of("2019-04-10T05:00:00+0000").date,
+                DateDecorator.of("2019-04-10T10:00:00+0000").date
+        )
+
+        Assertions.assertThat(i1.overlaps(i2)).isTrue()
+        Assertions.assertThat(i2.overlaps(i1)).isTrue()
+        Assertions.assertThat(i1.overlaps(i1)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a date interval does not overlap another one`() {
+        val i1 = DateInterval(
+                DateDecorator.of("2019-04-10T08:00:00+0000").date,
+                DateDecorator.of("2019-04-10T16:00:00+0000").date
+        )
+
+        val i2 = DateInterval(
+                DateDecorator.of("2019-04-10T05:00:00+0000").date,
+                DateDecorator.of("2019-04-10T07:00:00+0000").date
+        )
+
+        val i3 = DateInterval(
+                DateDecorator.of("2019-04-10T18:00:00+0000").date,
+                DateDecorator.of("2019-04-10T20:00:00+0000").date
+        )
+
+        Assertions.assertThat(i1.overlaps(i2)).isFalse()
+        Assertions.assertThat(i1.overlaps(i3)).isFalse()
+
+        Assertions.assertThat(i2.overlaps(i1)).isFalse()
+        Assertions.assertThat(i2.overlaps(i3)).isFalse()
+    }
+
 }

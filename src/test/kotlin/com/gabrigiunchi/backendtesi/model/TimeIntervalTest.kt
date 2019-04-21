@@ -130,4 +130,15 @@ class TimeIntervalTest {
                         DateDecorator.of("2019-01-01T08:00:00+0000").date))
         ).isFalse()
     }
+
+    @Test
+    fun `Should say if does not contain a date interval if the date interval is not within the same day`() {
+        val timeInterval = TimeInterval(OffsetTime.parse("10:00+00:00"), OffsetTime.parse("16:00+00:00"))
+
+        Assertions.assertThat(timeInterval.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T11:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T14:00:00+0000").date))
+        ).isFalse()
+    }
 }
