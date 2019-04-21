@@ -21,10 +21,19 @@ class Schedule(
     constructor(dayOfWeek: DayOfWeek) : this(-1, dayOfWeek, emptySet())
     constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals)
 
+    private fun isSameDay(date: Date): Boolean = DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value
+
     fun contains(date: Date): Boolean {
-        return if (DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value)
+        return if (this.isSameDay(date))
         {
             this.timeIntervals.any { it.contains(date) }
+        } else false
+    }
+
+
+    fun contains(dateInterval: DateInterval): Boolean {
+        return if (dateInterval.isWithinSameDay()) {
+            this.timeIntervals.any { it.contains(dateInterval.start) && it.contains(dateInterval.end) }
         } else false
     }
 

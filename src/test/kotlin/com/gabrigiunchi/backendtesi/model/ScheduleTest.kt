@@ -77,7 +77,7 @@ class ScheduleTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if it contains a date (edge case with timezone)`() {
-        val date = DateDecorator.of("2019-04-20T10:00:00+0002").date
+        val date = DateDecorator.of("2019-04-20T10:00:00+0200").date
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(
                 TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
         ))
@@ -135,5 +135,151 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-18T01:00:00+0000").date)).isFalse()
         Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-19T01:00:00+0000").date)).isFalse()
         Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-21T01:00:00+0000").date)).isFalse()
+    }
+
+    /************************************ CONTAINS A DATE INTERVAL *********************************************************/
+
+    @Test
+    fun `Should say if contains a date interval`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T12:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if contains a date interval (edge case with start time)`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T08:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if contains a date interval (edge case with end time)`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T12:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T16:00:00+0000").date))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if contains a date interval (edge case with start time and end time)`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T08:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T16:00:00+0000").date))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if contains a date interval (edge case with timezone)`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T10:00:00+0200").date,
+                        DateDecorator.of("2019-04-21T18:00:00+0200").date))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if does not contain a date interval if the start is invalid`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T07:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if does not contain a date interval if the end is invalid`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T12:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T18:00:00+0000").date))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if does not contain a date interval if both the start and the end are invalid`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T05:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T07:00:00+0000").date))
+        ).isFalse()
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T18:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T19:00:00+0000").date))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if does not contain a date interval if the interval is not within the same day`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("10:00+00:00")),
+                TimeInterval(OffsetTime.parse("14:00+00:00"), OffsetTime.parse("18:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T09:00:00+0000").date,
+                        DateDecorator.of("2019-04-22T015:00:00+0000").date))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say if does not contain a date interval (edge case with overlapping interval)`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("10:00+00:00")),
+                TimeInterval(OffsetTime.parse("14:00+00:00"), OffsetTime.parse("18:00+00:00"))
+        ))
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T09:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T015:00:00+0000").date))
+        ).isFalse()
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2019-04-21T012:00:00+0000").date,
+                        DateDecorator.of("2019-04-21T015:00:00+0000").date))
+        ).isFalse()
     }
 }

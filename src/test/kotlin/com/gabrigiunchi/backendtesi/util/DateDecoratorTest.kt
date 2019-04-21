@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi.util
 
 import org.assertj.core.api.Assertions
+import org.junit.Assert
 import org.junit.Test
 import java.time.DayOfWeek
 import java.util.*
@@ -8,16 +9,14 @@ import java.util.*
 class DateDecoratorTest {
 
     @Test
-    fun `Should create from a date object`()
-    {
+    fun `Should create from a date object`() {
         val dateObject = Date()
         val decorator = DateDecorator.of(dateObject)
         Assertions.assertThat(decorator.date.time).isEqualTo(dateObject.time)
     }
 
     @Test
-    fun `Should create from a string`()
-    {
+    fun `Should create from a string`() {
         val d = "2018-01-10T10:03:08+0100"
         val date = DateDecorator.of(d)
 
@@ -32,8 +31,7 @@ class DateDecoratorTest {
     }
 
     @Test
-    fun `Should add minutes`()
-    {
+    fun `Should add minutes`() {
         val date = DateDecorator.of("2018-02-10T10:50:00+0100")
         val d2 = date.plusMinutes(15)
         Assertions.assertThat(d2.year).isEqualTo(2018)
@@ -45,8 +43,7 @@ class DateDecoratorTest {
     }
 
     @Test
-    fun `Should subtract minutes`()
-    {
+    fun `Should subtract minutes`() {
         val date = DateDecorator.of("2018-03-10 10:00:00", "yyyy-MM-dd HH:mm:ss")
         val d2 = date.minusMinutes(15)
         Assertions.assertThat(d2.year).isEqualTo(2018)
@@ -58,8 +55,7 @@ class DateDecoratorTest {
     }
 
     @Test
-    fun `Should say if two instances are equals`()
-    {
+    fun `Should say if two instances are equals`() {
         val d1 = DateDecorator.of("2018-03-10T10:00:00+0000")
         val d2 = DateDecorator.of("2018-03-10T10:00:00+0000")
 
@@ -67,8 +63,7 @@ class DateDecoratorTest {
     }
 
     @Test
-    fun `Should say if two instances are not equals`()
-    {
+    fun `Should say if two instances are not equals`() {
         val d1 = DateDecorator.of("2018-03-10T10:00:00+0000")
         val d2 = DateDecorator.of("2018-03-10T11:00:00+0000")
 
@@ -76,8 +71,7 @@ class DateDecoratorTest {
     }
 
     @Test
-    fun `Should handle different timezones`()
-    {
+    fun `Should handle different timezones`() {
         val d1 = DateDecorator.of("2018-03-10T10:00:00+0000")
         val d2 = DateDecorator.of("2018-03-10T11:00:00+0100")
 
@@ -90,8 +84,7 @@ class DateDecoratorTest {
     }
 
     @Test
-    fun `Should return the maximum date possible`()
-    {
+    fun `Should return the maximum date possible`() {
         val max = DateDecorator.max()
         Assertions.assertThat(max.date.time).isEqualTo(Long.MAX_VALUE)
         Assertions.assertThat(max.date.after(DateDecorator.now().date)).isTrue()
@@ -139,5 +132,29 @@ class DateDecoratorTest {
         // SUNDAY
         val sunday = DateDecorator.of("2019-04-21", "yyyy-MM-dd")
         Assertions.assertThat(sunday.dayOfWeek).isEqualTo(DayOfWeek.SUNDAY.value)
+    }
+
+    @Test
+    fun `Should say if two dates are the same day`() {
+        Assertions.assertThat(DateDecorator.createDate("2019-01-01")
+                .isSameDay(DateDecorator.createDate("2019-01-01"))
+        ).isTrue()
+
+        Assertions.assertThat(
+                DateDecorator.of("2019-01-01T10:00:00+0000")
+                        .isSameDay(DateDecorator.of("2019-01-01T16:00:00+0000"))
+        ).isTrue()
+    }
+
+    @Test
+    fun `Should say if two dates are NOT the same day`() {
+        Assertions.assertThat(DateDecorator.createDate("2019-01-01")
+                .isSameDay(DateDecorator.createDate("2019-01-02"))
+        ).isFalse()
+
+        Assertions.assertThat(
+                DateDecorator.of("2019-01-01T10:00:00+0000")
+                        .isSameDay(DateDecorator.of("2019-01-02T16:00:00+0000"))
+        ).isFalse()
     }
 }

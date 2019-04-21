@@ -58,6 +58,14 @@ class DateDecorator(val date: Date) {
         return DateDecorator(c.time)
     }
 
+    fun isSameDay(dateDecorator: DateDecorator): Boolean {
+        return dateDecorator.day == this.day && dateDecorator.month == this.month && dateDecorator.year == this.year
+    }
+
+    fun isSameDay(date: Date): Boolean {
+        return this.isSameDay(of(date))
+    }
+
     fun format(pattern: String, timeZone: TimeZone): String
     {
         val formatter = SimpleDateFormat(pattern)
