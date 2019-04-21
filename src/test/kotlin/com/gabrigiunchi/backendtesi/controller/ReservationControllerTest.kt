@@ -48,7 +48,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should get a reservation by its id`() {
         val reservation = this.reservationDAO.save(
                 Reservation(this.mockAsset(), this.mockUser(),
-                DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date))
+                        DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date))
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/${reservation.id}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -128,7 +128,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     private fun mockAsset(): Asset {
         System.out.println(this.assetDAO.findAll().toList().map { it.id })
-        val asset =  this.assetDAO.save(Asset("tr01", this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), this.gymDAO.findAll().first()))
+        val asset = this.assetDAO.save(Asset("tr01", this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), this.gymDAO.findAll().first()))
         System.out.println("asset id: ${asset.id}")
         return asset
     }

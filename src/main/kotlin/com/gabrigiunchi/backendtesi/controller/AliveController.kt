@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/alive")
-class AliveController(userDAO: UserDAO): BaseController(userDAO) {
+class AliveController(userDAO: UserDAO) : BaseController(userDAO) {
 
     @GetMapping
     fun alive(): ResponseEntity<Map<String, String>> {

@@ -5,7 +5,7 @@ import com.gabrigiunchi.backendtesi.model.Reservation
 import com.gabrigiunchi.backendtesi.model.User
 import org.springframework.data.repository.CrudRepository
 
-interface ReservationDAO: CrudRepository<Reservation, Int> {
+interface ReservationDAO : CrudRepository<Reservation, Int> {
 
     fun findByUser(user: User): Collection<Reservation>
     fun findByAsset(asset: Asset): Collection<Reservation>

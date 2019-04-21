@@ -1,7 +1,6 @@
 package com.gabrigiunchi.backendtesi.util
 
 import org.assertj.core.api.Assertions
-import org.junit.Assert
 import org.junit.Test
 import java.time.DayOfWeek
 import java.util.*

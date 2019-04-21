@@ -115,8 +115,6 @@ class AssetControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
-
-
     @Test
     fun `Should delete an asset`() {
         val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()

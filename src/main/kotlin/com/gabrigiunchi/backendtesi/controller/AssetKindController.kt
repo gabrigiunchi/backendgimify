@@ -31,7 +31,7 @@ class AssetKindController {
         this.logger.info("GET asset kind #$id")
         return this.assetKindDAO.findById(id)
                 .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
-                .orElseThrow{ ResourceNotFoundException(id) }
+                .orElseThrow { ResourceNotFoundException(id) }
     }
 
     @PostMapping

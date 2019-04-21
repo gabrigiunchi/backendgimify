@@ -9,17 +9,17 @@ import org.springframework.boot.runApplication
 @SpringBootApplication
 class BackendtesiApplication : CommandLineRunner {
 
-	@Autowired
-	lateinit var dbInitializer: DBInitializer
+    @Autowired
+    lateinit var dbInitializer: DBInitializer
 
 
-	override fun run(vararg args: String?) {
-		this.dbInitializer.initDB()
-	}
+    override fun run(vararg args: String?) {
+        this.dbInitializer.initDB()
+    }
 }
 
 
 fun main(args: Array<String>) {
-	runApplication<BackendtesiApplication>(*args)
+    runApplication<BackendtesiApplication>(*args)
 }
 

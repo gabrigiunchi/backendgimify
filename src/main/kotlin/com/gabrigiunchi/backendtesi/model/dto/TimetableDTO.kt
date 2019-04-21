@@ -8,8 +8,7 @@ class TimetableDTO(
         val gymId: Int,
         val openings: Set<Schedule>,
         val closingDays: Set<DateInterval>,
-        val openingExceptions: Set<DateInterval>)
-{
+        val openingExceptions: Set<DateInterval>) {
     fun toJson(): String {
         return ObjectMapper().writeValueAsString(mapOf(
                 Pair("gymId", this.gymId.toString()),

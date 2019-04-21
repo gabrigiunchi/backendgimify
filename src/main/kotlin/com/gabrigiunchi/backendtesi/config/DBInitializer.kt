@@ -73,7 +73,7 @@ class DBInitializer {
     }
 
     fun initAssetKinds() {
-        this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it]?:20) })
+        this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it] ?: 20) })
     }
 
     fun initAssets() {

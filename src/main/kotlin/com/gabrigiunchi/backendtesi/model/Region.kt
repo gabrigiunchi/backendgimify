@@ -13,5 +13,5 @@ class Region(
         val id: Int,
         val name: String
 ) {
-        constructor(region: RegionEnum): this(-1, region.name)
+    constructor(region: RegionEnum) : this(-1, region.name)
 }

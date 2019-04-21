@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class AssetKindControllerTest: AbstractControllerTest() {
+class AssetKindControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var assetKindDAO: AssetKindDAO
@@ -28,7 +28,7 @@ class AssetKindControllerTest: AbstractControllerTest() {
     @Test
     fun `Should get all asset kinds`() {
         val enums = AssetKindEnum.values()
-        this.assetKindDAO.saveAll(enums.map { AssetKind(it, 20)})
+        this.assetKindDAO.saveAll(enums.map { AssetKind(it, 20) })
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.ASSET_KIND)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)

@@ -2,9 +2,7 @@ package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
-import org.junit.Assert
 import org.junit.Test
-import java.time.OffsetTime
 
 class DateIntervalTest {
 

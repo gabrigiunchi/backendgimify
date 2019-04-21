@@ -28,14 +28,12 @@ abstract class AbstractControllerTest {
     protected lateinit var mappingJackson2HttpMessageConverter: HttpMessageConverter<Any>
 
     @Throws(IOException::class)
-    protected fun json(o: Any): String
-    {
+    protected fun json(o: Any): String {
         return ObjectMapper().writeValueAsString(o)
     }
 
     @Autowired
-    internal fun setConverters(converters: Array<HttpMessageConverter<Any>>)
-    {
+    internal fun setConverters(converters: Array<HttpMessageConverter<Any>>) {
         this.mappingJackson2HttpMessageConverter = Arrays.asList(*converters).stream()
                 .filter { hmc -> hmc is MappingJackson2HttpMessageConverter }.findAny().get()
         Assert.assertNotNull("the JSON message converter must not be null", this.mappingJackson2HttpMessageConverter)

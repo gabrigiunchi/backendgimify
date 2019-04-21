@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class RegionControllerTest: AbstractControllerTest() {
+class RegionControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var regionDAO: RegionDAO

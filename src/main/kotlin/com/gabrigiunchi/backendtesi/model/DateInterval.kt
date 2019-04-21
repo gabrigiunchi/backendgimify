@@ -17,7 +17,7 @@ class DateInterval(
         val end: Date
 ) {
     constructor(start: Date, end: Date) : this(-1, start, end)
-    constructor(dateIntervalDTO: DateIntervalDTO): this(-1, dateIntervalDTO.start, dateIntervalDTO.end)
+    constructor(dateIntervalDTO: DateIntervalDTO) : this(-1, dateIntervalDTO.start, dateIntervalDTO.end)
 
     fun contains(date: Date): Boolean = date in this.start..this.end
     fun contains(dateInterval: DateInterval): Boolean = this.contains(dateInterval.start) && this.contains(dateInterval.end)

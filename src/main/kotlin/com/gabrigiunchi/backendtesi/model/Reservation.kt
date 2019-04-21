@@ -20,5 +20,5 @@ class Reservation(
         val end: Date
 
 ) {
-        constructor(asset: Asset, user: User, start: Date, end: Date) : this(-1, asset, user, start, end)
+    constructor(asset: Asset, user: User, start: Date, end: Date) : this(-1, asset, user, start, end)
 }

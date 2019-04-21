@@ -12,7 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-class AssetTest: AbstractControllerTest() {
+class AssetTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var assetDAO: AssetDAO

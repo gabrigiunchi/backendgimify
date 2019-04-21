@@ -24,8 +24,7 @@ class Schedule(
     private fun isSameDay(date: Date): Boolean = DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value
 
     fun contains(date: Date): Boolean {
-        return if (this.isSameDay(date))
-        {
+        return if (this.isSameDay(date)) {
             this.timeIntervals.any { it.contains(date) }
         } else false
     }

@@ -41,7 +41,8 @@ class TimetableController(
                 .map {
                     this.timetableDAO.findByGym(it)
                             .map { ResponseEntity(it, HttpStatus.OK) }
-                            .orElseThrow { ResourceNotFoundException("timetable does not exist for gym #$gymId") } }
+                            .orElseThrow { ResourceNotFoundException("timetable does not exist for gym #$gymId") }
+                }
                 .orElseThrow { ResourceNotFoundException("gym #$gymId does not exist") }
     }
 

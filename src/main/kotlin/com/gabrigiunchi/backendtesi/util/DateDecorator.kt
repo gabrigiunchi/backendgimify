@@ -23,7 +23,7 @@ class DateDecorator(val date: Date) {
     val dayOfWeek: Int
         get() {
             val value = this.calendar.get(Calendar.DAY_OF_WEEK)
-            return if (value == 1) 7 else value -1
+            return if (value == 1) 7 else value - 1
         }
 
     val hour: Int
@@ -35,8 +35,7 @@ class DateDecorator(val date: Date) {
     val seconds: Int
         get() = this.calendar.get(Calendar.SECOND)
 
-    fun plusMinutes(minutes: Int): DateDecorator
-    {
+    fun plusMinutes(minutes: Int): DateDecorator {
         val c = Calendar.getInstance()
         c.time = this.date
         c.add(Calendar.MINUTE, minutes)
@@ -50,8 +49,7 @@ class DateDecorator(val date: Date) {
         return DateDecorator(c.time)
     }
 
-    fun minusMinutes(minutes: Int): DateDecorator
-    {
+    fun minusMinutes(minutes: Int): DateDecorator {
         val c = Calendar.getInstance()
         c.time = this.date
         c.add(Calendar.MINUTE, -minutes)
@@ -66,8 +64,7 @@ class DateDecorator(val date: Date) {
         return this.isSameDay(of(date))
     }
 
-    fun format(pattern: String, timeZone: TimeZone): String
-    {
+    fun format(pattern: String, timeZone: TimeZone): String {
         val formatter = SimpleDateFormat(pattern)
         formatter.timeZone = timeZone
         return formatter.format(this.date)
@@ -76,27 +73,23 @@ class DateDecorator(val date: Date) {
     /**
      * Format the date with the given pattern in UTC timezone
      */
-    fun format(pattern: String): String
-    {
+    fun format(pattern: String): String {
         return this.format(pattern, TimeZone.getTimeZone("UTC"))
     }
 
     /**
      * Format the date with the format yyyy-MM-dd'T'HH:mm:ssZ in the UTC timezone
      */
-    fun format(): String
-    {
+    fun format(): String {
         return this.format(DATE_TIME_FORMAT)
     }
 
-    override fun toString(): String
-    {
+    override fun toString(): String {
         return this.date.toString()
     }
 
-    override fun equals(other: Any?): Boolean
-    {
-        if(other == null || other !is DateDecorator)
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is DateDecorator)
             return false
 
         return this.date == other.date
@@ -112,22 +105,19 @@ class DateDecorator(val date: Date) {
         val DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ"
 
         @JvmStatic
-        fun of(date: String, pattern: String): DateDecorator
-        {
+        fun of(date: String, pattern: String): DateDecorator {
             val timeFormatter = SimpleDateFormat(pattern)
             timeFormatter.timeZone = TimeZone.getTimeZone("UTC")
             return DateDecorator(timeFormatter.parse(date))
         }
 
         @JvmStatic
-        fun of(date: String): DateDecorator
-        {
+        fun of(date: String): DateDecorator {
             return of(date, DATE_TIME_FORMAT)
         }
 
         @JvmStatic
-        fun of(dateObject: Date): DateDecorator
-        {
+        fun of(dateObject: Date): DateDecorator {
             return DateDecorator(dateObject)
         }
 
@@ -137,8 +127,7 @@ class DateDecorator(val date: Date) {
         }
 
         @JvmStatic
-        fun max(): DateDecorator
-        {
+        fun max(): DateDecorator {
             val calendar = Calendar.getInstance()
             calendar.time = Date(Long.MAX_VALUE)
             return DateDecorator(calendar.time)

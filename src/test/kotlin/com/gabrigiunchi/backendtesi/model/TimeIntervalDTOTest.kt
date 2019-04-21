@@ -8,7 +8,7 @@ import java.time.OffsetTime
 class TimeIntervalDTOTest {
 
     @Test
-    fun `Should serialize into a json` () {
+    fun `Should serialize into a json`() {
         val intervalDTO = TimeIntervalDTO(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00"))
         Assertions.assertThat(intervalDTO.toJson()).isEqualTo("{\"start\":\"10:00Z\",\"end\":\"12:00Z\"}")
     }

@@ -24,7 +24,7 @@ class UserController(
     fun getAllUsers(): ResponseEntity<Iterable<UserDTO>> {
         this.logger.info("GET REQUEST for all users")
         val users = this.userDAO.findAll()
-                .map{e -> UserDTO(e)}
+                .map { e -> UserDTO(e) }
                 .toList()
 
         return ResponseEntity(users, HttpStatus.OK)
@@ -35,7 +35,7 @@ class UserController(
         this.logger.info("GET REQUEST for user #$id")
         return this.userDAO.findById(id)
                 .map { user -> ResponseEntity(UserDTO(user), HttpStatus.OK) }
-                .orElseThrow{ResourceNotFoundException(id)}
+                .orElseThrow { ResourceNotFoundException(id) }
     }
 
     @GetMapping("/{id}/details")
@@ -43,7 +43,7 @@ class UserController(
         this.logger.info("GET REQUEST for user #$id")
         return this.userDAO.findById(id)
                 .map { user -> ResponseEntity(user, HttpStatus.OK) }
-                .orElseThrow{ResourceNotFoundException(id)}
+                .orElseThrow { ResourceNotFoundException(id) }
     }
 
     @PostMapping
@@ -51,8 +51,7 @@ class UserController(
         this.logger.info("GET REQUEST to create a new user")
         this.logger.info(user.toString())
 
-        if (this.userDAO.findById(user.id).isPresent || this.userDAO.findByUsername(user.username).isPresent)
-        {
+        if (this.userDAO.findById(user.id).isPresent || this.userDAO.findByUsername(user.username).isPresent) {
             throw ResourceAlreadyExistsException(user.id)
         }
 

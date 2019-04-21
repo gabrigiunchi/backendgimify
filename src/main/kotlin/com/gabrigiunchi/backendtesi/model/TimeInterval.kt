@@ -17,7 +17,7 @@ class TimeInterval(
         val start: OffsetTime,
         val end: OffsetTime
 ) {
-    constructor(start: String, end: String): this(OffsetTime.parse(start), OffsetTime.parse(end))
+    constructor(start: String, end: String) : this(OffsetTime.parse(start), OffsetTime.parse(end))
     constructor(start: OffsetTime, end: OffsetTime) : this(-1, start, end)
     constructor(timeIntervalDTO: TimeIntervalDTO) : this(-1, timeIntervalDTO.start, timeIntervalDTO.end)
 
@@ -31,9 +31,10 @@ class TimeInterval(
     fun contains(dateInterval: DateInterval) =
             dateInterval.isWithinSameDay() && this.contains(dateInterval.start) && this.contains(dateInterval.end)
 
-    fun overlaps(dateInterval: DateInterval) =
-            if (!dateInterval.isWithinSameDay()) true
-            else this.contains(dateInterval.start) || this.contains(dateInterval.end)
+    fun overlaps(dateInterval: DateInterval): Boolean {
+        return if (!dateInterval.isWithinSameDay()) true
+        else this.contains(dateInterval.start) || this.contains(dateInterval.end)
+    }
 
     fun toMap(): Map<String, String> {
         return mapOf(
