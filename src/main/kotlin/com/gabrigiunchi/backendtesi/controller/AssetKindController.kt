@@ -20,7 +20,7 @@ class AssetKindController {
     @Autowired
     private lateinit var assetKindDAO: AssetKindDAO
 
-    @GetMapping()
+    @GetMapping
     fun getAssetKinds(): ResponseEntity<Iterable<AssetKind>> {
         this.logger.info("GET all asset kinds")
         return ResponseEntity(this.assetKindDAO.findAll(), HttpStatus.OK)

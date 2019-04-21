@@ -20,7 +20,7 @@ public class AppUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.users.findByUsername(username)
-                .map(user -> new AppUserDetails(user))
+                .map(AppUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("Username: " + username + " not found"));
     }
 }

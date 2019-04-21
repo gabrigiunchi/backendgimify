@@ -38,9 +38,9 @@ class TimetableController(
     fun getTimetableByGym(@PathVariable gymId: Int): ResponseEntity<Timetable> {
         this.logger.info("GET timetable of gym #$gymId")
         return this.gymDAO.findById(gymId)
-                .map {
-                    this.timetableDAO.findByGym(it)
-                            .map { ResponseEntity(it, HttpStatus.OK) }
+                .map { gym ->
+                    this.timetableDAO.findByGym(gym)
+                            .map { timetable -> ResponseEntity(timetable, HttpStatus.OK) }
                             .orElseThrow { ResourceNotFoundException("timetable does not exist for gym #$gymId") }
                 }
                 .orElseThrow { ResourceNotFoundException("gym #$gymId does not exist") }

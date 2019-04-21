@@ -135,7 +135,7 @@ class DateDecorator(val date: Date) {
 
         @JvmStatic
         fun createDate(date: String): DateDecorator {
-            return Companion.of(date, "yyyy-MM-dd")
+            return of(date, "yyyy-MM-dd")
         }
     }
 }

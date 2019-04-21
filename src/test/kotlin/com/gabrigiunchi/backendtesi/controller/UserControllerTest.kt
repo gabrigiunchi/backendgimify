@@ -151,7 +151,7 @@ class UserControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not update a user if it does not exist`() {
         val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        var user = User("giggi", "ddnsakjn", "", "", roles.toMutableList())
+        val user = User("giggi", "ddnsakjn", "", "", roles.toMutableList())
         mockMvc.perform(put("${ApiUrls.USERS}/${user.id}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(user)))
