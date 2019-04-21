@@ -28,13 +28,12 @@ class TimeInterval(
     }
 
     fun contains(date: Date): Boolean = OffsetTime.parse(DateDecorator.of(date).format("HH:mm+00:00")) in this.start..this.end
+
     fun contains(dateInterval: DateInterval) =
             dateInterval.isWithinSameDay() && this.contains(dateInterval.start) && this.contains(dateInterval.end)
 
-    fun overlaps(dateInterval: DateInterval): Boolean {
-        return if (!dateInterval.isWithinSameDay()) true
-        else this.contains(dateInterval.start) || this.contains(dateInterval.end)
-    }
+    fun overlaps(dateInterval: DateInterval): Boolean =
+            !dateInterval.isWithinSameDay() || this.contains(dateInterval.start) || this.contains(dateInterval.end)
 
     fun toMap(): Map<String, String> {
         return mapOf(

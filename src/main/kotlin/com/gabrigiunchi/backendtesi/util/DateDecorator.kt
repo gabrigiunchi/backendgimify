@@ -64,7 +64,7 @@ class DateDecorator(val date: Date) {
         return this.isSameDay(of(date))
     }
 
-    fun format(pattern: String, timeZone: TimeZone): String {
+    private fun format(pattern: String, timeZone: TimeZone): String {
         val formatter = SimpleDateFormat(pattern)
         formatter.timeZone = timeZone
         return formatter.format(this.date)
