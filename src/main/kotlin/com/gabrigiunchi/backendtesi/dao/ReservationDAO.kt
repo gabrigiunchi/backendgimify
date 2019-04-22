@@ -8,6 +8,8 @@ import java.util.*
 
 interface ReservationDAO : CrudRepository<Reservation, Int> {
 
+    fun findByUserAndEndAfter(user: User, date: Date): Collection<Reservation>
+    fun findByAssetAndEndAfter(asset: Asset, date: Date): Collection<Reservation>
     fun findByStartAfter(date: Date): Collection<Reservation>
     fun findByEndAfter(date: Date): Collection<Reservation>
     fun findByUser(user: User): Collection<Reservation>

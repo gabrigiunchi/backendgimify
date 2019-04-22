@@ -90,8 +90,7 @@ class DateDecorator(val date: Date) {
 
     override fun equals(other: Any?): Boolean {
         return if (other == null || other !is DateDecorator)
-             false
-
+            false
         else this.date == other.date
     }
 

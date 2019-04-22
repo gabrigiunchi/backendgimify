@@ -18,7 +18,6 @@ class Schedule(
         val timeIntervals: Set<TimeInterval>
 ) {
     constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals)
-    constructor(dayOfWeek: DayOfWeek) : this(-1, dayOfWeek, emptySet())
     constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals)
 
     private fun isSameDay(date: Date): Boolean = DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value

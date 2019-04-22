@@ -26,6 +26,7 @@ class Timetable(
         val openingExceptions: Set<DateInterval>
 ) {
     constructor(gym: Gym) : this(-1, gym, emptySet(), emptySet(), emptySet())
+    constructor(gym: Gym, openings: Set<Schedule>) : this(-1, gym, openings, emptySet(), emptySet())
     constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>) :
             this(-1, gym, openings, closingDays, emptySet())
 

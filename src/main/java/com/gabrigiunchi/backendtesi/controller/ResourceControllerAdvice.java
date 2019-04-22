@@ -1,9 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller;
 
-import com.gabrigiunchi.backendtesi.exceptions.AccessDeniedException;
-import com.gabrigiunchi.backendtesi.exceptions.BadRequestException;
-import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException;
-import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException;
+import com.gabrigiunchi.backendtesi.exceptions.*;
 import org.springframework.hateoas.VndErrors;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -52,5 +49,19 @@ public class ResourceControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     VndErrors invalidArgumentHandler(IllegalArgumentException ex) {
         return new VndErrors("Illegal arguments", ex.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(ReservationConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    VndErrors reservationConflictHandler(ReservationConflictException ex) {
+        return new VndErrors("Illegal reservation", ex.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(GymClosedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    VndErrors gymClosedHandler(GymClosedException ex) {
+        return new VndErrors("Gym closed", ex.getMessage());
     }
 }

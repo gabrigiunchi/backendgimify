@@ -45,8 +45,8 @@ class ReservationDAOTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the reservations in the furure`() {
-        val asset = this.createAsset()
-        val user = this.createUser()
+        val asset = this.createAsset("ciclette1")
+        val user = this.createUser("gabrigiunchi")
         val reservations = this.reservationDAO.saveAll(listOf(
                 Reservation(asset, user, DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date),
                 Reservation(asset, user, DateDecorator.now().minusMinutes(200).date, DateDecorator.now().minusMinutes(20).date),
@@ -63,14 +63,63 @@ class ReservationDAOTest : AbstractControllerTest() {
         Assertions.assertThat(result[1].id).isEqualTo(reservations.last().id)
     }
 
+    @Test
+    fun `Should return the reservations for an asset with end after a date`() {
+        val asset1 = this.createAsset("ciclette1")
+        val asset2 = this.createAsset("ciclette2")
+        val user = this.createUser("gabrigiunchi")
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(asset1, user, DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date),
+                Reservation(asset1, user, DateDecorator.now().minusMinutes(200).date,
+                        DateDecorator.now().minusMinutes(20).date),
+                Reservation(asset2, user, DateDecorator.now().minusMinutes(200).date, DateDecorator.now().minusMinutes(20).date),
+                Reservation(asset2, user, DateDecorator.createDate("2018-01-01").date,
+                        DateDecorator.createDate("2018-01-01").date),
 
-    private fun createAsset(): Asset {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
-        return this.assetDAO.save(Asset("ciclett1", kind, gym))
+                Reservation(asset1, user, DateDecorator.of("2100-01-01T10:00:00+0000").date,
+                        DateDecorator.of("2100-01-01T12:00:00+0000").date))).toList()
+
+        Assertions.assertThat(this.reservationDAO.count()).isEqualTo(5)
+        val result = this.reservationDAO.findByAssetAndEndAfter(asset1, DateDecorator.now().date).toList()
+        Assertions.assertThat(result.size).isEqualTo(2)
+        Assertions.assertThat(result[0].id).isEqualTo(reservations.first().id)
+        Assertions.assertThat(result[1].id).isEqualTo(reservations.last().id)
+        Assertions.assertThat(result.none { it.asset.id == asset2.id }).isTrue()
     }
 
-    private fun createUser(): User {
-        return this.userDAO.save(this.userFactory.createAdminUser("gabrigiunchi", "pass", "Gabriele", "Giunchi"))
+    @Test
+    fun `Should return the reservations for a specific user and end after`() {
+        val asset1 = this.createAsset("ciclette1")
+        val asset2 = this.createAsset("ciclette2")
+        val user1 = this.createUser("gabrigiunchi")
+        val user2 = this.createUser("dnasnajda")
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(asset1, user1, DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date),
+                Reservation(asset1, user1, DateDecorator.now().minusMinutes(200).date,
+                        DateDecorator.now().minusMinutes(20).date),
+
+                Reservation(asset2, user2, DateDecorator.now().minusMinutes(200).date, DateDecorator.now().minusMinutes(20).date),
+                Reservation(asset2, user2, DateDecorator.createDate("2018-01-01").date,
+                        DateDecorator.createDate("2018-01-01").date),
+
+                Reservation(asset1, user1, DateDecorator.of("2100-01-01T10:00:00+0000").date,
+                        DateDecorator.of("2100-01-01T12:00:00+0000").date))).toList()
+
+        Assertions.assertThat(this.reservationDAO.count()).isEqualTo(5)
+        val result = this.reservationDAO.findByUserAndEndAfter(user1, DateDecorator.now().date).toList()
+        Assertions.assertThat(result.size).isEqualTo(2)
+        Assertions.assertThat(result[0].id).isEqualTo(reservations.first().id)
+        Assertions.assertThat(result[1].id).isEqualTo(reservations.last().id)
+        Assertions.assertThat(result.none { it.user.id == user2.id }).isTrue()
+    }
+
+    private fun createAsset(name: String): Asset {
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        return this.assetDAO.save(Asset(name, kind, gym))
+    }
+
+    private fun createUser(username: String): User {
+        return this.userDAO.save(this.userFactory.createRegularUser(username, "pass", "Gabriele", "Giunchi"))
     }
 }

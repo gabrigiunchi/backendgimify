@@ -14,7 +14,6 @@ object MockEntities {
             DateInterval(DateDecorator.of("2019-10-10T10:00:00+0000").date, DateDecorator.of("2019-10-10T12:00:00+0000").date),
             DateInterval(DateDecorator.of("2020-10-10T10:00:00+0000").date, DateDecorator.of("2020-10-10T12:00:00+0000").date),
             DateInterval(DateDecorator.of("2021-10-10T10:00:00+0000").date, DateDecorator.of("2021-10-10T12:00:00+0000").date)
-
     )
 
     val mockTimeIntervals = listOf(
@@ -26,8 +25,6 @@ object MockEntities {
 
     val mockSchedules = setOf(
             Schedule(DayOfWeek.MONDAY, this.mockTimeIntervals.take(2).toSet()),
-            Schedule(DayOfWeek.TUESDAY, setOf(this.mockTimeIntervals[2], this.mockTimeIntervals[3])),
-            Schedule(DayOfWeek.FRIDAY),
-            Schedule(DayOfWeek.WEDNESDAY)
+            Schedule(DayOfWeek.TUESDAY, setOf(this.mockTimeIntervals[2], this.mockTimeIntervals[3]))
     )
 }

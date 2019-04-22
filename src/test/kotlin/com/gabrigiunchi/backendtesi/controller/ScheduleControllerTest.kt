@@ -9,6 +9,7 @@ import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
 import com.gabrigiunchi.backendtesi.util.ApiUrls
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
+import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -28,13 +29,18 @@ class ScheduleControllerTest : AbstractControllerTest() {
 
     private val schedules = MockEntities.mockSchedules.toList()
 
+    @Before
+    fun clearDB() {
+        this.scheduleDAO.deleteAll()
+    }
+
     @Test
     fun `Should get all schedules`() {
         this.scheduleDAO.saveAll(this.schedules)
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.SCHEDULES)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.greaterThanOrEqualTo(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

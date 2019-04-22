@@ -7,6 +7,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Reservation
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.service.ReservationService
+import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -67,6 +68,13 @@ class ReservationController(
         val user = this.getLoggedUser()
         this.logger.info("GET all reservations of user #${user.id}")
         return ResponseEntity(this.reservationDAO.findByUser(user), HttpStatus.OK)
+    }
+
+    @GetMapping("/me/future")
+    fun getAllFutureReservationsOfLoggedUser(): ResponseEntity<Collection<Reservation>> {
+        val user = this.getLoggedUser()
+        this.logger.info("GET all future reservations of user #${user.id}")
+        return ResponseEntity(this.reservationDAO.findByUserAndEndAfter(user, DateDecorator.now().date), HttpStatus.OK)
     }
 
 
