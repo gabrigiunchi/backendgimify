@@ -81,7 +81,7 @@ class ReservationController(
     fun getReservationOfUserById(@PathVariable id: Int): ResponseEntity<Reservation> {
         val user = this.getLoggedUser()
         this.logger.info("GET reservations #$id of user #${user.id}")
-        return ResponseEntity(this.reservationService.getReservationOfUserById(userId = user.id, reservationId = id), HttpStatus.OK)
+        return ResponseEntity(this.reservationService.getReservationOfUserById(user, id), HttpStatus.OK)
     }
 
     @PostMapping("/me")
@@ -95,7 +95,7 @@ class ReservationController(
     fun deleteReservationForLoggedUser(@PathVariable(name = "id") reservationId: Int): ResponseEntity<Void> {
         val user = this.getLoggedUser()
         this.logger.info("DELETE reservation #$reservationId of user #${user.id}")
-        this.reservationService.deleteReservationOfUser(reservationId, user.id)
+        this.reservationService.deleteReservationOfUser(user, reservationId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

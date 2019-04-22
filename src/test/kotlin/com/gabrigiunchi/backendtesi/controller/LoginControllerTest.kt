@@ -37,8 +37,8 @@ class LoginControllerTest : AbstractControllerTest() {
     @Test
     fun `Should log in a user with valid username and password`() {
         val password = "aaaa"
-        val user = this.userFactory.createRegularUser("m", SHA256PasswordEncoder().encode(password),
-                "", "")
+        val user = this.userFactory.createRegularUser("gabrigiunchi", SHA256PasswordEncoder().encode(password),
+                "Gabriele", "Giunchi")
         val credentials = ValidateUserDTO(user.username, password)
         this.userDAO.save(user)
 
@@ -71,10 +71,9 @@ class LoginControllerTest : AbstractControllerTest() {
     fun `Should NOT log in a user with invalid password`() {
         val password = "aaaa"
         val user = this.userFactory.createRegularUser("djkasnjdna", SHA256PasswordEncoder().encode(password),
-                "", "")
+                "dasdsa", "dsdadsa")
 
         this.userDAO.save(user)
-
         val credentials = ValidateUserDTO(user.username, "mmkldamaldmak")
 
         this.mockMvc.perform(post(ApiUrls.LOGIN)
@@ -103,7 +102,7 @@ class LoginControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say if a token is invalid`() {
+    fun `Should say if a token is NOT valid`() {
         val token = "dajdjadjasdnaj"
         this.mockMvc.perform(post("${ApiUrls.LOGIN}/token")
                 .contentType(MediaType.TEXT_PLAIN)

@@ -11,6 +11,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.DateInterval
 import com.gabrigiunchi.backendtesi.model.Reservation
+import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.springframework.stereotype.Service
@@ -67,13 +68,13 @@ class ReservationService(
         return this.addReservation(reservationDTO, reservationDTO.userID)
     }
 
-    fun getReservationOfUserById(userId: Int, reservationId: Int): Reservation {
-        this.checkReservationOfUser(userId = userId, reservationId = reservationId)
+    fun getReservationOfUserById(user: User, reservationId: Int): Reservation {
+        this.checkReservationOfUser(user, reservationId)
         return this.reservationDAO.findById(reservationId).get()
     }
 
-    fun deleteReservationOfUser(reservationId: Int, userId: Int) {
-        this.checkReservationOfUser(userId = userId, reservationId = reservationId)
+    fun deleteReservationOfUser(user: User, reservationId: Int) {
+        this.checkReservationOfUser(user, reservationId)
         this.reservationDAO.deleteById(reservationId)
     }
 
@@ -92,10 +93,18 @@ class ReservationService(
         return reservations.none { DateInterval(it.start, it.end).overlaps(DateInterval(start, end)) }
     }
 
+    /**
+     * Check if the duration given by the interval (start, end) is valid according to the asset's kind
+     * For instance, a ciclette could be reserved for max 1 hour
+     */
     fun isReservationDurationValid(asset: Asset, start: Date, end: Date): Boolean {
         return DateDecorator.of(start).plusMinutes(asset.kind.maxReservationTime).date >= end
     }
 
+    /**
+     * Check if the user exists
+     * @throws ResourceNotFoundException if the user does not exist
+     */
     @Throws(ResourceNotFoundException::class)
     private fun checkUser(userID: Int) {
         if (this.userDAO.findById(userID).isEmpty) {
@@ -103,12 +112,15 @@ class ReservationService(
         }
     }
 
+    /**
+     * Check if the reservation belongs to the user
+     * @throws ResourceNotFoundException if the user does not exist
+     * @throws ResourceNotFoundException if the reservation does not exist or the user is not the owner
+     */
     @Throws(ResourceNotFoundException::class)
-    fun checkReservationOfUser(userId: Int, reservationId: Int) {
-        this.checkUser(userId)
-
-        if (this.reservationDAO.findByUser(this.userDAO.findById(userId).get()).none { it.id == reservationId }) {
-            throw ResourceNotFoundException("user #$userId does not have reservation #$reservationId")
+    fun checkReservationOfUser(user: User, reservationId: Int) {
+        if (this.reservationDAO.findByUser(user).none { it.id == reservationId }) {
+            throw ResourceNotFoundException("user #$${user.id} does not have reservation #$reservationId")
         }
     }
 }

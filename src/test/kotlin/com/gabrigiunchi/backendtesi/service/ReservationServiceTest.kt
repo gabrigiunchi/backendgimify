@@ -178,23 +178,17 @@ class ReservationServiceTest : AbstractControllerTest() {
     /*************************************** OTHERS **********************************************************/
 
     @Test(expected = ResourceNotFoundException::class)
-    fun `Should check if a user own a reservation and throws an exception if the user does not exist`() {
-        val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
-        this.reservationService.checkReservationOfUser(-1,  r.id)
-    }
-
-    @Test(expected = ResourceNotFoundException::class)
     fun `Should check if a user own a reservation and throws an exception if the reservation belongs to another user`() {
         val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
         val anotherUser = this.userDAO.save(this.userFactory.createAdminUser("dasdaas", "aaaa", "Gabriele", "Giunchi"))
 
-        this.reservationService.checkReservationOfUser(anotherUser.id,  r.id)
+        this.reservationService.checkReservationOfUser(anotherUser, r.id)
     }
 
     @Test
     fun `Should check if a user own a reservation and not throw an exception if the reservation belongs to the user`() {
         val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
-        this.reservationService.checkReservationOfUser(this.user!!.id,  r.id)
+        this.reservationService.checkReservationOfUser(this.user!!, r.id)
     }
 
     /**************************************** UTILS ***********************************************************/
