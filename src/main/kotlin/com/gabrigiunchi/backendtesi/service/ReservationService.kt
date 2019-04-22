@@ -30,12 +30,6 @@ class ReservationService(
             throw BadRequestException("reservation must be in the future")
         }
 
-        if (this.assetDAO.findById(reservationDTO.assetID).isEmpty) {
-            throw ResourceNotFoundException("asset #${reservationDTO.assetID} does not exist")
-        }
-
-        this.checkUser(userId)
-
         if (reservationDTO.start.after(reservationDTO.end)) {
             throw BadRequestException("start is after the end")
         }
@@ -44,6 +38,11 @@ class ReservationService(
             throw BadRequestException("start cannot be equals to the end")
         }
 
+        if (this.assetDAO.findById(reservationDTO.assetID).isEmpty) {
+            throw ResourceNotFoundException("asset #${reservationDTO.assetID} does not exist")
+        }
+
+        this.checkUser(userId)
         val asset = this.assetDAO.findById(reservationDTO.assetID).get()
 
         if (!this.isReservationDurationValid(asset, reservationDTO.start, reservationDTO.end)) {
@@ -54,16 +53,16 @@ class ReservationService(
             throw GymClosedException()
         }
 
-        if (!this.isReservationIntervalValid(asset, reservationDTO.start, reservationDTO.end)) {
+        if (!this.doesConflict(asset, reservationDTO.start, reservationDTO.end)) {
             throw ReservationConflictException()
         }
 
         return this.reservationDAO.save(
                 Reservation(
-                        asset,
-                        this.userDAO.findById(reservationDTO.userID).get(),
-                        reservationDTO.start,
-                        reservationDTO.end
+                        asset = asset,
+                        user = this.userDAO.findById(reservationDTO.userID).get(),
+                        start = reservationDTO.start,
+                        end = reservationDTO.end
                 )
         )
     }
@@ -92,7 +91,7 @@ class ReservationService(
     /**
      * Returns true if there are no other reservations for the given asset in the given interval
      */
-    fun isReservationIntervalValid(asset: Asset, start: Date, end: Date): Boolean {
+    fun doesConflict(asset: Asset, start: Date, end: Date): Boolean {
         val reservations = this.reservationDAO.findByAssetAndEndAfter(asset, start)
         return reservations.none { DateInterval(it.start, it.end).overlaps(DateInterval(start, end)) }
     }

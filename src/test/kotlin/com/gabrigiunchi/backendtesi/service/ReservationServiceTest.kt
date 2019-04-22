@@ -139,7 +139,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-30T08:00:00+0000").date, DateDecorator.of("2019-04-30T09:00:00+0000").date))
+                DateDecorator.of("2050-04-04T08:00:00+0000").date, DateDecorator.of("2050-04-04T09:00:00+0000").date))
     }
 
     @Test(expected = GymClosedException::class)
@@ -155,7 +155,14 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T14:00:00+0000").date, DateDecorator.of("2019-04-22T16:00:00+0000").date))
+                DateDecorator.of("2050-04-04T14:00:00+0000").date, DateDecorator.of("2050-04-04T16:00:00+0000").date))
+    }
+
+    @Test(expected = BadRequestException::class)
+    fun `Should not create a reservation if interval is not within the same day`() {
+        val asset = this.createAsset(300)
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T10:00:00+0000").date, DateDecorator.of("2050-04-05T12:00:00+0000").date))
     }
 
     @Test
