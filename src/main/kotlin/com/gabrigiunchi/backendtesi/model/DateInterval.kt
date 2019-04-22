@@ -21,7 +21,14 @@ class DateInterval(
 
     fun contains(date: Date): Boolean = date in this.start..this.end
     fun contains(dateInterval: DateInterval): Boolean = this.contains(dateInterval.start) && this.contains(dateInterval.end)
-    fun overlaps(dateInterval: DateInterval): Boolean = this.contains(dateInterval.start) || this.contains(dateInterval.end)
+
+    fun overlaps(dateInterval: DateInterval): Boolean {
+        return this.contains(dateInterval.start) ||
+                this.contains(dateInterval.end) ||
+                dateInterval.contains(this.start) ||
+                dateInterval.contains(this.end)
+    }
+
     fun isWithinSameDay(): Boolean = DateDecorator.of(this.start).isSameDay(this.end)
 
     init {

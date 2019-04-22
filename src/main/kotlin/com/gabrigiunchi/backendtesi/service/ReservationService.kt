@@ -1,17 +1,11 @@
 package com.gabrigiunchi.backendtesi.service
 
-import com.gabrigiunchi.backendtesi.dao.AssetDAO
-import com.gabrigiunchi.backendtesi.dao.ReservationDAO
-import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.dao.UserDAO
+import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
 import com.gabrigiunchi.backendtesi.exceptions.GymClosedException
 import com.gabrigiunchi.backendtesi.exceptions.ReservationConflictException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.DateInterval
-import com.gabrigiunchi.backendtesi.model.Reservation
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.springframework.stereotype.Service
@@ -53,7 +47,7 @@ class ReservationService(
             throw GymClosedException()
         }
 
-        if (!this.doesConflict(asset, reservationDTO.start, reservationDTO.end)) {
+        if (!this.isAssetFree(asset, reservationDTO.start, reservationDTO.end)) {
             throw ReservationConflictException()
         }
 
@@ -91,7 +85,7 @@ class ReservationService(
     /**
      * Returns true if there are no other reservations for the given asset in the given interval
      */
-    fun doesConflict(asset: Asset, start: Date, end: Date): Boolean {
+    fun isAssetFree(asset: Asset, start: Date, end: Date): Boolean {
         val reservations = this.reservationDAO.findByAssetAndEndAfter(asset, start)
         return reservations.none { DateInterval(it.start, it.end).overlaps(DateInterval(start, end)) }
     }

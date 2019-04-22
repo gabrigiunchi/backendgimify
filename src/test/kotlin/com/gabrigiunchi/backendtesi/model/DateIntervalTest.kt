@@ -187,7 +187,24 @@ class DateIntervalTest {
     /************************************ OVERLAPS ************************************************************/
 
     @Test
-    fun `Should say if a date interval overlaps another one`() {
+    fun `Should say if a date interval overlaps another one (i2 start between i1)`() {
+        val i1 = DateInterval(
+                DateDecorator.of("2019-04-10T08:00:00+0000").date,
+                DateDecorator.of("2019-04-10T16:00:00+0000").date
+        )
+
+        val i2 = DateInterval(
+                DateDecorator.of("2019-04-10T10:00:00+0000").date,
+                DateDecorator.of("2019-04-10T18:00:00+0000").date
+        )
+
+        Assertions.assertThat(i1.overlaps(i2)).isTrue()
+        Assertions.assertThat(i2.overlaps(i1)).isTrue()
+        Assertions.assertThat(i1.overlaps(i1)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a date interval overlaps another one (i2 end between i1)`() {
         val i1 = DateInterval(
                 DateDecorator.of("2019-04-10T08:00:00+0000").date,
                 DateDecorator.of("2019-04-10T16:00:00+0000").date
@@ -196,6 +213,74 @@ class DateIntervalTest {
         val i2 = DateInterval(
                 DateDecorator.of("2019-04-10T05:00:00+0000").date,
                 DateDecorator.of("2019-04-10T10:00:00+0000").date
+        )
+
+        Assertions.assertThat(i1.overlaps(i2)).isTrue()
+        Assertions.assertThat(i2.overlaps(i1)).isTrue()
+        Assertions.assertThat(i1.overlaps(i1)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a date interval overlaps another one (i1 start between i2)`() {
+        val i2 = DateInterval(
+                DateDecorator.of("2019-04-10T08:00:00+0000").date,
+                DateDecorator.of("2019-04-10T16:00:00+0000").date
+        )
+
+        val i1 = DateInterval(
+                DateDecorator.of("2019-04-10T10:00:00+0000").date,
+                DateDecorator.of("2019-04-10T18:00:00+0000").date
+        )
+
+        Assertions.assertThat(i1.overlaps(i2)).isTrue()
+        Assertions.assertThat(i2.overlaps(i1)).isTrue()
+        Assertions.assertThat(i1.overlaps(i1)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a date interval overlaps another one (i1 end between i2)`() {
+        val i2 = DateInterval(
+                DateDecorator.of("2019-04-10T08:00:00+0000").date,
+                DateDecorator.of("2019-04-10T16:00:00+0000").date
+        )
+
+        val i1 = DateInterval(
+                DateDecorator.of("2019-04-10T05:00:00+0000").date,
+                DateDecorator.of("2019-04-10T10:00:00+0000").date
+        )
+
+        Assertions.assertThat(i1.overlaps(i2)).isTrue()
+        Assertions.assertThat(i2.overlaps(i1)).isTrue()
+        Assertions.assertThat(i1.overlaps(i1)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a date interval overlaps another one (i2 contains i1)`() {
+        val i1 = DateInterval(
+                DateDecorator.of("2019-04-10T10:00:00+0000").date,
+                DateDecorator.of("2019-04-10T12:00:00+0000").date
+        )
+
+        val i2 = DateInterval(
+                DateDecorator.of("2019-04-10T08:00:00+0000").date,
+                DateDecorator.of("2019-04-10T16:00:00+0000").date
+        )
+
+        Assertions.assertThat(i1.overlaps(i2)).isTrue()
+        Assertions.assertThat(i2.overlaps(i1)).isTrue()
+        Assertions.assertThat(i1.overlaps(i1)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a date interval overlaps another one (i1 contains i2)`() {
+        val i2 = DateInterval(
+                DateDecorator.of("2019-04-10T10:00:00+0000").date,
+                DateDecorator.of("2019-04-10T12:00:00+0000").date
+        )
+
+        val i1 = DateInterval(
+                DateDecorator.of("2019-04-10T08:00:00+0000").date,
+                DateDecorator.of("2019-04-10T16:00:00+0000").date
         )
 
         Assertions.assertThat(i1.overlaps(i2)).isTrue()

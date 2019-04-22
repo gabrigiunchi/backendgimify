@@ -21,6 +21,9 @@ class TimeInterval(
     constructor(start: OffsetTime, end: OffsetTime) : this(-1, start, end)
     constructor(timeIntervalDTO: TimeIntervalDTO) : this(-1, timeIntervalDTO.start, timeIntervalDTO.end)
 
+    constructor(start: Date, end: Date) :
+            this(DateDecorator.of(start).format("HH:mm+00:00"), DateDecorator.of(end).format("HH:mm+00:00"))
+
     init {
         if (this.start.isAfter(this.end)) {
             throw IllegalArgumentException("start is after the end")
@@ -32,8 +35,14 @@ class TimeInterval(
     fun contains(dateInterval: DateInterval) =
             dateInterval.isWithinSameDay() && this.contains(dateInterval.start) && this.contains(dateInterval.end)
 
-    fun overlaps(dateInterval: DateInterval): Boolean =
-            !dateInterval.isWithinSameDay() || this.contains(dateInterval.start) || this.contains(dateInterval.end)
+    fun overlaps(dateInterval: DateInterval): Boolean {
+        return !dateInterval.isWithinSameDay() || TimeInterval(dateInterval.start, dateInterval.end).overlaps(this)
+    }
+
+    fun overlaps(timeInterval: TimeInterval): Boolean {
+        return !((this.start <= timeInterval.end && this.end <= timeInterval.start) ||
+                (timeInterval.start <= this.end && timeInterval.end <= this.start))
+    }
 
     fun toMap(): Map<String, String> {
         return mapOf(

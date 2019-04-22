@@ -187,6 +187,84 @@ class ReservationServiceTest : AbstractControllerTest() {
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(2)
     }
 
+    /************************************* ASSET AVAILABILITY ***********************************************/
+    @Test
+    fun `Should say if an asset is available in a given interval (end before)`() {
+        val asset = this.createAsset(300)
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        Assertions.assertThat(this.reservationService.isAssetFree(
+                asset,
+                DateDecorator.of("2050-04-04T08:00:00+0000").date,
+                DateDecorator.of("2050-04-04T10:00:00+0000").date)).isTrue()
+    }
+
+    @Test
+    fun `Should say if an asset is available in a given interval (start after)`() {
+        val asset = this.createAsset(300)
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        Assertions.assertThat(this.reservationService.isAssetFree(
+                asset,
+                DateDecorator.of("2050-04-04T16:00:00+0000").date,
+                DateDecorator.of("2050-04-04T18:00:00+0000").date)).isTrue()
+    }
+
+    @Test
+    fun `Should say if an asset is NOT available in a given interval (start overlaps)`() {
+        val asset = this.createAsset(300)
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        Assertions.assertThat(this.reservationService.isAssetFree(
+                asset,
+                DateDecorator.of("2050-04-04T11:10:00+0000").date,
+                DateDecorator.of("2050-04-04T12:00:00+0000").date)).isFalse()
+    }
+
+    @Test
+    fun `Should say if an asset is NOT available in a given interval (end overlaps)`() {
+        val asset = this.createAsset(300)
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        Assertions.assertThat(this.reservationService.isAssetFree(
+                asset,
+                DateDecorator.of("2050-04-04T08:00:00+0000").date,
+                DateDecorator.of("2050-04-04T11:02:00+0000").date)).isFalse()
+    }
+
+    @Test
+    fun `Should say if an asset is NOT available in a given interval (interval contained)`() {
+        val asset = this.createAsset(300)
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        Assertions.assertThat(this.reservationService.isAssetFree(
+                asset,
+                DateDecorator.of("2050-04-04T11:02:00+0000").date,
+                DateDecorator.of("2050-04-04T11:04:00+0000").date)).isFalse()
+    }
+
+    @Test
+    fun `Should say if an asset is NOT available in a given interval (interval contains the other)`() {
+        val asset = this.createAsset(300)
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        Assertions.assertThat(this.reservationService.isAssetFree(
+                asset,
+                DateDecorator.of("2050-04-04T10:00:00+0000").date,
+                DateDecorator.of("2050-04-04T12:00:00+0000").date)).isFalse()
+    }
 
     /*************************************** OTHERS **********************************************************/
 
