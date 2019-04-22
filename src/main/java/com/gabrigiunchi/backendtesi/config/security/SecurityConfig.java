@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.config.security;
 
-import com.gabrigiunchi.backendtesi.util.ApiUrls;
+import com.gabrigiunchi.backendtesi.constants.ApiUrls;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

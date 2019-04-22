@@ -148,4 +148,30 @@ class DateDecoratorTest {
                 DateDecorator.of("2019-01-01T10:00:00+0000").isSameDay(DateDecorator.of("2019-01-02T16:00:00+0000"))
         ).isFalse()
     }
+
+    @Test
+    fun `Should override toString`() {
+        val date = Date()
+        val decorator = DateDecorator.of(date)
+        Assertions.assertThat(date.toString()).isEqualTo(decorator.toString())
+    }
+
+    @Test
+    fun `Should override hashCode`() {
+        val date = Date()
+        val decorator = DateDecorator.of(date)
+        Assertions.assertThat(date.hashCode()).isEqualTo(decorator.hashCode())
+    }
+
+    @Test
+    fun `Should override equals`() {
+        val date1 = Date()
+        val date2 = Date()
+        val decorator1 = DateDecorator.of(date1)
+        val decorator2 = DateDecorator.of(date2)
+        Assertions.assertThat(decorator1 == decorator2).isTrue()
+        Assertions.assertThat(decorator1 == DateDecorator.now().plusDays(1)).isFalse()
+        val decorator3: DateDecorator? = null
+        Assertions.assertThat(decorator1 == decorator3).isFalse()
+    }
 }

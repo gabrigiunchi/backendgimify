@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockEntities
+import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
@@ -10,7 +11,6 @@ import com.gabrigiunchi.backendtesi.model.Region
 import com.gabrigiunchi.backendtesi.model.Timetable
 import com.gabrigiunchi.backendtesi.model.dto.TimetableDTO
 import com.gabrigiunchi.backendtesi.model.type.RegionEnum
-import com.gabrigiunchi.backendtesi.util.ApiUrls
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before

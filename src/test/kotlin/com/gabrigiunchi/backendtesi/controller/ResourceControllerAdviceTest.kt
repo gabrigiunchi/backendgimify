@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.BackendtesiApplication
-import com.gabrigiunchi.backendtesi.util.ApiUrls
+import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired

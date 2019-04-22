@@ -3,10 +3,10 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.config.security.JwtTokenProvider
 import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
+import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.UserRole
 import com.gabrigiunchi.backendtesi.model.dto.ValidateUserDTO
-import com.gabrigiunchi.backendtesi.util.ApiUrls
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers

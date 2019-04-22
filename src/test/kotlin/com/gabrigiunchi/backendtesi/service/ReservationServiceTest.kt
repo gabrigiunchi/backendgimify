@@ -189,7 +189,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     /************************************* ASSET AVAILABILITY ***********************************************/
     @Test
-    fun `Should say if an asset is available in a given interval (end before)`() {
+    fun `Should say if an asset is available in a given interval (ends before the other)`() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
@@ -202,7 +202,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say if an asset is available in a given interval (start after)`() {
+    fun `Should say if an asset is available in a given interval (starts after the other)`() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
@@ -215,7 +215,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say if an asset is NOT available in a given interval (start overlaps)`() {
+    fun `Should say if an asset is NOT available in a given interval (starts within the other)`() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
@@ -228,7 +228,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say if an asset is NOT available in a given interval (end overlaps)`() {
+    fun `Should say if an asset is NOT available in a given interval (end within the other)`() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
@@ -241,7 +241,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say if an asset is NOT available in a given interval (interval contained)`() {
+    fun `Should say if an asset is NOT available in a given interval (is fully contained in the other)`() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
@@ -254,7 +254,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say if an asset is NOT available in a given interval (interval contains the other)`() {
+    fun `Should say if an asset is NOT available in a given interval (fully contains the other)`() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,

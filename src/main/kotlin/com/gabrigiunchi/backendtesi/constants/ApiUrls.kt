@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.util
+package com.gabrigiunchi.backendtesi.constants
 
 object ApiUrls {
     private const val BASE_URL = "/api/v1"

@@ -1,12 +1,12 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.Region
 import com.gabrigiunchi.backendtesi.model.type.RegionEnum
-import com.gabrigiunchi.backendtesi.util.ApiUrls
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
