@@ -26,6 +26,10 @@ class ReservationService(
 
 
     fun addReservation(reservationDTO: ReservationDTO, userId: Int): Reservation {
+        if (reservationDTO.end.before(Date())) {
+            throw BadRequestException("reservation must be in the future")
+        }
+
         if (this.assetDAO.findById(reservationDTO.assetID).isEmpty) {
             throw ResourceNotFoundException("asset #${reservationDTO.assetID} does not exist")
         }

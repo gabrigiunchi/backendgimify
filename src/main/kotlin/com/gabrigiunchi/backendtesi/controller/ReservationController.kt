@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.*
 import javax.validation.Valid
 
 @RestController
@@ -41,6 +42,14 @@ class ReservationController(
     fun getAllReservationsByAsset(@PathVariable id: Int): ResponseEntity<Collection<Reservation>> {
         this.logger.info("GET all reservations of gym #$id")
         return this.assetDAO.findById(id).map { ResponseEntity(this.reservationDAO.findByAsset(it), HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException(id) }
+    }
+
+    @GetMapping("/of_asset/{id}/future")
+    fun getAllFutureReservationsByAsset(@PathVariable id: Int): ResponseEntity<Collection<Reservation>> {
+        this.logger.info("GET all future reservations of gym #$id")
+        return this.assetDAO.findById(id)
+                .map { ResponseEntity(this.reservationDAO.findByAssetAndEndAfter(it, Date()), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException(id) }
     }
 

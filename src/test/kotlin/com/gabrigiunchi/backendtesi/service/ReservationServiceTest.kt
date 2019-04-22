@@ -67,6 +67,12 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     /************************************** CREATION *****************************************************************/
 
+    @Test(expected = BadRequestException::class)
+    fun `Should not create a reservation if the interval is in the past`() {
+        val reservationDTO = ReservationDTO(this.user!!.id, -1,
+                DateDecorator.now().minusMinutes(20).date, DateDecorator.now().minusMinutes(10).date)
+        this.reservationService.addReservation(reservationDTO, reservationDTO.userID)
+    }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the asset does not exist`() {
@@ -82,14 +88,14 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the start is after the end`() {
-        val start = DateDecorator.now()
+        val start = DateDecorator.now().plusMinutes(200)
         val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start.date, start.minusMinutes(20).date)
         this.reservationService.addReservation(reservationDTO)
     }
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the start is equal to the end`() {
-        val start = DateDecorator.now().date
+        val start = DateDecorator.now().plusMinutes(10).date
         val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start, start)
         this.reservationService.addReservation(reservationDTO)
     }
@@ -107,12 +113,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T11:00:00+0000").date, DateDecorator.of("2019-04-22T12:00:00+0000").date))
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T10:00:00+0000").date, DateDecorator.of("2019-04-22T11:30:00+0000").date))
+                DateDecorator.of("2050-04-04T10:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
     }
 
     @Test(expected = ReservationConflictException::class)
@@ -120,12 +126,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T11:00:00+0000").date, DateDecorator.of("2019-04-22T12:00:00+0000").date))
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T11:00:00+0000").date, DateDecorator.of("2019-04-22T12:00:00+0000").date))
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
     }
 
     @Test(expected = GymClosedException::class)
@@ -141,7 +147,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T08:00:00+0000").date, DateDecorator.of("2019-04-22T11:00:00+0000").date))
+                DateDecorator.of("2050-04-04T08:00:00+0000").date, DateDecorator.of("2050-04-04T11:00:00+0000").date))
     }
 
     @Test(expected = GymClosedException::class)
@@ -154,7 +160,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a reservation`() {
-        val start = DateDecorator.of("2019-04-22T11:00:00+0000")
+        val start = DateDecorator.of("2050-04-04T11:00:00+0000")
         val end = start.plusMinutes(20)
         val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start.date, end.date)
         this.reservationService.addReservation(reservationDTO)
@@ -166,10 +172,10 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.createAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T11:00:00+0000").date, DateDecorator.of("2019-04-22T11:30:00+0000").date))
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
-                DateDecorator.of("2019-04-22T11:30:00+0000").date, DateDecorator.of("2019-04-22T12:00:00+0000").date))
+                DateDecorator.of("2050-04-04T11:30:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(2)
     }

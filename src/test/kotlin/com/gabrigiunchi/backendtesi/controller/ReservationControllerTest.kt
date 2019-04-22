@@ -9,6 +9,7 @@ import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.RegionEnum
 import com.gabrigiunchi.backendtesi.util.ApiUrls
 import com.gabrigiunchi.backendtesi.util.DateDecorator
+import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
@@ -86,8 +87,47 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should get all future reservations of an asset`() {
+        val r1 = this.createReservations().first()
+        val asset = r1.asset
+        val user = r1.user
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.now().minusMinutes(20).date,
+                        end = DateDecorator.now().minusMinutes(2).date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.now().plusMinutes(1).date,
+                        end = DateDecorator.now().plusMinutes(20).date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.now().plusMinutes(100).date,
+                        end = DateDecorator.now().plusMinutes(102).date)
+        )).toList()
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/${asset.id}/future")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(reservations[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(reservations[2].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should return 404 when requesting the reservation of an asset that does not exist`() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 when requesting the future reservation of an asset that does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1/future")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
@@ -110,8 +150,8 @@ class ReservationControllerTest : AbstractControllerTest() {
         val reservation = ReservationDTO(
                 userID = this.mockUser().id,
                 assetID = asset.id,
-                start = DateDecorator.of("2019-04-22T10:00:00+0000").date,
-                end = DateDecorator.of("2019-04-22T11:00:00+0000").date)
+                start = DateDecorator.of("2050-04-04T10:00:00+0000").date,
+                end = DateDecorator.of("2050-04-04T11:00:00+0000").date)
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,6 +161,69 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.asset.id", Matchers.`is`(reservation.assetID)))
                 .andDo(MockMvcResultHandlers.print())
     }
+
+    @Test
+    fun `Should not create a reservation if interval is in the past`() {
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
+        val asset = this.mockAsset(gym)
+
+        val reservation = ReservationDTO(
+                userID = this.mockUser().id,
+                assetID = asset.id,
+                start = DateDecorator.of("2019-04-22T10:00:00+0000").date,
+                end = DateDecorator.of("2019-04-22T11:00:00+0000").date)
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservation)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not create a reservation if the gym is closed`() {
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
+        val asset = this.mockAsset(gym)
+
+        val reservation = ReservationDTO(
+                userID = this.mockUser().id,
+                assetID = asset.id,
+                start = DateDecorator.of("2050-04-05T10:00:00+0000").date,
+                end = DateDecorator.of("2050-04-05T11:00:00+0000").date)
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservation)))
+                .andExpect(MockMvcResultMatchers.status().isForbidden)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not create a reservation if there is another one at the same time`() {
+        this.userDAO.deleteAll()
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
+        val asset = this.mockAsset(gym)
+        val user = this.mockUser()
+
+        this.reservationDAO.save(Reservation(asset, user, DateDecorator.of("2050-04-04T11:00:00+0000").date,
+                DateDecorator.of("2050-04-04T11:10:00+0000").date))
+
+        val reservation = ReservationDTO(
+                userID = this.mockUser().id,
+                assetID = asset.id,
+                start = DateDecorator.of("2050-04-04T10:55:00+0000").date,
+                end = DateDecorator.of("2050-04-04T11:05:00+0000").date)
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservation)))
+                .andExpect(MockMvcResultMatchers.status().isConflict)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
 
     @Test
     fun `Should delete a reservation`() {
@@ -143,12 +246,207 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
+    /************************************** MY RESERVATIONS *****************************************************/
+
+    @Test
+    fun `Should get all my reservations`() {
+        this.userDAO.deleteAll()
+        val user1 = this.mockUser("gabrigiunchi")
+        val user2 = this.mockUser("fragiunchi")
+        val gym = this.createGym()
+        val assets = listOf(
+                this.mockAsset(gym, "a1"),
+                this.mockAsset(gym, "a2"),
+                this.mockAsset(gym, "a3"),
+                this.mockAsset(gym, "a4")
+        )
+
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(assets[0], user1, DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
+                Reservation(assets[1], user1, DateDecorator.of("2019-01-01T10:00:00+0000").date, DateDecorator.of("2019-01-01T12:00:00+0000").date),
+                Reservation(assets[0], user2, DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
+                Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
+        )).toList()
+
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(reservations[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(reservations[1].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get all my future reservations`() {
+        this.userDAO.deleteAll()
+        val user1 = this.mockUser("gabrigiunchi")
+        val user2 = this.mockUser("fragiunchi")
+        val gym = this.createGym()
+        val assets = listOf(
+                this.mockAsset(gym, "a1"),
+                this.mockAsset(gym, "a2"),
+                this.mockAsset(gym, "a3"),
+                this.mockAsset(gym, "a4")
+        )
+
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(assets[0], user1, DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
+                Reservation(assets[1], user1, DateDecorator.of("2022-01-01T10:00:00+0000").date, DateDecorator.of("2022-01-01T12:00:00+0000").date),
+                Reservation(assets[0], user2, DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
+                Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
+        )).toList()
+
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/future")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(reservations[1].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get one of my reservations by id`() {
+        this.userDAO.deleteAll()
+        val user1 = this.mockUser("gabrigiunchi")
+        val user2 = this.mockUser("fragiunchi")
+        val gym = this.createGym()
+        val assets = listOf(
+                this.mockAsset(gym, "a1"),
+                this.mockAsset(gym, "a2"),
+                this.mockAsset(gym, "a3"),
+                this.mockAsset(gym, "a4")
+        )
+
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(assets[0], user1, DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
+                Reservation(assets[1], user1, DateDecorator.of("2022-01-01T10:00:00+0000").date, DateDecorator.of("2022-01-01T12:00:00+0000").date),
+                Reservation(assets[0], user2, DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
+                Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
+        )).toList()
+
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/${reservations[0].id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(reservations[0].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 when requesting one of my reservations by id if it does not exist`() {
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 when requesting one of my reservations by id if I do not own it`() {
+        this.userDAO.deleteAll()
+        val user1 = this.mockUser("gabrigiunchi")
+        val user2 = this.mockUser("fragiunchi")
+        val gym = this.createGym()
+        val assets = listOf(
+                this.mockAsset(gym, "a1"),
+                this.mockAsset(gym, "a2"),
+                this.mockAsset(gym, "a3"),
+                this.mockAsset(gym, "a4")
+        )
+
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(assets[0], user1, DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
+                Reservation(assets[1], user1, DateDecorator.of("2022-01-01T10:00:00+0000").date, DateDecorator.of("2022-01-01T12:00:00+0000").date),
+                Reservation(assets[0], user2, DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
+                Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
+        )).toList()
+
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/${reservations[2].id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should create a reservation with the 'me' REST API`() {
+        this.userDAO.deleteAll()
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
+        val asset = this.mockAsset(gym)
+
+        val reservation = ReservationDTO(
+                userID = this.mockUser().id,
+                assetID = asset.id,
+                start = DateDecorator.of("2050-04-04T10:00:00+0000").date,
+                end = DateDecorator.of("2050-04-04T11:00:00+0000").date)
+
+        mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.RESERVATIONS}/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservation)))
+                .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(reservation.userID)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.asset.id", Matchers.`is`(reservation.assetID)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+
+    @Test
+    fun `Should delete one of my reservations`() {
+        this.userDAO.deleteAll()
+        val savedId = this.reservationDAO.save(
+                Reservation(this.mockAsset(this.createGym()), this.mockUser(),
+                        DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date)
+        ).id
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/$savedId")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent)
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.reservationDAO.findById(savedId).isEmpty).isTrue()
+    }
+
+    @Test
+    fun `Should not delete one of my reservations if it does not exist`() {
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not delete one of my reservations if I do not own it`() {
+        this.userDAO.deleteAll()
+        val user1 = this.mockUser("gabrigiunchi")
+        val user2 = this.mockUser("fragiunchi")
+        val gym = this.createGym()
+        val assets = listOf(
+                this.mockAsset(gym, "a1"),
+                this.mockAsset(gym, "a2"),
+                this.mockAsset(gym, "a3"),
+                this.mockAsset(gym, "a4")
+        )
+
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(assets[0], user1, DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
+                Reservation(assets[1], user1, DateDecorator.of("2022-01-01T10:00:00+0000").date, DateDecorator.of("2022-01-01T12:00:00+0000").date),
+                Reservation(assets[0], user2, DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
+                Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
+        )).toList()
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/${reservations[2].id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    /************************************** UTILS *******************************************************************/
+
     private fun createGym(): Gym {
         return this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
     }
 
-    private fun mockUser(): User {
-        return this.userDAO.save(User("gabrigiunchi", "dsndja", "Gabriele", "Giunchi"))
+    private fun mockUser(username: String = "gabrigiunchi"): User {
+        return this.userDAO.save(User(username, "aaaa", "Gabriele", "Giunchi"))
     }
 
     private fun mockAsset(gym: Gym, name: String = "asset"): Asset {
