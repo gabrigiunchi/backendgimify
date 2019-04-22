@@ -1,5 +1,5 @@
 applications:
-  - name: backendtesi
+  - name: backendgimify
     routes:
       - route: digitalid-api.eu-gb.mybluemix.net
     buildpack: https://github.com/cloudfoundry/java-buildpack.git
