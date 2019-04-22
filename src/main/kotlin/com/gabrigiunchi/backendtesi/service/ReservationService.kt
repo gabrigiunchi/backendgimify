@@ -104,7 +104,7 @@ class ReservationService(
     }
 
     @Throws(ResourceNotFoundException::class)
-    private fun checkReservationOfUser(userId: Int, reservationId: Int) {
+    fun checkReservationOfUser(userId: Int, reservationId: Int) {
         this.checkUser(userId)
 
         if (this.reservationDAO.findByUser(this.userDAO.findById(userId).get()).none { it.id == reservationId }) {

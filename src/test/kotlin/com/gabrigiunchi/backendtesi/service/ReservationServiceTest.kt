@@ -65,6 +65,9 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
 
+    /************************************** CREATION *****************************************************************/
+
+
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the asset does not exist`() {
         val reservationDTO = ReservationDTO(this.user!!.id, -1, Date(), DateDecorator.now().plusMinutes(20).date)
@@ -170,6 +173,31 @@ class ReservationServiceTest : AbstractControllerTest() {
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(2)
     }
+
+
+    /*************************************** OTHERS **********************************************************/
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should check if a user own a reservation and throws an exception if the user does not exist`() {
+        val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
+        this.reservationService.checkReservationOfUser(-1,  r.id)
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should check if a user own a reservation and throws an exception if the reservation belongs to another user`() {
+        val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
+        val anotherUser = this.userDAO.save(this.userFactory.createAdminUser("dasdaas", "aaaa", "Gabriele", "Giunchi"))
+
+        this.reservationService.checkReservationOfUser(anotherUser.id,  r.id)
+    }
+
+    @Test
+    fun `Should check if a user own a reservation and not throw an exception if the reservation belongs to the user`() {
+        val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
+        this.reservationService.checkReservationOfUser(this.user!!.id,  r.id)
+    }
+
+    /**************************************** UTILS ***********************************************************/
 
     private fun createTimetable(): Timetable {
         return this.timetableDAO.save(Timetable(this.gym!!, MockEntities.mockSchedules))
