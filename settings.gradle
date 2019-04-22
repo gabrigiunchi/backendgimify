@@ -3,4 +3,4 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-rootProject.name = 'backendtesi'
+rootProject.name = 'backendgimify'
