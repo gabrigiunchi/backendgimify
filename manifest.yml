@@ -8,4 +8,4 @@ applications:
     instances: 1
     timeout: 100
     env:
-      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version:  11.0.1_13 } }'
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version:  11.+ } }'
