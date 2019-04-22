@@ -68,7 +68,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the asset does not exist`() {
         val reservationDTO = ReservationDTO(this.user!!.id, -1, Date(), DateDecorator.now().plusMinutes(20).date)
-        this.reservationService.addReservation(reservationDTO)
+        this.reservationService.addReservation(reservationDTO, reservationDTO.userID)
     }
 
     @Test(expected = ResourceNotFoundException::class)

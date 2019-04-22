@@ -24,14 +24,12 @@ class ReservationService(
         private val reservationDAO: ReservationDAO) {
 
 
-    fun addReservation(reservationDTO: ReservationDTO): Reservation {
+    fun addReservation(reservationDTO: ReservationDTO, userId: Int): Reservation {
         if (this.assetDAO.findById(reservationDTO.assetID).isEmpty) {
             throw ResourceNotFoundException("asset #${reservationDTO.assetID} does not exist")
         }
 
-        if (this.userDAO.findById(reservationDTO.userID).isEmpty) {
-            throw ResourceNotFoundException("user #${reservationDTO.userID} does not exist")
-        }
+        this.checkUser(userId)
 
         if (reservationDTO.start.after(reservationDTO.end)) {
             throw BadRequestException("start is after the end")
@@ -65,6 +63,22 @@ class ReservationService(
         )
     }
 
+    fun addReservation(reservationDTO: ReservationDTO): Reservation {
+        return this.addReservation(reservationDTO, reservationDTO.userID)
+    }
+
+    fun getReservationOfUserById(userId: Int, reservationId: Int): Reservation {
+        this.checkReservationOfUser(userId = userId, reservationId = reservationId)
+        return this.reservationDAO.findById(reservationId).get()
+    }
+
+    fun deleteReservationOfUser(reservationId: Int, userId: Int) {
+        this.checkReservationOfUser(userId = userId, reservationId = reservationId)
+        this.reservationDAO.deleteById(reservationId)
+    }
+
+    /******************************* UTILS ************************************************************/
+
     fun isGymOpen(asset: Asset, start: Date, end: Date): Boolean {
         val timetable = this.timetableDAO.findByGym(asset.gym)
         return timetable.isPresent && timetable.get().contains(DateInterval(start, end))
@@ -80,5 +94,21 @@ class ReservationService(
 
     fun isReservationDurationValid(asset: Asset, start: Date, end: Date): Boolean {
         return DateDecorator.of(start).plusMinutes(asset.kind.maxReservationTime).date >= end
+    }
+
+    @Throws(ResourceNotFoundException::class)
+    private fun checkUser(userID: Int) {
+        if (this.userDAO.findById(userID).isEmpty) {
+            throw ResourceNotFoundException("user #$userID does not exist")
+        }
+    }
+
+    @Throws(ResourceNotFoundException::class)
+    private fun checkReservationOfUser(userId: Int, reservationId: Int) {
+        this.checkUser(userId)
+
+        if (this.reservationDAO.findByUser(this.userDAO.findById(userId).get()).none { it.id == reservationId }) {
+            throw ResourceNotFoundException("user #$userId does not have reservation #$reservationId")
+        }
     }
 }

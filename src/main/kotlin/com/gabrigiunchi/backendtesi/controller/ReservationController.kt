@@ -45,9 +45,9 @@ class ReservationController(
     }
 
     @PostMapping
-    fun addReservation(@Valid @RequestBody reservation: ReservationDTO): ResponseEntity<Reservation> {
+    fun addReservation(@Valid @RequestBody reservationDTO: ReservationDTO): ResponseEntity<Reservation> {
         this.logger.info("POST reservation")
-        return ResponseEntity(this.reservationService.addReservation(reservation), HttpStatus.CREATED)
+        return ResponseEntity(this.reservationService.addReservation(reservationDTO), HttpStatus.CREATED)
     }
 
     @DeleteMapping("/{id}")
@@ -77,5 +77,25 @@ class ReservationController(
         return ResponseEntity(this.reservationDAO.findByUserAndEndAfter(user, DateDecorator.now().date), HttpStatus.OK)
     }
 
+    @GetMapping("/me/{id}")
+    fun getReservationOfUserById(@PathVariable id: Int): ResponseEntity<Reservation> {
+        val user = this.getLoggedUser()
+        this.logger.info("GET reservations #$id of user #${user.id}")
+        return ResponseEntity(this.reservationService.getReservationOfUserById(userId = user.id, reservationId = id), HttpStatus.OK)
+    }
 
+    @PostMapping("/me")
+    fun addReservationForLoggedUser(@Valid @RequestBody reservationDTO: ReservationDTO): ResponseEntity<Reservation> {
+        val user = this.getLoggedUser()
+        this.logger.info("POST reservation for user #${user.id}")
+        return ResponseEntity(this.reservationService.addReservation(reservationDTO, user.id), HttpStatus.CREATED)
+    }
+
+    @DeleteMapping("/me/{id}")
+    fun deleteReservationForLoggedUser(@PathVariable(name = "id") reservationId: Int): ResponseEntity<Void> {
+        val user = this.getLoggedUser()
+        this.logger.info("DELETE reservation #$reservationId of user #${user.id}")
+        this.reservationService.deleteReservationOfUser(reservationId, user.id)
+        return ResponseEntity(HttpStatus.NO_CONTENT)
+    }
 }
