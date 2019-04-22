@@ -1,9 +1,9 @@
 applications:
-  - name: backendgimify
+  - name: backendtesi
     routes:
       - route: digitalid-api.eu-gb.mybluemix.net
     buildpack: https://github.com/cloudfoundry/java-buildpack.git
-    path: build/libs/backendgimify-0.0.1.jar
+    path: build/libs/backendtesi-0.0.1.jar
     memory: 1024M
     instances: 1
     timeout: 100
