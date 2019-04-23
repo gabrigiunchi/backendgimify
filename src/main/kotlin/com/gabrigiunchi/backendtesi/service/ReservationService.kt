@@ -1,18 +1,17 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.dao.*
-import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
-import com.gabrigiunchi.backendtesi.exceptions.GymClosedException
-import com.gabrigiunchi.backendtesi.exceptions.ReservationConflictException
-import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.exceptions.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class ReservationService(
+        private val reservationLogDAO: ReservationLogDAO,
         private val cityDAO: CityDAO,
         private val gymDAO: GymDAO,
         private val assetKindDAO: AssetKindDAO,
@@ -21,6 +20,8 @@ class ReservationService(
         private val userDAO: UserDAO,
         private val reservationDAO: ReservationDAO) {
 
+    @Value("\${application.maxReservationsPerDay}")
+    private var maxReservationsPerDay: Int = 0
 
     fun addReservation(reservationDTO: ReservationDTO, userId: Int): Reservation {
         if (reservationDTO.end.before(Date())) {
@@ -39,9 +40,12 @@ class ReservationService(
             throw ResourceNotFoundException("asset #${reservationDTO.assetID} does not exist")
         }
 
-        this.checkUser(userId)
-        val asset = this.assetDAO.findById(reservationDTO.assetID).get()
+        val user = this.getUser(userId)
+        if (this.numberOfReservationsMadeByUserInDate(user, Date()) >= this.maxReservationsPerDay) {
+            throw TooManyReservationsException()
+        }
 
+        val asset = this.assetDAO.findById(reservationDTO.assetID).get()
         if (!this.isReservationDurationValid(asset, reservationDTO.start, reservationDTO.end)) {
             throw BadRequestException("reservation duration exceeds maximum (max=${asset.kind.maxReservationTime} minutes)")
         }
@@ -54,14 +58,17 @@ class ReservationService(
             throw ReservationConflictException()
         }
 
-        return this.reservationDAO.save(
+        val savedReservation = this.reservationDAO.save(
                 Reservation(
                         asset = asset,
-                        user = this.userDAO.findById(reservationDTO.userID).get(),
+                        user = user,
                         start = reservationDTO.start,
                         end = reservationDTO.end
                 )
         )
+        this.reservationLogDAO.save(ReservationLog(savedReservation))
+
+        return savedReservation
     }
 
     fun addReservation(reservationDTO: ReservationDTO): Reservation {
@@ -125,6 +132,11 @@ class ReservationService(
     }
 
     /******************************* UTILS ************************************************************/
+    fun numberOfReservationsMadeByUserInDate(user: User, date: Date): Int {
+        return this.reservationLogDAO.findByUser(user)
+                .filter { DateDecorator.of(it.date).isSameDay(date) }
+                .count()
+    }
 
     fun isGymOpen(gym: Gym, start: Date, end: Date): Boolean {
         val timetable = this.timetableDAO.findByGym(gym)
@@ -148,17 +160,6 @@ class ReservationService(
     }
 
     /**
-     * Check if the user exists
-     * @throws ResourceNotFoundException if the user does not exist
-     */
-    @Throws(ResourceNotFoundException::class)
-    private fun checkUser(userID: Int) {
-        if (this.userDAO.findById(userID).isEmpty) {
-            throw ResourceNotFoundException("user #$userID does not exist")
-        }
-    }
-
-    /**
      * Check if the reservation belongs to the user
      * @throws ResourceNotFoundException if the user does not exist
      * @throws ResourceNotFoundException if the reservation does not exist or the user is not the owner
@@ -168,5 +169,12 @@ class ReservationService(
         if (this.reservationDAO.findByUser(user).none { it.id == reservationId }) {
             throw ResourceNotFoundException("user #$${user.id} does not have reservation #$reservationId")
         }
+    }
+
+    @Throws(ResourceNotFoundException::class)
+    private fun getUser(userID: Int): User {
+        return this.userDAO.findById(userID)
+                .map { it }
+                .orElseThrow { ResourceNotFoundException("user #$userID does not exist") }
     }
 }

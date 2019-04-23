@@ -6,22 +6,18 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-class Reservation(
+class ReservationLog(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
 
         @ManyToOne(fetch = FetchType.EAGER)
-        val asset: Asset,
-
-        @ManyToOne(fetch = FetchType.EAGER)
         @OnDelete(action = OnDeleteAction.CASCADE)
         val user: User,
 
-        val start: Date,
+        val reservationId: Int,
 
-        val end: Date
-
+        val date: Date
 ) {
-    constructor(asset: Asset, user: User, start: Date, end: Date) : this(-1, asset, user, start, end)
+    constructor(reservation: Reservation) : this(-1, reservation.user, reservation.id, Date())
 }

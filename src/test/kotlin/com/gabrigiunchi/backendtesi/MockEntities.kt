@@ -1,9 +1,7 @@
 package com.gabrigiunchi.backendtesi
 
-import com.gabrigiunchi.backendtesi.model.City
-import com.gabrigiunchi.backendtesi.model.DateInterval
-import com.gabrigiunchi.backendtesi.model.Schedule
-import com.gabrigiunchi.backendtesi.model.TimeInterval
+import com.gabrigiunchi.backendtesi.model.*
+import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
@@ -31,4 +29,5 @@ object MockEntities {
     )
 
     val mockCities = CityEnum.values().map { City(it) }
+    val assetKinds = AssetKindEnum.values().map { AssetKind(it, 20) }
 }

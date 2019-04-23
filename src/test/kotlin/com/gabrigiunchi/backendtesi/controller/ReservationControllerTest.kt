@@ -42,11 +42,15 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
 
+    @Autowired
+    private lateinit var reservationLogDAO: ReservationLogDAO
+
     @Before
     fun clearDB() {
         this.reservationDAO.deleteAll()
         this.gymDAO.deleteAll()
         this.assetDAO.deleteAll()
+        this.reservationLogDAO.deleteAll()
     }
 
     @Test
@@ -219,6 +223,11 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(reservation.userID)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.asset.id", Matchers.`is`(reservation.assetID)))
                 .andDo(MockMvcResultHandlers.print())
+
+        val logs = this.reservationLogDAO.findByUser(this.userDAO.findById(reservation.userID).get())
+        Assertions.assertThat(logs.size).isEqualTo(1)
+        Assertions.assertThat(DateDecorator.of(logs.first().date).format("yyyy-MM-dd"))
+                .isEqualTo(DateDecorator.now().format("yyyy-MM-dd"))
     }
 
     @Test
@@ -283,6 +292,51 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
+    @Test
+    fun `Should not be able to make 3 reservations per day`() {
+        this.userDAO.deleteAll()
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
+        val asset = this.mockAsset(gym)
+        val user = this.mockUser()
+
+        val reservations = listOf(
+                ReservationDTO(
+                        userID = user.id,
+                        assetID = asset.id,
+                        start = DateDecorator.of("2050-04-04T10:55:00+0000").date,
+                        end = DateDecorator.of("2050-04-04T11:05:00+0000").date),
+
+                ReservationDTO(
+                        userID = user.id,
+                        assetID = asset.id,
+                        start = DateDecorator.of("2050-04-11T10:55:00+0000").date,
+                        end = DateDecorator.of("2050-04-11T11:05:00+0000").date),
+
+                ReservationDTO(
+                        userID = user.id,
+                        assetID = asset.id,
+                        start = DateDecorator.of("2050-04-18T10:55:00+0000").date,
+                        end = DateDecorator.of("2050-04-18T11:05:00+0000").date))
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservations[0])))
+                .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andDo(MockMvcResultHandlers.print())
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservations[1])))
+                .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andDo(MockMvcResultHandlers.print())
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservations[2])))
+                .andExpect(MockMvcResultMatchers.status().isForbidden)
+                .andDo(MockMvcResultHandlers.print())
+    }
 
     @Test
     fun `Should delete a reservation`() {

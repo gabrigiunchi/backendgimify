@@ -64,4 +64,11 @@ public class ResourceControllerAdvice {
     VndErrors gymClosedHandler(GymClosedException ex) {
         return new VndErrors("Gym closed", ex.getMessage());
     }
+
+    @ResponseBody
+    @ExceptionHandler(TooManyReservationsException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    VndErrors tooManyReservationsHandler(TooManyReservationsException ex) {
+        return new VndErrors("Too many reservations", ex.getMessage());
+    }
 }

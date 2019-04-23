@@ -1,7 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
-import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.ReservationDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
@@ -21,7 +20,6 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/reservations")
 class ReservationController(
-        private val assetKindDAO: AssetKindDAO,
         private val reservationService: ReservationService,
         private val assetDAO: AssetDAO,
         private val reservationDAO: ReservationDAO,

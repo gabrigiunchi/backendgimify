@@ -3,10 +3,7 @@ package com.gabrigiunchi.backendtesi.service
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.*
-import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
-import com.gabrigiunchi.backendtesi.exceptions.GymClosedException
-import com.gabrigiunchi.backendtesi.exceptions.ReservationConflictException
-import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.exceptions.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
@@ -48,6 +45,9 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
 
+    @Autowired
+    private lateinit var reservationLogDAO: ReservationLogDAO
+
     private var user: User? = null
     private var gym: Gym? = null
 
@@ -58,6 +58,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.assetKindDAO.deleteAll()
         this.userDAO.deleteAll()
         this.reservationDAO.deleteAll()
+        this.reservationLogDAO.deleteAll()
 
         this.user = this.userDAO.save(this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi"))
         this.gym = this.createGym()
@@ -167,11 +168,17 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a reservation`() {
+        val now = Date()
         val start = DateDecorator.of("2050-04-04T11:00:00+0000")
         val end = start.plusMinutes(20)
         val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start.date, end.date)
-        this.reservationService.addReservation(reservationDTO)
+        val savedReservation = this.reservationService.addReservation(reservationDTO)
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
+        Assertions.assertThat(this.reservationLogDAO.count()).isEqualTo(1)
+        val log = this.reservationLogDAO.findByReservationId(savedReservation.id).get()
+        Assertions.assertThat(log.user.id).isEqualTo(this.user!!.id)
+        Assertions.assertThat(log.reservationId).isEqualTo(savedReservation.id)
+        Assertions.assertThat(log.date.time).isGreaterThanOrEqualTo(now.time)
     }
 
     @Test
@@ -185,6 +192,33 @@ class ReservationServiceTest : AbstractControllerTest() {
                 DateDecorator.of("2050-04-04T11:30:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(2)
+    }
+
+    @Test
+    fun `Should create a reservation (edge case with one reservation at the same hour but a week later)`() {
+        val asset = this.createAsset(300)
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-11T11:00:00+0000").date, DateDecorator.of("2050-04-11T11:30:00+0000").date))
+
+        Assertions.assertThat(this.reservationDAO.count()).isEqualTo(2)
+    }
+
+    @Test(expected = TooManyReservationsException::class)
+    fun `Should not be possible to make 3 reservations per day`() {
+        val asset = this.createAsset()
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:15:00+0000").date))
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-11T11:00:00+0000").date, DateDecorator.of("2050-04-11T11:15:00+0000").date))
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-18T11:00:00+0000").date, DateDecorator.of("2050-04-18T11:15:00+0000").date))
     }
 
     /************************************* ASSET AVAILABILITY ***********************************************/
