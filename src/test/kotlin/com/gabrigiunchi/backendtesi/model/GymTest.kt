@@ -1,9 +1,9 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.RegionDAO
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -15,28 +15,28 @@ class GymTest : AbstractControllerTest() {
     private lateinit var gymDAO: GymDAO
 
     @Autowired
-    private lateinit var regionDAO: RegionDAO
+    private lateinit var cityDAO: CityDAO
 
     @Before
     fun clearDB() {
-        this.regionDAO.deleteAll()
+        this.cityDAO.deleteAll()
         this.gymDAO.deleteAll()
     }
 
     @Test
-    fun `Should delete a region and all the gyms related to it`() {
-        val region = this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))
+    fun `Should delete a city and all the gyms related to it`() {
+        val city = this.cityDAO.save(City(CityEnum.BERGAMO))
         this.gymDAO.saveAll(listOf(
-                Gym("gym1", "via1", region),
-                Gym("gym2", "via2", region),
-                Gym("gym3", "via3", region),
-                Gym("gym4", "via4", region)))
+                Gym("gym1", "via1", city),
+                Gym("gym2", "via2", city),
+                Gym("gym3", "via3", city),
+                Gym("gym4", "via4", city)))
 
         Assertions.assertThat(this.gymDAO.count()).isEqualTo(4)
-        Assertions.assertThat(this.regionDAO.count()).isEqualTo(1)
+        Assertions.assertThat(this.cityDAO.count()).isEqualTo(1)
 
-        this.regionDAO.delete(region)
-        Assertions.assertThat(this.regionDAO.count()).isEqualTo(0)
+        this.cityDAO.delete(city)
+        Assertions.assertThat(this.cityDAO.count()).isEqualTo(0)
         Assertions.assertThat(this.gymDAO.count()).isEqualTo(0)
     }
 }

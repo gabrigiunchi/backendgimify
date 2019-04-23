@@ -1,10 +1,10 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.junit.Before
@@ -21,11 +21,11 @@ class TimetableTest : AbstractControllerTest() {
     private lateinit var timetableDAO: TimetableDAO
 
     @Autowired
-    private lateinit var regionDAO: RegionDAO
+    private lateinit var cityDAO: CityDAO
 
     @Before
     fun clearDB() {
-        this.regionDAO.deleteAll()
+        this.cityDAO.deleteAll()
         this.timetableDAO.deleteAll()
         this.gymDAO.deleteAll()
     }
@@ -250,6 +250,6 @@ class TimetableTest : AbstractControllerTest() {
     }
 
     private fun createGym(): Gym {
-        return this.gymDAO.save(Gym("Gym1", "Via 2", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(City(CityEnum.BERGAMO))))
     }
 }

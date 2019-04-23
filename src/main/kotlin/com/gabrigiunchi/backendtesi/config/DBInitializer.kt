@@ -4,7 +4,7 @@ import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -28,9 +28,9 @@ class DBInitializer {
     private lateinit var gymDAO: GymDAO
 
     @Autowired
-    private lateinit var regionDAO: RegionDAO
+    private lateinit var cityDAO: CityDAO
 
-    private var regions = listOf<Region>()
+    private var cities = listOf<City>()
 
     private val maxReservationTimes = mapOf(
             Pair(AssetKindEnum.CICLETTE, 60),
@@ -39,7 +39,7 @@ class DBInitializer {
             Pair(AssetKindEnum.TAPIS_ROULANT, 60))
 
     fun initDB() {
-        this.initRegions()
+        this.initCities()
         this.initUserRole()
         this.initUsers()
         this.initGyms()
@@ -66,10 +66,10 @@ class DBInitializer {
 
     fun initGyms() {
         this.gymDAO.saveAll(listOf(
-                Gym("gym1", "Via1", this.regions[0]),
-                Gym("gym2", "Via2", this.regions[0]),
-                Gym("gym3", "Via3", this.regions[1]),
-                Gym("gym4", "Via4", this.regions[2])))
+                Gym("gym1", "Via1", this.cities[0]),
+                Gym("gym2", "Via2", this.cities[0]),
+                Gym("gym3", "Via3", this.cities[1]),
+                Gym("gym4", "Via4", this.cities[2])))
     }
 
     fun initAssetKinds() {
@@ -86,7 +86,7 @@ class DBInitializer {
         ))
     }
 
-    fun initRegions() {
-        this.regions = this.regionDAO.saveAll(RegionEnum.values().map { Region(it) }).toList()
+    fun initCities() {
+        this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it) }).toList()
     }
 }

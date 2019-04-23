@@ -92,14 +92,14 @@ class ReservationController(
         return ResponseEntity(this.reservationService.getAvailableAssetsInGym(kindId, gymId, from, to), HttpStatus.OK)
     }
 
-    @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/region/{regionId}")
-    fun getAvailableAssetsInRegion(@PathVariable kindId: Int,
-                                   @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
-                                   @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date,
-                                   @PathVariable regionId: Int): ResponseEntity<Collection<Asset>> {
+    @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/city/{cityId}")
+    fun getAvailableAssetsInCity(@PathVariable kindId: Int,
+                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
+                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date,
+                                 @PathVariable cityId: Int): ResponseEntity<Collection<Asset>> {
 
-        this.logger.info("GET available assets of kind $kindId from $from to $to in region $regionId")
-        return ResponseEntity(this.reservationService.getAvailableAssetsInRegion(kindId, regionId, from, to), HttpStatus.OK)
+        this.logger.info("GET available assets of kind $kindId from $from to $to in city $cityId")
+        return ResponseEntity(this.reservationService.getAvailableAssetsInCity(kindId, cityId, from, to), HttpStatus.OK)
     }
 
     @PostMapping

@@ -1,17 +1,17 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-class Region(
+class City(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
         val name: String
 ) {
-    constructor(region: RegionEnum) : this(-1, region.name)
+    constructor(city: CityEnum) : this(-1, city.name)
 }

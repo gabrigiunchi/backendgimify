@@ -3,7 +3,7 @@ package com.gabrigiunchi.backendtesi.dao
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
@@ -32,7 +32,7 @@ class ReservationDAOTest : AbstractControllerTest() {
     private lateinit var userFactory: UserFactory
 
     @Autowired
-    private lateinit var regionDAO: RegionDAO
+    private lateinit var cityDAO: CityDAO
 
     @Before
     fun clearDB() {
@@ -114,7 +114,7 @@ class ReservationDAOTest : AbstractControllerTest() {
     }
 
     private fun createAsset(name: String): Asset {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         return this.assetDAO.save(Asset(name, kind, gym))
     }

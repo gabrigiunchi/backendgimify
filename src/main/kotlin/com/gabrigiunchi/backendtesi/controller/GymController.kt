@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
+import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Gym
@@ -14,7 +14,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/gyms")
 class GymController(private val gymDAO: GymDAO,
-                    private val regionDAO: RegionDAO) {
+                    private val cityDAO: CityDAO) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
 
@@ -32,12 +32,12 @@ class GymController(private val gymDAO: GymDAO,
                 .orElseThrow { ResourceNotFoundException(id) }
     }
 
-    @GetMapping("/by_region/{regionId}")
-    fun getGymByRegion(@PathVariable regionId: Int): ResponseEntity<List<Gym>> {
-        this.logger.info("GET gym by region #$regionId")
-        return this.regionDAO.findById(regionId)
-                .map { ResponseEntity(this.gymDAO.findByRegion(it), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("region #$regionId does not exist") }
+    @GetMapping("/by_city/{cityId}")
+    fun getGymByCity(@PathVariable cityId: Int): ResponseEntity<List<Gym>> {
+        this.logger.info("GET gym by city #$cityId")
+        return this.cityDAO.findById(cityId)
+                .map { ResponseEntity(this.gymDAO.findByCity(it), HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException("city #$cityId does not exist") }
     }
 
     @PostMapping
@@ -48,8 +48,8 @@ class GymController(private val gymDAO: GymDAO,
             throw ResourceAlreadyExistsException(gym.id)
         }
 
-        if (this.regionDAO.findById(gym.region.id).isEmpty) {
-            throw ResourceNotFoundException("region #${gym.region.id} does not exists")
+        if (this.cityDAO.findById(gym.city.id).isEmpty) {
+            throw ResourceNotFoundException("city #${gym.city.id} does not exists")
         }
 
         return ResponseEntity(this.gymDAO.save(gym), HttpStatus.CREATED)

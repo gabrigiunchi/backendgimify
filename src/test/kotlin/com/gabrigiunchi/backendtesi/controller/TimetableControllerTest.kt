@@ -3,14 +3,14 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
+import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.RegionDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
+import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.Region
 import com.gabrigiunchi.backendtesi.model.Timetable
 import com.gabrigiunchi.backendtesi.model.dto.TimetableDTO
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -30,7 +30,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     private lateinit var timetableDAO: TimetableDAO
 
     @Autowired
-    private lateinit var regionDAO: RegionDAO
+    private lateinit var cityDAO: CityDAO
 
     private var gyms = emptyList<Gym>()
 
@@ -40,16 +40,16 @@ class TimetableControllerTest : AbstractControllerTest() {
 
     @Before
     fun clearDB() {
-        this.regionDAO.deleteAll()
+        this.cityDAO.deleteAll()
         this.timetableDAO.deleteAll()
         this.gymDAO.deleteAll()
 
-        val region = this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))
+        val city = this.cityDAO.save(City(CityEnum.BERGAMO))
         this.gyms = this.gymDAO.saveAll(listOf(
-                Gym("gym1", "via1", region),
-                Gym("gym2", "via2", region),
-                Gym("gym3", "via3", region),
-                Gym("gym4", "via4", region)
+                Gym("gym1", "via1", city),
+                Gym("gym2", "via2", city),
+                Gym("gym3", "via3", city),
+                Gym("gym4", "via4", city)
         )).toList()
 
         this.timetables = listOf(

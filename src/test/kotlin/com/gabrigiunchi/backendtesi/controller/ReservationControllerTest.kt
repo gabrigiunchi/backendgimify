@@ -7,7 +7,7 @@ import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
-import com.gabrigiunchi.backendtesi.model.type.RegionEnum
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -37,7 +37,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     private lateinit var gymDAO: GymDAO
 
     @Autowired
-    private lateinit var regionDAO: RegionDAO
+    private lateinit var cityDAO: CityDAO
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
@@ -202,7 +202,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a reservation`() {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -223,7 +223,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a reservation if interval is in the past`() {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -242,7 +242,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a reservation if the gym is closed`() {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -262,7 +262,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not create a reservation if there is another one at the same time`() {
         this.userDAO.deleteAll()
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
         val user = this.mockUser()
@@ -428,7 +428,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should create a reservation with the 'me' REST API`() {
         this.userDAO.deleteAll()
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -529,7 +529,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should get available assets and filter by gym`() {
         this.reservationDAO.deleteAll()
         val gym = this.createGym()
-        val anotherGym = this.gymDAO.save(Gym("another gym", "address2", gym.region))
+        val anotherGym = this.gymDAO.save(Gym("another gym", "address2", gym.city))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         val assets = this.assetDAO.saveAll((0..3).map { Asset("ciclette$it", kind, if (it % 2 == 0) gym else anotherGym) }).toList()
@@ -579,11 +579,11 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should return 404 if the kind does not exist when searching for available assets and filtering by region`() {
+    fun `Should return 404 if the kind does not exist when searching for available assets and filtering by city`() {
         val gym = this.createGym()
         val from = DateDecorator.of("2050-04-04T10:00:00+0000")
         val to = from.plusMinutes(10)
-        val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}/region/${gym.region.id}"
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}/city/${gym.city.id}"
 
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -605,11 +605,11 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should return 404 if the region does not exist when searching for available assets and filtering by region`() {
+    fun `Should return 404 if the city does not exist when searching for available assets and filtering by city`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.PRESSA, 20))
         val from = DateDecorator.of("2050-04-04T10:00:00+0000")
         val to = from.plusMinutes(10)
-        val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}/region/-1"
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}/city/-1"
 
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -620,7 +620,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     /************************************** UTILS *******************************************************************/
 
     private fun createGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
     }
 
     private fun mockUser(username: String = "gabrigiunchi"): User {

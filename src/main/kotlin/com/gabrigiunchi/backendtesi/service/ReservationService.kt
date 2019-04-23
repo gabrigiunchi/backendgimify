@@ -13,7 +13,7 @@ import java.util.*
 
 @Service
 class ReservationService(
-        private val regionDAO: RegionDAO,
+        private val cityDAO: CityDAO,
         private val gymDAO: GymDAO,
         private val assetKindDAO: AssetKindDAO,
         private val timetableDAO: TimetableDAO,
@@ -86,11 +86,11 @@ class ReservationService(
                 .filter { isAssetAvailable(it, start, end) }
     }
 
-    fun getAvailableAssetsInRegion(kindId: Int, regionId: Int, start: Date, end: Date): Collection<Asset> {
+    fun getAvailableAssetsInCity(kindId: Int, cityId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
-        this.getRegion(regionId)
+        this.getCity(cityId)
         return this.assetDAO.findByKind(this.getAssetKind(kindId))
-                .filter { it.gym.region.id == regionId }
+                .filter { it.gym.city.id == cityId }
                 .filter { isGymOpen(it.gym, start, end) }
                 .filter { isReservationDurationValid(it, start, end) }
                 .filter { isAssetAvailable(it, start, end) }
@@ -120,8 +120,8 @@ class ReservationService(
         return this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
-    private fun getRegion(regionId: Int): Region {
-        return this.regionDAO.findById(regionId).orElseThrow { ResourceNotFoundException("region $regionId does not exist") }
+    private fun getCity(cityId: Int): City {
+        return this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
     }
 
     /******************************* UTILS ************************************************************/
