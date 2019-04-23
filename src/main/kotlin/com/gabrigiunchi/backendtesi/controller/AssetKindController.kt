@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
+import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.AssetKind
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.lang.IllegalArgumentException
 import javax.validation.Valid
 
 @RestController
@@ -47,12 +49,27 @@ class AssetKindController {
     @PutMapping("/{id}")
     fun updateAssetkind(@Valid @RequestBody assetKind: AssetKind, @PathVariable id: Int): ResponseEntity<AssetKind> {
         this.logger.info("PUT asset kind: ${assetKind.name}")
+        return this.assetKindDAO.findById(id)
+                .map { ResponseEntity(this.assetKindDAO.save(assetKind), HttpStatus.OK) }
+                .orElseThrow {
+                    throw ResourceNotFoundException(assetKind.id)
+                }
+    }
 
-        if (this.assetKindDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(assetKind.id)
+    @PatchMapping("/{id}/max_time/{time}")
+    fun updateAssetKindMaxReservationTime(@PathVariable id: Int, @PathVariable time: Int): ResponseEntity<AssetKind> {
+        this.logger.info("PATCH max reservation time of asset kind #$id")
+
+        if (time <= 0) {
+            throw BadRequestException("time must be positive")
         }
 
-        return ResponseEntity(this.assetKindDAO.save(assetKind), HttpStatus.OK)
+        return this.assetKindDAO.findById(id)
+                .map {
+                    it.maxReservationTime = time
+                    ResponseEntity(this.assetKindDAO.save(it), HttpStatus.OK)
+                }
+                .orElseThrow { ResourceNotFoundException("asset kind #$id does not exist") }
     }
 
     @DeleteMapping("/{id}")

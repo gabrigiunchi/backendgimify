@@ -12,7 +12,7 @@ class AssetKind(
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
         val name: String,
-        val maxReservationTime: Int // minutes
+        var maxReservationTime: Int // minutes
 ) {
     constructor(name: String, maxReservationTime: Int) : this(-1, name, maxReservationTime)
     constructor(kind: AssetKindEnum, maxReservationTime: Int) : this(-1, kind, maxReservationTime)
