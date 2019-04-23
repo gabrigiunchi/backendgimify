@@ -1,10 +1,12 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.CityDAO
+import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.service.GymService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,6 +16,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/gyms")
 class GymController(private val gymDAO: GymDAO,
+                    private val gymService: GymService,
                     private val cityDAO: CityDAO) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
@@ -38,6 +41,12 @@ class GymController(private val gymDAO: GymDAO,
         return this.cityDAO.findById(cityId)
                 .map { ResponseEntity(this.gymDAO.findByCity(it), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("city #$cityId does not exist") }
+    }
+
+    @GetMapping("/{id}/rating")
+    fun getRatingOfGym(@PathVariable id: Int): ResponseEntity<Double> {
+        this.logger.info("GET rating of gym $id")
+        return ResponseEntity(this.gymService.calculateRatingOfGym(id), HttpStatus.OK)
     }
 
     @PostMapping

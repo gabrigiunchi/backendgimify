@@ -1,12 +1,19 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
+import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
+import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.City
+import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
+import com.gabrigiunchi.backendtesi.util.UserFactory
+import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
@@ -24,12 +31,22 @@ class GymControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var cityDAO: CityDAO
 
+    @Autowired
+    private lateinit var userDAO: UserDAO
+
+    @Autowired
+    private lateinit var userFactory: UserFactory
+
+    @Autowired
+    private lateinit var commentDAO: CommentDAO
+
     private var city = City(CityEnum.MILANO)
 
     @Before
     fun clearDB() {
         this.cityDAO.deleteAll()
         this.city = this.cityDAO.save(this.city)
+        this.commentDAO.deleteAll()
     }
 
     @Test
@@ -181,5 +198,56 @@ class GymControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
+    }
+
+    /************************************ RATING *************************************************************/
+    @Test
+    fun `Should calculate the rating of a gym`() {
+        this.gymDAO.deleteAll()
+        val user = this.createUser()
+        val gym = this.createGym()
+
+        val comments = this.commentDAO.saveAll(listOf(
+                Comment(user, gym, "title", "message", 2),
+                Comment(user, gym, "title", "message", 3),
+                Comment(user, gym, "title", "message", 1),
+                Comment(user, gym, "title", "message", 5),
+                Comment(user, gym, "title", "message", 2)
+        )).toList()
+
+        val expectedResult = (2 + 3 + 1 + 5 + 2).toDouble() / comments.size.toDouble()
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/rating")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(expectedResult)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should calculate the rating of a gym and return -1 if no comments are present`() {
+        this.gymDAO.deleteAll()
+        val gym = this.createGym()
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/rating")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(-1.0)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should throw an exception when calculating the rating of a gym if the gym does not exist`() {
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/-1/rating")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    private fun createUser(): User {
+        return this.userDAO.save(this.userFactory.createRegularUser("adsa", "jns", "jnj", "njnj"))
+    }
+
+    private fun createGym(): Gym {
+        val city = this.cityDAO.save(MockEntities.mockCities[0])
+        return this.gymDAO.save(Gym("gym1", "address1", city))
     }
 }
