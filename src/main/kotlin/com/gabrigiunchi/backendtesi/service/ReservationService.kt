@@ -8,13 +8,11 @@ import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
 import com.gabrigiunchi.backendtesi.exceptions.GymClosedException
 import com.gabrigiunchi.backendtesi.exceptions.ReservationConflictException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.DateInterval
-import com.gabrigiunchi.backendtesi.model.Reservation
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.springframework.stereotype.Service
+import java.lang.IllegalArgumentException
 import java.util.*
 
 @Service
@@ -49,11 +47,11 @@ class ReservationService(
             throw BadRequestException("reservation duration exceeds maximum (max=${asset.kind.maxReservationTime} minutes)")
         }
 
-        if (!this.isGymOpen(asset, reservationDTO.start, reservationDTO.end)) {
+        if (!this.isGymOpen(asset.gym, reservationDTO.start, reservationDTO.end)) {
             throw GymClosedException()
         }
 
-        if (!this.isAssetFree(asset, reservationDTO.start, reservationDTO.end)) {
+        if (!this.isAssetAvailable(asset, reservationDTO.start, reservationDTO.end)) {
             throw ReservationConflictException()
         }
 
@@ -81,17 +79,38 @@ class ReservationService(
         this.reservationDAO.deleteById(reservationId)
     }
 
+    fun getAvailableAssets(kind: AssetKind, start: Date, end: Date): Collection<Asset> {
+        if(start >= end) {
+            throw IllegalArgumentException("start is after the end")
+        }
+        return this.assetDAO.findByKind(kind)
+                .filter { isGymOpen(it.gym, start, end) }
+                .filter { isReservationDurationValid(it, start, end) }
+                .filter { isAssetAvailable(it, start, end) }
+    }
+
+    fun getAvailableAssets(kind: AssetKind, start: Date, end: Date, gymId: Int): Collection<Asset> {
+        if(start >= end) {
+            throw IllegalArgumentException("start is after the end")
+        }
+        return this.assetDAO.findByKind(kind)
+                .filter { it.gym.id == gymId }
+                .filter { isGymOpen(it.gym, start, end) }
+                .filter { isReservationDurationValid(it, start, end) }
+                .filter { isAssetAvailable(it, start, end) }
+    }
+
     /******************************* UTILS ************************************************************/
 
-    fun isGymOpen(asset: Asset, start: Date, end: Date): Boolean {
-        val timetable = this.timetableDAO.findByGym(asset.gym)
+    fun isGymOpen(gym: Gym, start: Date, end: Date): Boolean {
+        val timetable = this.timetableDAO.findByGym(gym)
         return timetable.isPresent && timetable.get().contains(DateInterval(start, end))
     }
 
     /**
      * Returns true if there are no other reservations for the given asset in the given interval
      */
-    fun isAssetFree(asset: Asset, start: Date, end: Date): Boolean {
+    fun isAssetAvailable(asset: Asset, start: Date, end: Date): Boolean {
         val reservations = this.reservationDAO.findByAssetAndEndAfter(asset, start)
         return reservations.none { DateInterval(it.start, it.end).overlaps(DateInterval(start, end)) }
     }

@@ -17,6 +17,7 @@ import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.lang.IllegalArgumentException
 import java.util.*
 
 class ReservationServiceTest : AbstractControllerTest() {
@@ -195,7 +196,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
 
-        Assertions.assertThat(this.reservationService.isAssetFree(
+        Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
                 DateDecorator.of("2050-04-04T08:00:00+0000").date,
                 DateDecorator.of("2050-04-04T10:00:00+0000").date)).isTrue()
@@ -208,7 +209,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
 
-        Assertions.assertThat(this.reservationService.isAssetFree(
+        Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
                 DateDecorator.of("2050-04-04T16:00:00+0000").date,
                 DateDecorator.of("2050-04-04T18:00:00+0000").date)).isTrue()
@@ -221,7 +222,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
 
-        Assertions.assertThat(this.reservationService.isAssetFree(
+        Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
                 DateDecorator.of("2050-04-04T11:10:00+0000").date,
                 DateDecorator.of("2050-04-04T12:00:00+0000").date)).isFalse()
@@ -234,7 +235,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
 
-        Assertions.assertThat(this.reservationService.isAssetFree(
+        Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
                 DateDecorator.of("2050-04-04T08:00:00+0000").date,
                 DateDecorator.of("2050-04-04T11:02:00+0000").date)).isFalse()
@@ -247,7 +248,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
 
-        Assertions.assertThat(this.reservationService.isAssetFree(
+        Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
                 DateDecorator.of("2050-04-04T11:02:00+0000").date,
                 DateDecorator.of("2050-04-04T11:04:00+0000").date)).isFalse()
@@ -260,10 +261,148 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
 
-        Assertions.assertThat(this.reservationService.isAssetFree(
+        Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
                 DateDecorator.of("2050-04-04T10:00:00+0000").date,
                 DateDecorator.of("2050-04-04T12:00:00+0000").date)).isFalse()
+    }
+
+    /****************************** SEARCH AVAILABLE ASSETS ***********************************************/
+
+    @Test
+    fun `Should return the available assets of a given kind in a given interval`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val assets = this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssets(kind,
+                DateDecorator.of("2050-04-04T10:15:00+0000").date, DateDecorator.of("2050-04-04T10:30:00+0000").date)
+
+        Assertions.assertThat(result.size).isEqualTo(10)
+        Assertions.assertThat(assets.map { it.id }.toSet()).isEqualTo(result.map { it.id }.toSet())
+    }
+
+    @Test
+    fun `Should return empty list when searching the free assets if the interval is too big`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssets(kind,
+                DateDecorator.of("2050-04-04T10:15:00+0000").date, DateDecorator.of("2050-04-04T11:15:00+0000").date)
+
+        Assertions.assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Should return the available assets of a given kind in a given interval in a given gym`() {
+        val anotherGym = this.gymDAO.save(Gym("gym2", "adddress2", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssets(
+                kind,
+                DateDecorator.of("2050-04-04T10:15:00+0000").date,
+                DateDecorator.of("2050-04-04T10:30:00+0000").date,
+                anotherGym.id)
+
+        Assertions.assertThat(result.size).isEqualTo(5)
+        Assertions.assertThat(result.all { it.gym.id == anotherGym.id }).isTrue()
+    }
+
+    @Test
+    fun `Should empty list when searching the free assets if the gym is closed`() {
+        val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssets(
+                kind,
+                DateDecorator.of("2050-04-05T10:15:00+0000").date,
+                DateDecorator.of("2050-04-05T10:30:00+0000").date,
+                anotherGym.id)
+
+        Assertions.assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Should empty list when searching the free assets if the gym does not exist`() {
+        val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssets(
+                kind,
+                DateDecorator.of("2050-04-05T10:15:00+0000").date,
+                DateDecorator.of("2050-04-05T10:30:00+0000").date,
+                -1)
+
+        Assertions.assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Should return the available asset in a given interval consiering also conflicts with other reservations`() {
+        val anotherGym = this.gymDAO.save(Gym("gym2", "adddress2", this.regionDAO.save(Region(RegionEnum.EMILIA_ROMAGNA))))
+        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val assets = this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val reservedAssets = assets.take(2).toList()
+        this.reservationDAO.saveAll(listOf(
+                Reservation(
+                        reservedAssets.first(),
+                        this.user!!,
+                        DateDecorator.of("2050-04-04T10:15:00+0000").date,
+                        DateDecorator.of("2050-04-04T10:30:00+0000").date
+                ),
+
+                Reservation(
+                        reservedAssets[1],
+                        this.user!!,
+                        DateDecorator.of("2050-04-04T10:05:00+0000").date,
+                        DateDecorator.of("2050-04-04T10:25:00+0000").date
+                )
+        ))
+
+        val result = this.reservationService.getAvailableAssets(
+                kind,
+                DateDecorator.of("2050-04-04T10:10:00+0000").date,
+                DateDecorator.of("2050-04-04T10:20:00+0000").date)
+
+        Assertions.assertThat(result.size).isEqualTo(8)
+        Assertions.assertThat(result.none { r -> reservedAssets.map { it.id }.contains(r.id) }).isTrue()
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `Should throw an exception if the start is after the end when searching for free assets`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.reservationService.getAvailableAssets(kind, DateDecorator.now().date, DateDecorator.now().minusMinutes(1).date)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `Should throw an exception if the after is equal to the end when searching for free assets`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.reservationService.getAvailableAssets(kind, DateDecorator.now().date, DateDecorator.now().date)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `Should throw an exception if the start is after the end when searching for free assets (gym filter)`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.reservationService.getAvailableAssets(kind, DateDecorator.now().date, DateDecorator.now().minusMinutes(1).date,
+                this.gym!!.id)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `Should throw an exception if the after is equal to the end when searching for free assets (gym filter)`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.reservationService.getAvailableAssets(kind, DateDecorator.now().date, DateDecorator.now().date, this.gym!!.id)
     }
 
     /*************************************** OTHERS **********************************************************/

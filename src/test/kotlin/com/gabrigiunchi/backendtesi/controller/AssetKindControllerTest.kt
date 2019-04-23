@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
-import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.AssetKind
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import org.assertj.core.api.Assertions
