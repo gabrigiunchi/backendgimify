@@ -278,8 +278,152 @@ class CommentControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
-    private fun createUser(): User {
-        return this.userDAO.save(this.userFactory.createRegularUser("sda", "j", "Gabriele", "Giunchi"))
+    /******************************* MY COMMENTS ***********************************************************************/
+    @Test
+    fun `Should get all my comments`() {
+        val user = this.createUser()
+        val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("jn", "Jn", "j", "km"))
+        val gym = this.createGym()
+        val comments = this.commentDAO.saveAll(listOf(
+                Comment(user, gym, "title1", "message1", 1),
+                Comment(anotherUser, gym, "title2", "message2", 2),
+                Comment(anotherUser, gym, "title3", "message3", 3),
+                Comment(user, gym, "title4", "message4", 5),
+                Comment(anotherUser, gym, "title5", "message5", 4),
+                Comment(user, gym, "title6", "message6", 2)
+        )).toList()
+
+        val expectedResult = listOf(comments[0], comments[3], comments[5])
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(expectedResult[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(expectedResult[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].id", Matchers.`is`(expectedResult[2].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get my comment by id`() {
+        val user = this.createUser()
+        val gym = this.createGym()
+        val comments = this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
+        val target = comments[0]
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/${target.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(target.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.`is`(target.title)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.`is`(target.message)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.rating", Matchers.`is`(target.rating)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(target.user.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.gym.id", Matchers.`is`(target.gym.id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get one of my comment by id if it does not exist`() {
+        this.createUser()
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get my comments by gym`() {
+        val user = this.createUser()
+        val gym = this.createGym()
+        val anotherGym = this.gymDAO.save(Gym("gym2", "another address", gym.city))
+        val comments = this.commentDAO.saveAll(listOf(
+                Comment(user, gym, "title1", "message1", 1),
+                Comment(user, anotherGym, "title2", "message2", 2),
+                Comment(user, anotherGym, "title3", "message3", 3),
+                Comment(user, gym, "title4", "message4", 5),
+                Comment(user, anotherGym, "title5", "message5", 4),
+                Comment(user, gym, "title6", "message6", 2)
+        )).toList()
+
+        val expectedResult = listOf(comments[0], comments[3], comments[5])
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/by_gym/${gym.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(expectedResult[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(expectedResult[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id", Matchers.`is`(expectedResult[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].user.username", Matchers.`is`(expectedResult[0].user.username)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get my comments by gym if the gym does not exist`() {
+        this.createUser()
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/by_gym/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should create a comment for the logged user`() {
+        val user = this.createUser()
+        val gym = this.createGym()
+        val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 2)
+        this.mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.COMMENTS}/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(commentDTO)))
+                .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", Matchers.`is`(commentDTO.title)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.`is`(commentDTO.message)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.rating", Matchers.`is`(commentDTO.rating)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(commentDTO.userId)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.gym.id", Matchers.`is`(commentDTO.gymId)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not create a comment for the logged user if the gym does not exist`() {
+        val user = this.createUser()
+        val commentDTO = CommentDTO(user.id, -1, "wow this is a title", "wow this is a message", 2)
+        this.mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.COMMENTS}/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(commentDTO)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should delete one of my comment by id`() {
+        val user = this.createUser()
+        val gym = this.createGym()
+        val comments = this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
+        val target = comments[0]
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/me/${target.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent)
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.commentDAO.findById(target.id).isEmpty).isTrue()
+    }
+
+    @Test
+    fun `Should not delete one of my comment by id if it does not exist`() {
+        val user = this.createUser()
+        val gym = this.createGym()
+        this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/me/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+
+    /************************************** UTILS *********************************************************************/
+
+    private fun createUser(username: String = "gabrigiunchi"): User {
+        return this.userDAO.save(this.userFactory.createRegularUser(username, "aaaa", "Gabriele", "Giunchi"))
     }
 
     private fun createGym(): Gym {

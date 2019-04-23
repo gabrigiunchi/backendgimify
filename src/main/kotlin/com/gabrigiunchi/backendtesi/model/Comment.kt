@@ -22,5 +22,5 @@ class Comment(
         val message: String,
         val rating: Int
 ) {
-    constructor(user: User, gym: Gym, title: String, message: String, rating: Int): this(-1, user, gym, title, message, rating)
+    constructor(user: User, gym: Gym, title: String, message: String, rating: Int) : this(-1, user, gym, title, message, rating)
 }
