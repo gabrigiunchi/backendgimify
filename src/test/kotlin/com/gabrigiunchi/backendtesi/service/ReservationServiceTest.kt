@@ -17,7 +17,6 @@ import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.lang.IllegalArgumentException
 import java.util.*
 
 class ReservationServiceTest : AbstractControllerTest() {

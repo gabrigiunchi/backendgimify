@@ -12,7 +12,6 @@ import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.springframework.stereotype.Service
-import java.lang.IllegalArgumentException
 import java.util.*
 
 @Service
@@ -80,7 +79,7 @@ class ReservationService(
     }
 
     fun getAvailableAssets(kind: AssetKind, start: Date, end: Date): Collection<Asset> {
-        if(start >= end) {
+        if (start >= end) {
             throw IllegalArgumentException("start is after the end")
         }
         return this.assetDAO.findByKind(kind)
@@ -90,7 +89,7 @@ class ReservationService(
     }
 
     fun getAvailableAssets(kind: AssetKind, start: Date, end: Date, gymId: Int): Collection<Asset> {
-        if(start >= end) {
+        if (start >= end) {
             throw IllegalArgumentException("start is after the end")
         }
         return this.assetDAO.findByKind(kind)

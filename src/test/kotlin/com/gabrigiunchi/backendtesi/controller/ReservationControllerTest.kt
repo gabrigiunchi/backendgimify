@@ -498,6 +498,86 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
+    /********************************** AVAILABLE ASSETS ************************************************************/
+
+    @Test
+    fun `Should get available assets`() {
+        this.reservationDAO.deleteAll()
+        val gym = this.createGym()
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val assets = this.assetDAO.saveAll((1..4).map { Asset("ciclette$it", kind, gym) }).toList()
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
+        Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
+
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(assets.first().id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].id", Matchers.`is`(assets[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[3].id", Matchers.`is`(assets[3].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 if the kind does not exist when searching for available assets`() {
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get available assets and filter by gym`() {
+        this.reservationDAO.deleteAll()
+        val gym = this.createGym()
+        val anotherGym = this.gymDAO.save(Gym("another gym", "address2", gym.region))
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val assets = this.assetDAO.saveAll((0..3).map { Asset("ciclette$it", kind, if (it % 2 == 0) gym else anotherGym) }).toList()
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
+        Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
+
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}/gym/${gym.id}"
+
+        val expectedResult = listOf(assets[0], assets[2])
+        Assertions.assertThat(expectedResult.all { it.gym.id == gym.id }).isTrue()
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(assets[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].gym.id", Matchers.`is`(gym.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].gym.id", Matchers.`is`(gym.id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 if the kind does not exist when searching for available assets and filtering by gym`() {
+        val gym = this.createGym()
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}/gym/${gym.id}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
     /************************************** UTILS *******************************************************************/
 
     private fun createGym(): Gym {

@@ -1,14 +1,17 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
+import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.ReservationDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.Reservation
 import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
 import com.gabrigiunchi.backendtesi.service.ReservationService
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.slf4j.LoggerFactory
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -18,6 +21,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/reservations")
 class ReservationController(
+        private val assetKindDAO: AssetKindDAO,
         private val reservationService: ReservationService,
         private val assetDAO: AssetDAO,
         private val reservationDAO: ReservationDAO,
@@ -67,6 +71,29 @@ class ReservationController(
                             HttpStatus.OK)
                 }
                 .orElseThrow { ResourceNotFoundException(id) }
+    }
+
+    @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}")
+    fun getAvailableAssets(@PathVariable kindId: Int,
+                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
+                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date): ResponseEntity<Collection<Asset>> {
+
+        this.logger.info("GET available assets of kind $kindId from $from to $to")
+        return this.assetKindDAO.findById(kindId)
+                .map { ResponseEntity(this.reservationService.getAvailableAssets(it, from, to), HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
+    }
+
+    @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/gym/{gymId}")
+    fun getAvailableAssetsInGym(@PathVariable kindId: Int,
+                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
+                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date,
+                                @PathVariable gymId: Int): ResponseEntity<Collection<Asset>> {
+
+        this.logger.info("GET available assets of kind $kindId from $from to $to in gym $gymId")
+        return this.assetKindDAO.findById(kindId)
+                .map { ResponseEntity(this.reservationService.getAvailableAssets(it, from, to, gymId), HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
     }
 
     @PostMapping
