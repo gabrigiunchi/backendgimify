@@ -182,6 +182,28 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Two users should create reservations`() {
+        val user1 = this.user!!
+        val user2 = this.userDAO.save(this.userFactory.createRegularUser("jnj", "sss", "kmk", "kk"))
+        val asset1 = this.createAsset(300)
+        val asset2 = this.assetDAO.save(Asset("ciclette2", asset1.kind, this.gym!!))
+
+        this.reservationService.addReservation(ReservationDTO(user1.id, asset1.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
+
+        this.reservationService.addReservation(ReservationDTO(user1.id, asset2.id,
+                DateDecorator.of("2050-04-04T11:30:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
+
+        this.reservationService.addReservation(ReservationDTO(user2.id, asset1.id,
+                DateDecorator.of("2050-04-18T11:30:00+0000").date, DateDecorator.of("2050-04-18T12:00:00+0000").date))
+
+        this.reservationService.addReservation(ReservationDTO(user2.id, asset2.id,
+                DateDecorator.of("2050-04-25T11:30:00+0000").date, DateDecorator.of("2050-04-25T12:00:00+0000").date))
+
+        Assertions.assertThat(this.reservationDAO.count()).isEqualTo(4)
+    }
+
+    @Test
     fun `Should create a reservation (edge case with one reservation right after the other)`() {
         val asset = this.createAsset(300)
 
@@ -216,6 +238,23 @@ class ReservationServiceTest : AbstractControllerTest() {
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-11T11:00:00+0000").date, DateDecorator.of("2050-04-11T11:15:00+0000").date))
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-18T11:00:00+0000").date, DateDecorator.of("2050-04-18T11:15:00+0000").date))
+    }
+
+    @Test(expected = TooManyReservationsException::class)
+    fun `Should not be possible to make 3 reservations per day even if I delete one of them`() {
+        val asset = this.createAsset()
+
+        this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:15:00+0000").date))
+
+        val savedReservation = this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
+                DateDecorator.of("2050-04-11T11:00:00+0000").date, DateDecorator.of("2050-04-11T11:15:00+0000").date))
+
+        this.reservationDAO.delete(savedReservation)
+        Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-18T11:00:00+0000").date, DateDecorator.of("2050-04-18T11:15:00+0000").date))
