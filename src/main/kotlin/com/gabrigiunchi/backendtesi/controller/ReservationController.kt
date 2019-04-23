@@ -79,9 +79,7 @@ class ReservationController(
                            @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to")
-        return this.assetKindDAO.findById(kindId)
-                .map { ResponseEntity(this.reservationService.getAvailableAssets(it, from, to), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
+        return ResponseEntity(this.reservationService.getAvailableAssets(kindId, from, to), HttpStatus.OK)
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/gym/{gymId}")
@@ -91,9 +89,17 @@ class ReservationController(
                                 @PathVariable gymId: Int): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to in gym $gymId")
-        return this.assetKindDAO.findById(kindId)
-                .map { ResponseEntity(this.reservationService.getAvailableAssets(it, from, to, gymId), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
+        return ResponseEntity(this.reservationService.getAvailableAssetsInGym(kindId, gymId, from, to), HttpStatus.OK)
+    }
+
+    @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/region/{regionId}")
+    fun getAvailableAssetsInRegion(@PathVariable kindId: Int,
+                                   @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
+                                   @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date,
+                                   @PathVariable regionId: Int): ResponseEntity<Collection<Asset>> {
+
+        this.logger.info("GET available assets of kind $kindId from $from to $to in region $regionId")
+        return ResponseEntity(this.reservationService.getAvailableAssetsInRegion(kindId, regionId, from, to), HttpStatus.OK)
     }
 
     @PostMapping

@@ -1,9 +1,6 @@
 package com.gabrigiunchi.backendtesi.service
 
-import com.gabrigiunchi.backendtesi.dao.AssetDAO
-import com.gabrigiunchi.backendtesi.dao.ReservationDAO
-import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.dao.UserDAO
+import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
 import com.gabrigiunchi.backendtesi.exceptions.GymClosedException
 import com.gabrigiunchi.backendtesi.exceptions.ReservationConflictException
@@ -16,6 +13,9 @@ import java.util.*
 
 @Service
 class ReservationService(
+        private val regionDAO: RegionDAO,
+        private val gymDAO: GymDAO,
+        private val assetKindDAO: AssetKindDAO,
         private val timetableDAO: TimetableDAO,
         private val assetDAO: AssetDAO,
         private val userDAO: UserDAO,
@@ -78,25 +78,50 @@ class ReservationService(
         this.reservationDAO.deleteById(reservationId)
     }
 
-    fun getAvailableAssets(kind: AssetKind, start: Date, end: Date): Collection<Asset> {
-        if (start >= end) {
-            throw IllegalArgumentException("start is after the end")
-        }
-        return this.assetDAO.findByKind(kind)
+    fun getAvailableAssets(kindId: Int, start: Date, end: Date): Collection<Asset> {
+        this.checkInterval(start, end)
+        return this.assetDAO.findByKind(this.getAssetKind(kindId))
                 .filter { isGymOpen(it.gym, start, end) }
                 .filter { isReservationDurationValid(it, start, end) }
                 .filter { isAssetAvailable(it, start, end) }
     }
 
-    fun getAvailableAssets(kind: AssetKind, start: Date, end: Date, gymId: Int): Collection<Asset> {
-        if (start >= end) {
-            throw IllegalArgumentException("start is after the end")
-        }
-        return this.assetDAO.findByKind(kind)
+    fun getAvailableAssetsInRegion(kindId: Int, regionId: Int, start: Date, end: Date): Collection<Asset> {
+        this.checkInterval(start, end)
+        this.getRegion(regionId)
+        return this.assetDAO.findByKind(this.getAssetKind(kindId))
+                .filter { it.gym.region.id == regionId }
+                .filter { isGymOpen(it.gym, start, end) }
+                .filter { isReservationDurationValid(it, start, end) }
+                .filter { isAssetAvailable(it, start, end) }
+    }
+
+    fun getAvailableAssetsInGym(kindId: Int, gymId: Int, start: Date, end: Date): Collection<Asset> {
+        this.checkInterval(start, end)
+        this.getGym(gymId)
+        return this.assetDAO.findByKind(this.getAssetKind(kindId))
                 .filter { it.gym.id == gymId }
                 .filter { isGymOpen(it.gym, start, end) }
                 .filter { isReservationDurationValid(it, start, end) }
                 .filter { isAssetAvailable(it, start, end) }
+    }
+
+    private fun checkInterval(start: Date, end: Date) {
+        if (start >= end) {
+            throw IllegalArgumentException("start is after the end")
+        }
+    }
+
+    private fun getAssetKind(kindId: Int): AssetKind {
+        return this.assetKindDAO.findById(kindId).orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
+    }
+
+    private fun getGym(gymId: Int): Gym {
+        return this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+    }
+
+    private fun getRegion(regionId: Int): Region {
+        return this.regionDAO.findById(regionId).orElseThrow { ResourceNotFoundException("region $regionId does not exist") }
     }
 
     /******************************* UTILS ************************************************************/

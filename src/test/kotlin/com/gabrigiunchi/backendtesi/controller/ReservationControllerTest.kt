@@ -526,18 +526,6 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should return 404 if the kind does not exist when searching for available assets`() {
-        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
-        val to = from.plusMinutes(10)
-        val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}"
-
-        mockMvc.perform(MockMvcRequestBuilders.get(url)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
     fun `Should get available assets and filter by gym`() {
         this.reservationDAO.deleteAll()
         val gym = this.createGym()
@@ -566,11 +554,62 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should return 404 if the kind does not exist when searching for available assets`() {
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should return 404 if the kind does not exist when searching for available assets and filtering by gym`() {
         val gym = this.createGym()
         val from = DateDecorator.of("2050-04-04T10:00:00+0000")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}/gym/${gym.id}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 if the kind does not exist when searching for available assets and filtering by region`() {
+        val gym = this.createGym()
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}/region/${gym.region.id}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 if the gym does not exist when searching for available assets and filtering by gym`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.PRESSA, 20))
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}/gym/-1"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 if the region does not exist when searching for available assets and filtering by region`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.PRESSA, 20))
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}/region/-1"
 
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
