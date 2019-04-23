@@ -50,10 +50,11 @@ class DateDecorator(val date: Date) {
     }
 
     fun minusMinutes(minutes: Int): DateDecorator {
-        val c = Calendar.getInstance()
-        c.time = this.date
-        c.add(Calendar.MINUTE, -minutes)
-        return DateDecorator(c.time)
+        return this.plusMinutes(-minutes)
+    }
+
+    fun minusDays(days: Int): DateDecorator {
+        return this.plusDays(-days)
     }
 
     fun isSameDay(dateDecorator: DateDecorator): Boolean {
@@ -99,42 +100,26 @@ class DateDecorator(val date: Date) {
     }
 
     companion object {
+        const val DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ"
 
-        @JvmStatic
-        val DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ"
-
-        @JvmStatic
         fun of(date: String, pattern: String): DateDecorator {
             val timeFormatter = SimpleDateFormat(pattern)
             timeFormatter.timeZone = TimeZone.getTimeZone("UTC")
             return DateDecorator(timeFormatter.parse(date))
         }
 
-        @JvmStatic
-        fun of(date: String): DateDecorator {
-            return of(date, DATE_TIME_FORMAT)
-        }
+        fun of(date: String): DateDecorator = of(date, DATE_TIME_FORMAT)
+        fun of(dateObject: Date): DateDecorator = DateDecorator(dateObject)
+        fun now(): DateDecorator = DateDecorator(Calendar.getInstance().time)
+        fun startOfToday(): DateDecorator = createDate(now().format("yyyy-MM-dd"))
+        fun endOfToday(): DateDecorator = createDate(now().format("yyyy-MM-dd")).plusDays(1)
 
-        @JvmStatic
-        fun of(dateObject: Date): DateDecorator {
-            return DateDecorator(dateObject)
-        }
-
-        @JvmStatic
-        fun now(): DateDecorator {
-            return DateDecorator(Calendar.getInstance().time)
-        }
-
-        @JvmStatic
         fun max(): DateDecorator {
             val calendar = Calendar.getInstance()
             calendar.time = Date(Long.MAX_VALUE)
             return DateDecorator(calendar.time)
         }
 
-        @JvmStatic
-        fun createDate(date: String): DateDecorator {
-            return of(date, "yyyy-MM-dd")
-        }
+        fun createDate(date: String): DateDecorator = of(date, "yyyy-MM-dd")
     }
 }

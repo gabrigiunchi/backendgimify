@@ -53,6 +53,22 @@ class ReservationController(
                 .orElseThrow { ResourceNotFoundException(id) }
     }
 
+    @GetMapping("/of_asset/{id}/today")
+    fun getAllReservationOfTodayByAsset(@PathVariable id: Int): ResponseEntity<Collection<Reservation>> {
+        this.logger.info("GET all reservation of today for asset $id")
+        return this.assetDAO.findById(id)
+                .map {
+                    ResponseEntity(
+                            this.reservationDAO.findByAssetAndEndBetween(
+                                    it,
+                                    DateDecorator.startOfToday().date,
+                                    DateDecorator.endOfToday().date
+                            ),
+                            HttpStatus.OK)
+                }
+                .orElseThrow { ResourceNotFoundException(id) }
+    }
+
     @PostMapping
     fun addReservation(@Valid @RequestBody reservationDTO: ReservationDTO): ResponseEntity<Reservation> {
         this.logger.info("POST reservation")

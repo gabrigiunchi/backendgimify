@@ -91,9 +91,20 @@ class DateDecoratorTest {
         Assertions.assertThat(d1.plusDays(5).format("yyyy-MM-dd")).isEqualTo("2018-03-15")
         Assertions.assertThat(d1.plusDays(7).format("yyyy-MM-dd")).isEqualTo("2018-03-17")
         Assertions.assertThat(d1.plusDays(20).format("yyyy-MM-dd")).isEqualTo("2018-03-30")
-        Assertions.assertThat(d1.plusDays(20).format("yyyy-MM-dd")).isEqualTo("2018-03-30")
         Assertions.assertThat(d1.plusDays(30).format("yyyy-MM-dd")).isEqualTo("2018-04-09")
         Assertions.assertThat(d1.plusDays(365).format("yyyy-MM-dd")).isEqualTo("2019-03-10")
+    }
+
+    @Test
+    fun `Should subtract days`() {
+        val d1 = DateDecorator.of("2018-03-10T10:00:00+0000")
+        Assertions.assertThat(d1.minusDays(1).format("yyyy-MM-dd")).isEqualTo("2018-03-09")
+        Assertions.assertThat(d1.minusDays(2).format("yyyy-MM-dd")).isEqualTo("2018-03-08")
+        Assertions.assertThat(d1.minusDays(5).format("yyyy-MM-dd")).isEqualTo("2018-03-05")
+        Assertions.assertThat(d1.minusDays(7).format("yyyy-MM-dd")).isEqualTo("2018-03-03")
+        Assertions.assertThat(d1.minusDays(20).format("yyyy-MM-dd")).isEqualTo("2018-02-18")
+        Assertions.assertThat(d1.minusDays(30).format("yyyy-MM-dd")).isEqualTo("2018-02-08")
+        Assertions.assertThat(d1.minusDays(365).format("yyyy-MM-dd")).isEqualTo("2017-03-10")
     }
 
     @Test
@@ -147,6 +158,20 @@ class DateDecoratorTest {
         Assertions.assertThat(
                 DateDecorator.of("2019-01-01T10:00:00+0000").isSameDay(DateDecorator.of("2019-01-02T16:00:00+0000"))
         ).isFalse()
+    }
+
+    @Test
+    fun `Should return the start of the current date`() {
+        val today = DateDecorator.startOfToday()
+        Assertions.assertThat(today.format("yyyy-MM-dd")).isEqualTo(DateDecorator.now().format("yyyy-MM-dd"))
+        Assertions.assertThat(today.format("HH:mm:ss")).isEqualTo("00:00:00")
+    }
+
+    @Test
+    fun `Should return the end of the current date`() {
+        val today = DateDecorator.endOfToday()
+        Assertions.assertThat(today.format("yyyy-MM-dd")).isEqualTo(DateDecorator.now().plusDays(1).format("yyyy-MM-dd"))
+        Assertions.assertThat(today.format("HH:mm:ss")).isEqualTo("00:00:00")
     }
 
     @Test

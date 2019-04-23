@@ -118,7 +118,58 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should return 404 when requesting the reservation of an asset that does not exist`() {
+    fun `Should get all the reservations of today of an asset`() {
+        val asset = this.mockAsset(this.createGym())
+        val user = this.mockUser("pippo")
+        val reservations = this.reservationDAO.saveAll(listOf(
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.now().minusMinutes(20).date,
+                        end = DateDecorator.now().minusMinutes(2).date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.startOfToday().date,
+                        end = DateDecorator.startOfToday().plusMinutes(2).date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.startOfToday().plusMinutes(1438).date,
+                        end = DateDecorator.startOfToday().plusMinutes(1440).date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.of("2018-01-01T10:00:00+0000").date,
+                        end = DateDecorator.of("2018-01-01T10:30:00+0000").date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.of("2019-01-01T10:00:00+0000").date,
+                        end = DateDecorator.of("2019-01-01T10:30:00+0000").date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.startOfToday().minusDays(1).plusMinutes(1).date,
+                        end = DateDecorator.startOfToday().minusDays(1).plusMinutes(2).date),
+
+                Reservation(user = user,
+                        asset = asset,
+                        start = DateDecorator.startOfToday().minusMinutes(2).date,
+                        end = DateDecorator.startOfToday().minusMinutes(1).date)
+        )).toList()
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/${asset.id}/today")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(reservations[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(reservations[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id", Matchers.`is`(reservations[2].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 when requesting the reservations of an asset that does not exist`() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -126,7 +177,15 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should return 404 when requesting the future reservation of an asset that does not exist`() {
+    fun `Should return 404 when requesting the future reservations of an asset that does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1/today")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return 404 when requesting the reservations of today of an asset that does not exist`() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1/future")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
