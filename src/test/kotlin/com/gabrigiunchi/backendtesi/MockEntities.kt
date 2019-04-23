@@ -1,8 +1,10 @@
 package com.gabrigiunchi.backendtesi
 
+import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.DateInterval
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.TimeInterval
+import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
 import java.time.OffsetTime
@@ -27,4 +29,6 @@ object MockEntities {
             Schedule(DayOfWeek.MONDAY, this.mockTimeIntervals.take(2).toSet()),
             Schedule(DayOfWeek.TUESDAY, setOf(this.mockTimeIntervals[2], this.mockTimeIntervals[3]))
     )
+
+    val mockCities = CityEnum.values().map { City(it) }
 }

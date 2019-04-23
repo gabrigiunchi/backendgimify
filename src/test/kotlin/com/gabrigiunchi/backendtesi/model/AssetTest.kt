@@ -28,7 +28,7 @@ class AssetTest : AbstractControllerTest() {
 
     @Before
     fun clearDB() {
-        this.cityDAO
+        this.cityDAO.deleteAll()
         this.assetDAO.deleteAll()
         this.assetKindDAO.deleteAll()
         this.gymDAO.deleteAll()

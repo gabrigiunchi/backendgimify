@@ -14,4 +14,5 @@ object ApiUrls {
     const val SCHEDULES = "$BASE_URL/schedules"
     const val CITIES = "$BASE_URL/cities"
     const val TIMETABLES = "$BASE_URL/timetables"
+    const val COMMENTS = "$BASE_URL/comments"
 }
