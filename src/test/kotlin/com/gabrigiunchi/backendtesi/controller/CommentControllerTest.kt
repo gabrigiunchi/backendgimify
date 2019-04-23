@@ -254,6 +254,30 @@ class CommentControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should not create a comment if the rating is less than 1`() {
+        val user = this.createUser()
+        val gym = this.createGym()
+        val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 0)
+        this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(commentDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not create a comment if the rating is more than 5`() {
+        val user = this.createUser()
+        val gym = this.createGym()
+        val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 6)
+        this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(commentDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should delete a comment by id`() {
         val user = this.createUser()
         val gym = this.createGym()
