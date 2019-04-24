@@ -13,7 +13,6 @@ import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.UserFactory
-import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
@@ -204,8 +203,8 @@ class GymControllerTest : AbstractControllerTest() {
     @Test
     fun `Should calculate the rating of a gym`() {
         this.gymDAO.deleteAll()
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
 
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title", "message", 2),
@@ -226,7 +225,7 @@ class GymControllerTest : AbstractControllerTest() {
     @Test
     fun `Should calculate the rating of a gym and return -1 if no comments are present`() {
         this.gymDAO.deleteAll()
-        val gym = this.createGym()
+        val gym = this.mockGym()
         mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/rating")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -242,11 +241,11 @@ class GymControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
-    private fun createUser(): User {
+    private fun mockUser(): User {
         return this.userDAO.save(this.userFactory.createRegularUser("adsa", "jns", "jnj", "njnj"))
     }
 
-    private fun createGym(): Gym {
+    private fun mockGym(): Gym {
         val city = this.cityDAO.save(MockEntities.mockCities[0])
         return this.gymDAO.save(Gym("gym1", "address1", city))
     }

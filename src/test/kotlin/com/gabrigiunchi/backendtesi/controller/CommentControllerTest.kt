@@ -49,8 +49,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all the comments`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) })
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -61,8 +61,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get a comment by id`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val comments = this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
         val target = comments[0]
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/${target.id}")
@@ -87,8 +87,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get the comments of a gym`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("gym2", "another address", gym.city))
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
@@ -120,8 +120,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get the comments of a user`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
@@ -153,8 +153,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get the comments filtered by user and gym`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("gym2", "another address", gym.city))
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
         val comments = this.commentDAO.saveAll(listOf(
@@ -178,8 +178,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get the comments filtered by user and gym if the user does not exist`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
         this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
@@ -197,8 +197,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get the comments filtered by user and gym if the gym does not exist`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
         this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
@@ -216,8 +216,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a comment`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -233,7 +233,7 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a comment if the user does not exist`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val commentDTO = CommentDTO(-1, gym.id, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -244,7 +244,7 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a comment if the gym does not exist`() {
-        val user = this.createUser()
+        val user = this.mockUser()
         val commentDTO = CommentDTO(user.id, -1, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -255,8 +255,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a comment if the rating is less than 1`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 0)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -267,8 +267,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a comment if the rating is more than 5`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 6)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -279,8 +279,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete a comment by id`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val comments = this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
         val target = comments[0]
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/${target.id}")
@@ -293,8 +293,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not delete a comment by id if it does not exist`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -305,9 +305,9 @@ class CommentControllerTest : AbstractControllerTest() {
     /******************************* MY COMMENTS ***********************************************************************/
     @Test
     fun `Should get all my comments`() {
-        val user = this.createUser()
+        val user = this.mockUser()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("jn", "Jn", "j", "km"))
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
                 Comment(anotherUser, gym, "title2", "message2", 2),
@@ -330,8 +330,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get my comment by id`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val comments = this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
         val target = comments[0]
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/${target.id}")
@@ -348,7 +348,7 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get one of my comment by id if it does not exist`() {
-        this.createUser()
+        this.mockUser()
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -357,8 +357,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get my comments by gym`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("gym2", "another address", gym.city))
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
@@ -383,7 +383,7 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get my comments by gym if the gym does not exist`() {
-        this.createUser()
+        this.mockUser()
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/by_gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -392,8 +392,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a comment for the logged user`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.COMMENTS}/me")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -409,7 +409,7 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a comment for the logged user if the gym does not exist`() {
-        val user = this.createUser()
+        val user = this.mockUser()
         val commentDTO = CommentDTO(user.id, -1, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.COMMENTS}/me")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -420,8 +420,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete one of my comment by id`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         val comments = this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
         val target = comments[0]
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/me/${target.id}")
@@ -434,8 +434,8 @@ class CommentControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not delete one of my comment by id if it does not exist`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
         this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) }).toList()
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/me/-1")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -446,11 +446,11 @@ class CommentControllerTest : AbstractControllerTest() {
 
     /************************************** UTILS *********************************************************************/
 
-    private fun createUser(username: String = "gabrigiunchi"): User {
+    private fun mockUser(username: String = "gabrigiunchi"): User {
         return this.userDAO.save(this.userFactory.createRegularUser(username, "aaaa", "Gabriele", "Giunchi"))
     }
 
-    private fun createGym(): Gym {
+    private fun mockGym(): Gym {
         return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(MockEntities.mockCities[0])))
     }
 }

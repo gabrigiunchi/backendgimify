@@ -6,7 +6,7 @@ import com.gabrigiunchi.backendtesi.model.Gym
 import org.springframework.data.repository.CrudRepository
 
 interface AssetDAO : CrudRepository<Asset, Int> {
-    fun findByName(name: String): List<Asset>
-    fun findByGym(gym: Gym): List<Asset>
-    fun findByKind(kind: AssetKind): List<Asset>
+    fun findByName(name: String): Collection<Asset>
+    fun findByGym(gym: Gym): Collection<Asset>
+    fun findByKind(kind: AssetKind): Collection<Asset>
 }

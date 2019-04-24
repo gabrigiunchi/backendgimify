@@ -55,7 +55,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all reservations`() {
-        this.createReservations()
+        this.mockReservations()
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -66,7 +66,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get a reservation by its id`() {
         val reservation = this.reservationDAO.save(
-                Reservation(this.mockAsset(this.createGym()), this.mockUser(),
+                Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
                         DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date))
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/${reservation.id}")
@@ -78,7 +78,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all reservations of an asset`() {
-        val reservations = this.createReservations()
+        val reservations = this.mockReservations()
         val asset = reservations[0].asset
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/${asset.id}")
@@ -92,7 +92,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all future reservations of an asset`() {
-        val r1 = this.createReservations().first()
+        val r1 = this.mockReservations().first()
         val asset = r1.asset
         val user = r1.user
         val reservations = this.reservationDAO.saveAll(listOf(
@@ -123,7 +123,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all the reservations of today of an asset`() {
-        val asset = this.mockAsset(this.createGym())
+        val asset = this.mockAsset(this.mockGym())
         val user = this.mockUser("pippo")
         val reservations = this.reservationDAO.saveAll(listOf(
                 Reservation(user = user,
@@ -341,7 +341,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should delete a reservation`() {
         val savedId = this.reservationDAO.save(
-                Reservation(this.mockAsset(this.createGym()), this.mockUser(),
+                Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
                         DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date)
         ).id
 
@@ -366,7 +366,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val user1 = this.mockUser("gabrigiunchi")
         val user2 = this.mockUser("fragiunchi")
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val assets = listOf(
                 this.mockAsset(gym, "a1"),
                 this.mockAsset(gym, "a2"),
@@ -395,7 +395,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val user1 = this.mockUser("gabrigiunchi")
         val user2 = this.mockUser("fragiunchi")
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val assets = listOf(
                 this.mockAsset(gym, "a1"),
                 this.mockAsset(gym, "a2"),
@@ -423,7 +423,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val user1 = this.mockUser("gabrigiunchi")
         val user2 = this.mockUser("fragiunchi")
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val assets = listOf(
                 this.mockAsset(gym, "a1"),
                 this.mockAsset(gym, "a2"),
@@ -458,7 +458,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val user1 = this.mockUser("gabrigiunchi")
         val user2 = this.mockUser("fragiunchi")
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val assets = listOf(
                 this.mockAsset(gym, "a1"),
                 this.mockAsset(gym, "a2"),
@@ -506,7 +506,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should delete one of my reservations`() {
         this.userDAO.deleteAll()
         val savedId = this.reservationDAO.save(
-                Reservation(this.mockAsset(this.createGym()), this.mockUser(),
+                Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
                         DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date)
         ).id
 
@@ -531,7 +531,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val user1 = this.mockUser("gabrigiunchi")
         val user2 = this.mockUser("fragiunchi")
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val assets = listOf(
                 this.mockAsset(gym, "a1"),
                 this.mockAsset(gym, "a2"),
@@ -557,7 +557,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get available assets`() {
         this.reservationDAO.deleteAll()
-        val gym = this.createGym()
+        val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         val assets = this.assetDAO.saveAll((1..4).map { Asset("ciclette$it", kind, gym) }).toList()
@@ -582,7 +582,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get available assets and filter by gym`() {
         this.reservationDAO.deleteAll()
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("another gym", "address2", gym.city))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
@@ -621,7 +621,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 if the kind does not exist when searching for available assets and filtering by gym`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val from = DateDecorator.of("2050-04-04T10:00:00+0000")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}/gym/${gym.id}"
@@ -634,7 +634,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 if the kind does not exist when searching for available assets and filtering by city`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val from = DateDecorator.of("2050-04-04T10:00:00+0000")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/${from.format()}/to/${to.format()}/city/${gym.city.id}"
@@ -673,7 +673,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     /************************************** UTILS *******************************************************************/
 
-    private fun createGym(): Gym {
+    private fun mockGym(): Gym {
         return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
     }
 
@@ -685,9 +685,9 @@ class ReservationControllerTest : AbstractControllerTest() {
         return this.assetDAO.save(Asset(name, this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), gym))
     }
 
-    private fun createReservations(): List<Reservation> {
+    private fun mockReservations(): List<Reservation> {
         val user = this.mockUser()
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val assets = listOf(
                 this.mockAsset(gym, "a1"),
                 this.mockAsset(gym, "a2"),

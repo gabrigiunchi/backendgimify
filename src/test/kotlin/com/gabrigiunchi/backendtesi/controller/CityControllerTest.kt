@@ -1,12 +1,14 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
+import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -19,8 +21,14 @@ class CityControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var cityDAO: CityDAO
 
+    @Before
+    fun clearDB() {
+        this.cityDAO.deleteAll()
+    }
+
     @Test
     fun `Should get all the cities`() {
+        this.cityDAO.saveAll(MockEntities.mockCities)
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -30,7 +38,7 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get a city by its id`() {
-        val city = this.cityDAO.findById(1).get()
+        val city = this.mockCity()
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/${city.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -41,7 +49,7 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get a city by its name`() {
-        val city = this.cityDAO.findById(1).get()
+        val city = this.mockCity()
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/by_name/${city.name}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -68,7 +76,6 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a city`() {
-        this.cityDAO.deleteAll()
         val city = City(CityEnum.MILANO)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -82,8 +89,7 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a city if its id already exist`() {
-        this.cityDAO.deleteAll()
-        val city = this.cityDAO.save(City(CityEnum.MILANO))
+        val city = this.mockCity()
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(city)))
@@ -95,7 +101,6 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a city if its name already exist`() {
-        this.cityDAO.deleteAll()
         val city = City(CityEnum.MILANO)
         val savedCity = this.cityDAO.save(city)
 
@@ -111,8 +116,7 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete a city`() {
-        this.cityDAO.deleteAll()
-        val city = this.cityDAO.save(City(CityEnum.BERGAMO))
+        val city = this.mockCity()
         Assertions.assertThat(this.cityDAO.findById(city.id).isPresent).isTrue()
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.CITIES}/${city.id}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -128,5 +132,9 @@ class CityControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
+    }
+
+    private fun mockCity(): City {
+        return this.cityDAO.save(MockEntities.mockCities[0])
     }
 }

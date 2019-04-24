@@ -1,13 +1,17 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
+import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
+import com.gabrigiunchi.backendtesi.model.AssetKind
+import com.gabrigiunchi.backendtesi.model.Gym
 import org.hamcrest.Matchers
+import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -26,23 +30,87 @@ class AssetControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var assetKindDAO: AssetKindDAO
 
+    @Autowired
+    private lateinit var cityDAO: CityDAO
+
+    @Before
+    fun clearDB() {
+        this.assetDAO.deleteAll()
+        this.cityDAO.deleteAll()
+        this.assetKindDAO.deleteAll()
+        this.gymDAO.deleteAll()
+    }
+
     @Test
     fun `Should get all assets`() {
+        val gym = this.createGym()
+        val kind = this.assetKindDAO.save(MockEntities.assetKinds[0])
+        this.assetDAO.saveAll(listOf(
+                Asset("a1", kind, gym),
+                Asset("a2", kind, gym),
+                Asset("a3", kind, gym),
+                Asset("a4", kind, gym)
+        ))
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.greaterThanOrEqualTo(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should get an asset by its id`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = this.assetDAO.save(Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first()))
+        val kind = this.assetKindDAO.save(MockEntities.assetKinds[0])
+        val asset = this.assetDAO.save(Asset("ciclette2", kind, this.createGym()))
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/${asset.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(asset.name)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get an asset by gym`() {
+        val kind = this.assetKindDAO.save(MockEntities.assetKinds[0])
+        val gym1 = this.createGym()
+        val gym2 = this.gymDAO.save(Gym("jdnsadas", "jnjsajkd", gym1.city))
+        val assets = this.assetDAO.saveAll(listOf(
+                Asset("a1", kind, gym1),
+                Asset("a2", kind, gym2),
+                Asset("a3", kind, gym1),
+                Asset("a4", kind, gym2),
+                Asset("a5", kind, gym1)
+        )).toList()
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/${gym1.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(assets[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].id", Matchers.`is`(assets[4].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get an asset by kind`() {
+        val kinds = this.assetKindDAO.saveAll(MockEntities.assetKinds).toList()
+        val gym = this.createGym()
+        val assets = this.assetDAO.saveAll(listOf(
+                Asset("a1", kinds[0], gym),
+                Asset("a2", kinds[0], gym),
+                Asset("a3", kinds[1], gym),
+                Asset("a4", kinds[2], gym),
+                Asset("a5", kinds[0], gym)
+        )).toList()
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/${assets[0].kind.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(assets[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].id", Matchers.`is`(assets[4].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -55,9 +123,25 @@ class AssetControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should not get an asset gym if the gym does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get an asset by kind if the kind does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should create an asset`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first())
+        val kind = this.createAssetKind()
+        val asset = Asset("ciclette2", kind, this.createGym())
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -68,9 +152,8 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should update an asset`() {
-        this.assetDAO.deleteAll()
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first())
+        val kind = this.createAssetKind()
+        val asset = Asset("ciclette2", kind, this.createGym())
         val savedAsset = this.assetDAO.save(asset)
         asset.name = "newName"
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/${savedAsset.id}")
@@ -83,8 +166,8 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not update an asset if it does not exist`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first())
+        val kind = this.createAssetKind()
+        val asset = Asset(-1, "ciclette2", kind, this.createGym())
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -94,8 +177,8 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create an asset if its id already exist`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = this.assetDAO.save(Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first()))
+        val kind = this.createAssetKind()
+        val asset = this.assetDAO.save(Asset("ciclette2", kind, this.createGym()))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -105,8 +188,8 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create an asset if its name already exists inside the gym`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = this.assetDAO.save(Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first()))
+        val kind = this.createAssetKind()
+        val asset = this.assetDAO.save(Asset("ciclette2", kind, this.createGym()))
         this.assetDAO.save(asset)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,8 +200,8 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete an asset`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first())
+        val kind = this.createAssetKind()
+        val asset = Asset("ciclette2", kind, this.createGym())
         val savedId = this.assetDAO.save(asset).id
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.ASSETS}/$savedId")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -132,5 +215,14 @@ class AssetControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
+    }
+
+    private fun createGym(): Gym {
+        val city = this.cityDAO.save(MockEntities.mockCities[0])
+        return this.gymDAO.save(Gym("gym1", "address1", city))
+    }
+
+    private fun createAssetKind(): AssetKind {
+        return this.assetKindDAO.save(MockEntities.assetKinds[0])
     }
 }

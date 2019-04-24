@@ -1,11 +1,12 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
+import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
+import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.service.AssetService
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -13,15 +14,13 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/assets")
-class AssetController {
+class AssetController(
+        private val assetKindDAO: AssetKindDAO,
+        private val assetDAO: AssetDAO,
+        private val assetService: AssetService,
+        private val gymDAO: GymDAO) {
 
     private val logger = LoggerFactory.getLogger(AssetController::class.java)
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var assetService: AssetService
 
     @GetMapping
     fun getAssets(): ResponseEntity<Iterable<Asset>> {
@@ -35,6 +34,22 @@ class AssetController {
         return this.assetDAO.findById(id)
                 .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException(id) }
+    }
+
+    @GetMapping("/by_gym/{gymId}")
+    fun getAssetsByGym(@PathVariable gymId: Int): ResponseEntity<Collection<Asset>> {
+        this.logger.info("GET all assets in gym $gymId")
+        return this.gymDAO.findById(gymId)
+                .map { ResponseEntity(this.assetDAO.findByGym(it), HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+    }
+
+    @GetMapping("/by_kind/{kindId}")
+    fun getAssetsByKind(@PathVariable kindId: Int): ResponseEntity<Collection<Asset>> {
+        this.logger.info("GET all assets of kind $kindId")
+        return this.assetKindDAO.findById(kindId)
+                .map { ResponseEntity(this.assetDAO.findByKind(it), HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException("kind $kindId does not exist") }
     }
 
     @PostMapping

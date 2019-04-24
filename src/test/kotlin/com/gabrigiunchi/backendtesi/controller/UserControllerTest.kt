@@ -5,8 +5,10 @@ import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.dao.UserRoleDAO
 import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
+import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -23,10 +25,16 @@ class UserControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var userRoleDAO: UserRoleDAO
 
+    @Autowired
+    private lateinit var userFactory: UserFactory
+
+    @Before
+    fun clearDB() {
+        this.userDAO.deleteAll()
+    }
 
     @Test
     fun `Should get all users`() {
-        this.userDAO.deleteAll()
         this.userDAO.saveAll(listOf(
                 User("gabrigiunchi", "dsndja", "Gabriele", "Giunchi"),
                 User("fragiunchi", "dsndja", "Francesco", "Giunchi"),
@@ -106,7 +114,9 @@ class UserControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a user if its username already exists`() {
-        val user = this.userDAO.findAll().first()
+        val user = this.userFactory.createRegularUser("gab", "aaaa", "Gab", "Giunchi")
+        val saved = this.userDAO.save(user)
+        Assertions.assertThat(user.id).isNotEqualTo(saved.id)
         mockMvc.perform(post(ApiUrls.USERS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(user)))
