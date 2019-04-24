@@ -448,7 +448,6 @@ class ReservationServiceTest : AbstractControllerTest() {
         Assertions.assertThat(result.size).isEqualTo(0)
     }
 
-
     @Test
     fun `Should return the available asset in a given interval considering also conflicts with other reservations`() {
         val anotherGym = this.gymDAO.save(Gym("gym2", "adddress2", this.cityDAO.save(City(CityEnum.BERGAMO))))
@@ -574,6 +573,24 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Should check if a user own a reservation and not throw an exception if the reservation belongs to the user`() {
         val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
         this.reservationService.checkReservationOfUser(this.user!!, r.id)
+    }
+
+
+    @Test
+    fun `Should count the reservations made by a user in a given date`() {
+        val user = this.user!!
+        this.reservationLogDAO.saveAll(listOf(
+                ReservationLog(-1, user, -1, DateDecorator.of("2019-01-01T10:00:00+0000").date),
+                ReservationLog(-1, user, -1, DateDecorator.of("2019-01-02T10:00:00+0000").date),
+                ReservationLog(-1, user, -1, DateDecorator.of("2019-04-23T23:59:59+0000").date),
+                ReservationLog(-1, user, -1, DateDecorator.of("2019-04-24T10:00:00+0000").date),
+                ReservationLog(-1, user, -1, DateDecorator.of("2019-04-24T12:00:00+0000").date),
+                ReservationLog(-1, user, -1, DateDecorator.of("2019-04-25T10:00:00+0000").date),
+                ReservationLog(-1, user, -1, DateDecorator.of("2019-04-25T00:00:01+0000").date)
+        ))
+
+        val date = DateDecorator.createDate("2019-04-24").date
+        Assertions.assertThat(this.reservationService.numberOfReservationsMadeByUserInDate(user, date)).isEqualTo(2)
     }
 
     /**************************************** UTILS ***********************************************************/

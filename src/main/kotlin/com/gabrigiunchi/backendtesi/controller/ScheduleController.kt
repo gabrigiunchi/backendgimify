@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -19,10 +20,10 @@ class ScheduleController(
 
     private val logger = LoggerFactory.getLogger(ScheduleController::class.java)
 
-    @GetMapping
-    fun getAllSchedules(): ResponseEntity<Iterable<Schedule>> {
-        this.logger.info("GET all schedules")
-        return ResponseEntity(this.scheduleDAO.findAll(), HttpStatus.OK)
+    @GetMapping("/page/{page}/size/{size}")
+    fun getAllSchedules(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Iterable<Schedule>> {
+        this.logger.info("GET all schedules, page=$page size=$size")
+        return ResponseEntity(this.scheduleDAO.findAll(PageRequest.of(page, size)), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")

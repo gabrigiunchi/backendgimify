@@ -87,13 +87,13 @@ class AssetControllerTest : AbstractControllerTest() {
                 Asset("a5", kind, gym1)
         )).toList()
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/${gym1.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/${gym1.id}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(assets[0].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[2].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].id", Matchers.`is`(assets[4].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].id", Matchers.`is`(assets[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[1].id", Matchers.`is`(assets[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[2].id", Matchers.`is`(assets[4].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -109,13 +109,13 @@ class AssetControllerTest : AbstractControllerTest() {
                 Asset("a5", kinds[0], gym)
         )).toList()
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/${assets[0].kind.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/${assets[0].kind.id}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(assets[0].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[1].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].id", Matchers.`is`(assets[4].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].id", Matchers.`is`(assets[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[1].id", Matchers.`is`(assets[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[2].id", Matchers.`is`(assets[4].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -153,7 +153,7 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get an asset gym if the gym does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
@@ -162,7 +162,7 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get an asset by kind if the kind does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))

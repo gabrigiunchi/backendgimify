@@ -28,7 +28,7 @@ class AssetController(
     @GetMapping("/page/{page}/size/{size}")
     fun getAssets(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Asset>> {
         this.logger.info("GET all assets, page=$page size=$size")
-        return ResponseEntity(this.assetDAO.findAll(PageRequest.of(page, size, Sort.by("name"))), HttpStatus.OK)
+        return ResponseEntity(this.assetDAO.findAll(this.pageRequest(page, size)), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
@@ -39,11 +39,11 @@ class AssetController(
                 .orElseThrow { ResourceNotFoundException("asset $id does not exist") }
     }
 
-    @GetMapping("/by_gym/{gymId}")
-    fun getAssetsByGym(@PathVariable gymId: Int): ResponseEntity<Collection<Asset>> {
-        this.logger.info("GET all assets in gym $gymId")
+    @GetMapping("/by_gym/{gymId}/page/{page}/size/{size}")
+    fun getAssetsByGym(@PathVariable gymId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Asset>> {
+        this.logger.info("GET all assets in gym $gymId, page=$page size=$size")
         return this.gymDAO.findById(gymId)
-                .map { ResponseEntity(this.assetDAO.findByGym(it), HttpStatus.OK) }
+                .map { ResponseEntity(this.assetDAO.findByGym(it, this.pageRequest(page, size)), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
@@ -64,11 +64,11 @@ class AssetController(
                 HttpStatus.OK)
     }
 
-    @GetMapping("/by_kind/{kindId}")
-    fun getAssetsByKind(@PathVariable kindId: Int): ResponseEntity<Collection<Asset>> {
+    @GetMapping("/by_kind/{kindId}/page/{page}/size/{size}")
+    fun getAssetsByKind(@PathVariable kindId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Asset>> {
         this.logger.info("GET all assets of kind $kindId")
         return this.assetKindDAO.findById(kindId)
-                .map { ResponseEntity(this.assetDAO.findByKind(it), HttpStatus.OK) }
+                .map { ResponseEntity(this.assetDAO.findByKind(it, this.pageRequest(page, size)), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
     }
 
@@ -95,5 +95,7 @@ class AssetController(
         this.assetDAO.deleteById(id)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
+
+    private fun pageRequest(page: Int, size: Int, sort: Sort = Sort.by("name")) = PageRequest.of(page, size, sort)
 }
 

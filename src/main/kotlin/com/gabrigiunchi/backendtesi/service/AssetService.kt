@@ -17,13 +17,7 @@ class AssetService {
         if (this.assetDAO.findById(asset.id).isPresent) {
             throw ResourceAlreadyExistsException(asset.id)
         }
-
-        // The name inside the gym should be unique
-        val assetsInGym = this.assetDAO.findByGym(asset.gym)
-        if (assetsInGym.any { a -> a.name == asset.name }) {
-            throw ResourceAlreadyExistsException(asset.name)
-        }
-
+        this.checkName(asset)
         return this.assetDAO.save(asset)
     }
 
@@ -31,13 +25,16 @@ class AssetService {
         if (this.assetDAO.findById(id).isEmpty) {
             throw ResourceNotFoundException(asset.id)
         }
+        this.checkName(asset)
+        return this.assetDAO.save(asset)
+    }
 
-        // The name inside the gym should be unique
-        val assetsInGym = this.assetDAO.findByGym(asset.gym)
-        if (assetsInGym.any { a -> a.name == asset.name }) {
+    /**
+     * Check if the name is unique inside the gym
+     */
+    private fun checkName(asset: Asset) {
+        if (this.assetDAO.findByGymAndName(asset.gym, asset.name).isPresent) {
             throw ResourceAlreadyExistsException(asset.name)
         }
-
-        return this.assetDAO.save(asset)
     }
 }

@@ -7,5 +7,6 @@ import java.util.*
 
 interface ReservationLogDAO : CrudRepository<ReservationLog, Int> {
     fun findByUser(user: User): Collection<ReservationLog>
+    fun findByUserAndDateBetween(user: User, start: Date, end: Date): Collection<ReservationLog>
     fun findByReservationId(reservationId: Int): Optional<ReservationLog>
 }

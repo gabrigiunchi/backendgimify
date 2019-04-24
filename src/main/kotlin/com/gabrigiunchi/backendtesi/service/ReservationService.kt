@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -87,7 +88,8 @@ class ReservationService(
 
     fun getAvailableAssets(kindId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
-        return this.assetDAO.findByKind(this.getAssetKind(kindId))
+        return this.assetDAO.findByKind(this.getAssetKind(kindId), Pageable.unpaged())
+                .content
                 .filter { isGymOpen(it.gym, start, end) }
                 .filter { isReservationDurationValid(it, start, end) }
                 .filter { isAssetAvailable(it, start, end) }
@@ -96,7 +98,8 @@ class ReservationService(
     fun getAvailableAssetsInCity(kindId: Int, cityId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
         this.getCity(cityId)
-        return this.assetDAO.findByKind(this.getAssetKind(kindId))
+        return this.assetDAO.findByKind(this.getAssetKind(kindId), Pageable.unpaged())
+                .content
                 .filter { it.gym.city.id == cityId }
                 .filter { isGymOpen(it.gym, start, end) }
                 .filter { isReservationDurationValid(it, start, end) }
@@ -105,9 +108,8 @@ class ReservationService(
 
     fun getAvailableAssetsInGym(kindId: Int, gymId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
-        this.getGym(gymId)
-        return this.assetDAO.findByKind(this.getAssetKind(kindId))
-                .filter { it.gym.id == gymId }
+        val gym = this.getGym(gymId)
+        return this.assetDAO.findByGymAndKind(gym, this.getAssetKind(kindId))
                 .filter { isGymOpen(it.gym, start, end) }
                 .filter { isReservationDurationValid(it, start, end) }
                 .filter { isAssetAvailable(it, start, end) }
@@ -133,7 +135,8 @@ class ReservationService(
 
     /******************************* UTILS ************************************************************/
     fun numberOfReservationsMadeByUserInDate(user: User, date: Date): Int {
-        return this.reservationLogDAO.findByUser(user)
+        val d = DateDecorator.of(date)
+        return this.reservationLogDAO.findByUserAndDateBetween(user, d.minusDays(1).date, d.plusDays(1).date)
                 .filter { DateDecorator.of(it.date).isSameDay(date) }
                 .count()
     }

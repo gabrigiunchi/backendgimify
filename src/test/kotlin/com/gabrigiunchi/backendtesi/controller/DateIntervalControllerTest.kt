@@ -31,10 +31,10 @@ class DateIntervalControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get all date intervals`() {
         this.dateIntervalDAO.saveAll(this.dateIntervals)
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.DATE_INTERVALS)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.DATE_INTERVALS}/page/0/size/20")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(this.dateIntervals.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(this.dateIntervals.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

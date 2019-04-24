@@ -37,10 +37,10 @@ class ScheduleControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get all schedules`() {
         this.scheduleDAO.saveAll(this.schedules)
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.SCHEDULES)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.SCHEDULES}/page/0/size/20")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(2)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

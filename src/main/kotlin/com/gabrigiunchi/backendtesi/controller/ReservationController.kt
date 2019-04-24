@@ -10,6 +10,9 @@ import com.gabrigiunchi.backendtesi.model.dto.output.ReservationDTOOutput
 import com.gabrigiunchi.backendtesi.service.ReservationService
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -27,10 +30,10 @@ class ReservationController(
 
     private val logger = LoggerFactory.getLogger(ReservationController::class.java)
 
-    @GetMapping
-    fun getAllReservations(): ResponseEntity<Iterable<ReservationDTOOutput>> {
-        this.logger.info("GET all reservations")
-        return ResponseEntity(this.reservationDAO.findAll().map { ReservationDTOOutput(it) }, HttpStatus.OK)
+    @GetMapping("/page/{page}/size/{size}")
+    fun getAllReservations(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {
+        this.logger.info("GET all reservations, page=$page size=$size")
+        return ResponseEntity(this.reservationDAO.findAll(this.pageRequest(page, size)).map { ReservationDTOOutput(it) }, HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
@@ -173,4 +176,6 @@ class ReservationController(
         this.reservationService.deleteReservationOfUser(user, reservationId)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
+
+    private fun pageRequest(page: Int, size: Int, sort: Sort = Sort.by("id")) = PageRequest.of(page, size, sort)
 }

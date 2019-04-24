@@ -53,7 +53,7 @@ class GymController(private val gymDAO: GymDAO,
         this.logger.info("CREATE gym")
 
         if (this.gymDAO.findById(gym.id).isPresent || this.gymDAO.findByName(gym.name).isPresent) {
-            throw ResourceAlreadyExistsException(gym.id)
+            throw ResourceAlreadyExistsException("gym ${gym.id} with name ${gym.name} already exists")
         }
 
         if (this.cityDAO.findById(gym.city.id).isEmpty) {

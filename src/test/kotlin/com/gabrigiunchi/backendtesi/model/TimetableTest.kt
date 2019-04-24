@@ -111,7 +111,7 @@ class TimetableTest : AbstractControllerTest() {
         Assertions.assertThat(timetable.contains(DateDecorator.of("2019-04-29T10:00:00+0000").date)).isFalse()
     }
 
-    /******************************** DATE INTERVALS *************************************************************/
+    /******************************** DATE TIME_INTERVALS *************************************************************/
 
     @Test
     fun `Should say if it contains a date interval`() {

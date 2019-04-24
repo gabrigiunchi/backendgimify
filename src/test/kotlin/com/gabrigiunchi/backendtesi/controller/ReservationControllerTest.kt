@@ -56,10 +56,10 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get all reservations`() {
         this.mockReservations()
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.RESERVATIONS)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/page/0/size/20")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.greaterThanOrEqualTo(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.greaterThanOrEqualTo(4)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

@@ -5,6 +5,8 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.TimeInterval
 import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -16,10 +18,10 @@ class TimeIntervalController(private val timeIntervalDAO: TimeIntervalDAO) {
 
     private val logger = LoggerFactory.getLogger(TimeIntervalController::class.java)
 
-    @GetMapping
-    fun getAllIntervals(): ResponseEntity<Iterable<TimeInterval>> {
-        this.logger.info("GET all timeIntervals")
-        return ResponseEntity(this.timeIntervalDAO.findAll(), HttpStatus.OK)
+    @GetMapping("/page/{page}/size/{size}")
+    fun getAllIntervals(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<TimeInterval>> {
+        this.logger.info("GET all timeIntervals, page=$page size=$size")
+        return ResponseEntity(this.timeIntervalDAO.findAll(PageRequest.of(page, size)), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
