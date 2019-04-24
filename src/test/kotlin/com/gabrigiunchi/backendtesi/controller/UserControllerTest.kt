@@ -40,10 +40,10 @@ class UserControllerTest : AbstractControllerTest() {
                 User("fragiunchi", "dsndja", "Francesco", "Giunchi"),
                 User("fabiogiunchi", "dsndja", "Fabio", "Giunchi")))
 
-        this.mockMvc.perform(get(ApiUrls.USERS)
+        this.mockMvc.perform(get("${ApiUrls.USERS}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -141,33 +141,6 @@ class UserControllerTest : AbstractControllerTest() {
     fun `Should not delete a user if it does not exist`() {
         mockMvc.perform(delete("${ApiUrls.USERS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
-    fun `Should update a user`() {
-        val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        var user = User("giggi", "ddnsakjn", "", "", roles.toMutableList())
-        user = this.userDAO.save(user)
-        Assertions.assertThat(user.isActive).isTrue()
-        user.isActive = false
-        mockMvc.perform(put("${ApiUrls.USERS}/${user.id}")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json(user)))
-                .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.active", Matchers.`is`(false)))
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
-    fun `Should not update a user if it does not exist`() {
-        val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        val user = User("giggi", "ddnsakjn", "", "", roles.toMutableList())
-        mockMvc.perform(put("${ApiUrls.USERS}/${user.id}")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json(user)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())

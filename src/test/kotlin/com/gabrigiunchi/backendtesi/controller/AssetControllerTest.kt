@@ -46,15 +46,20 @@ class AssetControllerTest : AbstractControllerTest() {
         val gym = this.createGym()
         val kind = this.assetKindDAO.save(MockEntities.assetKinds[0])
         this.assetDAO.saveAll(listOf(
-                Asset("a1", kind, gym),
                 Asset("a2", kind, gym),
+                Asset("a1", kind, gym),
                 Asset("a3", kind, gym),
                 Asset("a4", kind, gym)
         ))
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.ASSETS)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].name", Matchers.`is`("a1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[1].name", Matchers.`is`("a2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[2].name", Matchers.`is`("a3")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[3].name", Matchers.`is`("a4")))
+
                 .andDo(MockMvcResultHandlers.print())
     }
 

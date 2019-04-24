@@ -21,7 +21,7 @@ class GymController(private val gymDAO: GymDAO,
     private val logger = LoggerFactory.getLogger(GymController::class.java)
 
     @GetMapping
-    fun getGyms(): ResponseEntity<Iterable<Gym>> {
+    fun getAllGyms(): ResponseEntity<Iterable<Gym>> {
         this.logger.info("GET all gyms")
         return ResponseEntity(this.gymDAO.findAll(), HttpStatus.OK)
     }
