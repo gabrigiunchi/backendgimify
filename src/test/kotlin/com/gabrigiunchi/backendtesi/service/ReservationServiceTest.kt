@@ -367,6 +367,47 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should return empty list when searching the free assets if the interval is in the past`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssets(kind.id,
+                DateDecorator.of("2019-04-22T10:15:00+0000").date, DateDecorator.of("2019-04-22T10:20:00+0000").date)
+
+        Assertions.assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Should return empty list when searching the free assets if the interval is in the past (city filter)`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssetsInCity(
+                kind.id,
+                this.gym!!.city.id,
+                DateDecorator.of("2019-04-22T10:15:00+0000").date,
+                DateDecorator.of("2019-04-22T10:20:00+0000").date)
+
+        Assertions.assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Should return empty list when searching the free assets if the interval is in the past (gym filter)`() {
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
+
+        val result = this.reservationService.getAvailableAssetsInGym(kind.id,
+                this.gym!!.id,
+                DateDecorator.of("2019-04-22T10:15:00+0000").date,
+                DateDecorator.of("2019-04-22T10:20:00+0000").date)
+
+        Assertions.assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
     fun `Should return the available assets of a given kind in a given interval in a given gym`() {
         val anotherGym = this.gymDAO.save(Gym("gym2", "adddress2", this.cityDAO.save(City(CityEnum.BERGAMO))))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))

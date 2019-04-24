@@ -25,7 +25,7 @@ class ReservationService(
     private var maxReservationsPerDay: Int = 0
 
     fun addReservation(reservationDTO: ReservationDTOInput, userId: Int): Reservation {
-        if (reservationDTO.end.before(Date())) {
+        if (reservationDTO.start.before(Date())) {
             throw BadRequestException("reservation must be in the future")
         }
 
@@ -88,6 +88,11 @@ class ReservationService(
 
     fun getAvailableAssets(kindId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
+
+        if (start.before(Date())) {
+            return emptyList()
+        }
+
         return this.assetDAO.findByKind(this.getAssetKind(kindId), Pageable.unpaged())
                 .content
                 .filter { isGymOpen(it.gym, start, end) }
@@ -98,6 +103,11 @@ class ReservationService(
     fun getAvailableAssetsInCity(kindId: Int, cityId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
         this.getCity(cityId)
+
+        if (start.before(Date())) {
+            return emptyList()
+        }
+
         return this.assetDAO.findByKind(this.getAssetKind(kindId), Pageable.unpaged())
                 .content
                 .filter { it.gym.city.id == cityId }
@@ -109,6 +119,11 @@ class ReservationService(
     fun getAvailableAssetsInGym(kindId: Int, gymId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
         val gym = this.getGym(gymId)
+
+        if (start.before(Date())) {
+            return emptyList()
+        }
+
         return this.assetDAO.findByGymAndKind(gym, this.getAssetKind(kindId))
                 .filter { isGymOpen(it.gym, start, end) }
                 .filter { isReservationDurationValid(it, start, end) }
