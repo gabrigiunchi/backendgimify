@@ -64,6 +64,7 @@ class UserControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(get("${ApiUrls.USERS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -85,6 +86,7 @@ class UserControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(get("${ApiUrls.USERS}/-1/details")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -140,6 +142,7 @@ class UserControllerTest : AbstractControllerTest() {
         mockMvc.perform(delete("${ApiUrls.USERS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -166,6 +169,7 @@ class UserControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(user)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 }

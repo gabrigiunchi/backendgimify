@@ -35,7 +35,7 @@ class UserController(
         this.logger.info("GET REQUEST for user #$id")
         return this.userDAO.findById(id)
                 .map { user -> ResponseEntity(UserDTO(user), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException(id) }
+                .orElseThrow { ResourceNotFoundException("user $id does not exist") }
     }
 
     @GetMapping("/{id}/details")
@@ -43,7 +43,7 @@ class UserController(
         this.logger.info("GET REQUEST for user #$id")
         return this.userDAO.findById(id)
                 .map { user -> ResponseEntity(user, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException(id) }
+                .orElseThrow { ResourceNotFoundException("user $id does not exist") }
     }
 
     @PostMapping
@@ -52,7 +52,7 @@ class UserController(
         this.logger.info(user.toString())
 
         if (this.userDAO.findById(user.id).isPresent || this.userDAO.findByUsername(user.username).isPresent) {
-            throw ResourceAlreadyExistsException(user.id)
+            throw ResourceAlreadyExistsException("user ${user.id} with username ${user.username} already exists")
         }
 
         return ResponseEntity(UserDTO(this.userDAO.save(user)), HttpStatus.CREATED)
@@ -63,7 +63,7 @@ class UserController(
         this.logger.info("PUT user #$id")
 
         if (this.userDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id)
+            throw ResourceNotFoundException("user $id does not exist")
         }
 
         return ResponseEntity(this.userDAO.save(user), HttpStatus.OK)
@@ -74,7 +74,7 @@ class UserController(
     fun deleteUser(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE user #$id")
         if (this.userDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id)
+            throw ResourceNotFoundException("user $id does not exist")
         }
 
         this.userDAO.deleteById(id)

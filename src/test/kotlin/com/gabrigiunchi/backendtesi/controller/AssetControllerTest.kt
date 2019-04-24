@@ -142,6 +142,7 @@ class AssetControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -150,6 +151,7 @@ class AssetControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -158,6 +160,7 @@ class AssetControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -167,6 +170,7 @@ class AssetControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/${gym.id}/by_kind/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -176,6 +180,7 @@ class AssetControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1/by_kind/${kind.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -255,6 +260,7 @@ class AssetControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.ASSETS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

@@ -1,10 +1,10 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.DateIntervalDAO
+import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.DateInterval
 import com.gabrigiunchi.backendtesi.model.dto.input.DateIntervalDTO
 import org.slf4j.LoggerFactory
-import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -26,7 +26,9 @@ class DateIntervalController(private val dateIntervalDAO: DateIntervalDAO) {
     fun findDateIntervalById(@PathVariable id: Int): ResponseEntity<DateInterval> {
         this.logger.info("GET date interval #$id")
         return ResponseEntity(
-                this.dateIntervalDAO.findById(id).map { it }.orElseThrow { ResourceNotFoundException("date interval #$id not found") },
+                this.dateIntervalDAO.findById(id)
+                        .map { it }
+                        .orElseThrow { ResourceNotFoundException("date interval $id does not exist") },
                 HttpStatus.OK)
     }
 
@@ -41,7 +43,7 @@ class DateIntervalController(private val dateIntervalDAO: DateIntervalDAO) {
         this.logger.info("DELETE date interval #$id")
 
         if (this.dateIntervalDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("date interval #$id not found")
+            throw ResourceNotFoundException("date interval $id does not exist")
         }
 
         this.dateIntervalDAO.deleteById(id)

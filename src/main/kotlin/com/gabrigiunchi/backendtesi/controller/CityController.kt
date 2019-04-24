@@ -2,9 +2,9 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
+import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.City
 import org.slf4j.LoggerFactory
-import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -27,7 +27,7 @@ class CityController(private val cityDAO: CityDAO) {
         this.logger.info("GET city #$id")
         return this.cityDAO.findById(id)
                 .map { ResponseEntity(it, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("city #$id not found") }
+                .orElseThrow { ResourceNotFoundException("city $id does not exist") }
     }
 
     @GetMapping("/by_name/{name}")
@@ -35,7 +35,7 @@ class CityController(private val cityDAO: CityDAO) {
         this.logger.info("GET city $name")
         return this.cityDAO.findByName(name)
                 .map { ResponseEntity(it, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("city $name not found") }
+                .orElseThrow { ResourceNotFoundException("city $name does not exist") }
     }
 
     @PostMapping
@@ -54,7 +54,7 @@ class CityController(private val cityDAO: CityDAO) {
         this.logger.info("DELETE city #$id")
 
         if (this.cityDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("city #$id not found")
+            throw ResourceNotFoundException("city $id does not exist")
         }
 
         this.cityDAO.deleteById(id)

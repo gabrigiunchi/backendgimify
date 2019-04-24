@@ -177,6 +177,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -185,6 +186,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1/today")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -193,6 +195,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1/future")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -201,6 +204,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("reservation -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -356,6 +360,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("reservation -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -447,9 +452,13 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 when requesting one of my reservations by id if it does not exist`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser("gabrigiunchi")
         mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("user ${user.id} does not have reservation -1")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -473,9 +482,12 @@ class ReservationControllerTest : AbstractControllerTest() {
                 Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
         )).toList()
 
-        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/${reservations[2].id}")
+        val id = reservations[2].id
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/$id")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("user ${user1.id} does not have reservation $id")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -520,9 +532,13 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not delete one of my reservations if it does not exist`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser("gabrigiunchi")
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`(
+                        "user ${user.id} does not have reservation -1")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -546,9 +562,12 @@ class ReservationControllerTest : AbstractControllerTest() {
                 Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
         )).toList()
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/${reservations[2].id}")
+        val id = reservations[2].id
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/$id")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("user ${user1.id} does not have reservation $id")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -616,6 +635,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -629,6 +649,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -642,6 +663,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -655,6 +677,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -668,6 +691,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

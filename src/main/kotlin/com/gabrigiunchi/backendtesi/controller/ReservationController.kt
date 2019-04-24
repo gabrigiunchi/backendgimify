@@ -38,7 +38,7 @@ class ReservationController(
         this.logger.info("GET reservation #$id")
         return this.reservationDAO.findById(id)
                 .map { ResponseEntity(ReservationDTOOutput(it), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException(id) }
+                .orElseThrow { ResourceNotFoundException("reservation $id does not exist") }
     }
 
 
@@ -47,7 +47,7 @@ class ReservationController(
         this.logger.info("GET all reservations of asset #$assetId")
         return this.assetDAO.findById(assetId)
                 .map { ResponseEntity(this.reservationDAO.findByAsset(it).map { r -> ReservationDTOOutput(r) }, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException(assetId) }
+                .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
     }
 
     @GetMapping("/of_asset/{assetId}/future")
@@ -59,7 +59,7 @@ class ReservationController(
                             this.reservationDAO.findByAssetAndEndAfter(it, Date()).map { r -> ReservationDTOOutput(r) },
                             HttpStatus.OK)
                 }
-                .orElseThrow { ResourceNotFoundException(assetId) }
+                .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
     }
 
     @GetMapping("/of_asset/{assetId}/today")
@@ -75,7 +75,7 @@ class ReservationController(
                             ).map { reservation -> ReservationDTOOutput(reservation) },
                             HttpStatus.OK)
                 }
-                .orElseThrow { ResourceNotFoundException(assetId) }
+                .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}")
@@ -119,7 +119,7 @@ class ReservationController(
     fun deleteReservationById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE reservation #$id")
         if (this.reservationDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id)
+            throw ResourceNotFoundException("reservation $id does not exist")
         }
 
         this.reservationDAO.deleteById(id)

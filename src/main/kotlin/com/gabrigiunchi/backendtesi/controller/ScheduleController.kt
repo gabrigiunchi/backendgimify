@@ -2,10 +2,10 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
+import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import org.slf4j.LoggerFactory
-import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -29,7 +29,7 @@ class ScheduleController(
     fun findScheduleById(@PathVariable id: Int): ResponseEntity<Schedule> {
         this.logger.info("GET schedule #$id")
         return ResponseEntity(
-                this.scheduleDAO.findById(id).map { it }.orElseThrow { ResourceNotFoundException("schedule #$id not found") },
+                this.scheduleDAO.findById(id).map { it }.orElseThrow { ResourceNotFoundException("schedule $id does not exist") },
                 HttpStatus.OK)
     }
 
@@ -45,7 +45,7 @@ class ScheduleController(
         this.logger.info("DELETE schedule #$id")
 
         if (this.scheduleDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("schedule #$id not found")
+            throw ResourceNotFoundException("schedule $id does not exist")
         }
 
         this.scheduleDAO.deleteById(id)

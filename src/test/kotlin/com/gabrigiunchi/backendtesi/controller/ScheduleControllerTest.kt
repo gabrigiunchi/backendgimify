@@ -59,6 +59,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.SCHEDULES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("schedule -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -111,6 +112,7 @@ class ScheduleControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.SCHEDULES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("schedule -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 }

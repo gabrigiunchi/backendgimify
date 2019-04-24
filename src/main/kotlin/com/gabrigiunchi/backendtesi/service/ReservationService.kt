@@ -37,7 +37,7 @@ class ReservationService(
         }
 
         if (this.assetDAO.findById(reservationDTO.assetID).isEmpty) {
-            throw ResourceNotFoundException("asset #${reservationDTO.assetID} does not exist")
+            throw ResourceNotFoundException("asset ${reservationDTO.assetID} does not exist")
         }
 
         val user = this.getUser(userId)
@@ -167,7 +167,7 @@ class ReservationService(
     @Throws(ResourceNotFoundException::class)
     fun checkReservationOfUser(user: User, reservationId: Int) {
         if (this.reservationDAO.findByUser(user).none { it.id == reservationId }) {
-            throw ResourceNotFoundException("user #$${user.id} does not have reservation #$reservationId")
+            throw ResourceNotFoundException("user ${user.id} does not have reservation $reservationId")
         }
     }
 
@@ -175,6 +175,6 @@ class ReservationService(
     private fun getUser(userID: Int): User {
         return this.userDAO.findById(userID)
                 .map { it }
-                .orElseThrow { ResourceNotFoundException("user #$userID does not exist") }
+                .orElseThrow { ResourceNotFoundException("user $userID does not exist") }
     }
 }

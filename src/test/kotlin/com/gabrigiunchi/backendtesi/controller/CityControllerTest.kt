@@ -63,14 +63,17 @@ class CityControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should not get a city by name if it does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/by_name/ndakjsnjad")
+        val name = "dbasdasd"
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/by_name/$name")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city $name does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -131,6 +134,7 @@ class CityControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.CITIES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

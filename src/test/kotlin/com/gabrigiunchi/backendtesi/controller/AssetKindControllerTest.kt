@@ -51,6 +51,7 @@ class AssetKindControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSET_KIND}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -86,6 +87,7 @@ class AssetKindControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(updatedKind)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -122,9 +124,10 @@ class AssetKindControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not delete an asset kind if it does not exist`() {
-        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.ASSET_KIND}/100")
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.ASSET_KIND}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -142,9 +145,10 @@ class AssetKindControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not update max time reservation for an asset kind if it does not exist`() {
-        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/10/max_time/10")
+        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/-1/max_time/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

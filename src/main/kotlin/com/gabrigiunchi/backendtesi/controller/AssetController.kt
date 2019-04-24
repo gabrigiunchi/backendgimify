@@ -33,7 +33,7 @@ class AssetController(
         this.logger.info("GET asset #$id")
         return this.assetDAO.findById(id)
                 .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException(id) }
+                .orElseThrow { ResourceNotFoundException("asset $id does not exist") }
     }
 
     @GetMapping("/by_gym/{gymId}")
@@ -66,7 +66,7 @@ class AssetController(
         this.logger.info("GET all assets of kind $kindId")
         return this.assetKindDAO.findById(kindId)
                 .map { ResponseEntity(this.assetDAO.findByKind(it), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("kind $kindId does not exist") }
+                .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
     }
 
     @PostMapping
@@ -86,7 +86,7 @@ class AssetController(
         this.logger.info("DELETE asset #$id")
 
         if (this.assetDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id)
+            throw ResourceNotFoundException("asset $id does not exist")
         }
 
         this.assetDAO.deleteById(id)

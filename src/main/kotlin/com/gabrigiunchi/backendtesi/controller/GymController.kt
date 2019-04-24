@@ -31,7 +31,7 @@ class GymController(private val gymDAO: GymDAO,
         this.logger.info("GET gym #$id")
         return this.gymDAO.findById(id)
                 .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException(id) }
+                .orElseThrow { ResourceNotFoundException("gym $id does not exist") }
     }
 
     @GetMapping("/by_city/{cityId}")
@@ -39,7 +39,7 @@ class GymController(private val gymDAO: GymDAO,
         this.logger.info("GET gym by city #$cityId")
         return this.cityDAO.findById(cityId)
                 .map { ResponseEntity(this.gymDAO.findByCity(it), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("city #$cityId does not exist") }
+                .orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
     }
 
     @GetMapping("/{id}/rating")
@@ -57,7 +57,7 @@ class GymController(private val gymDAO: GymDAO,
         }
 
         if (this.cityDAO.findById(gym.city.id).isEmpty) {
-            throw ResourceNotFoundException("city #${gym.city.id} does not exists")
+            throw ResourceNotFoundException("city ${gym.city.id} does not exist")
         }
 
         return ResponseEntity(this.gymDAO.save(gym), HttpStatus.CREATED)
@@ -68,7 +68,7 @@ class GymController(private val gymDAO: GymDAO,
         this.logger.info("PUT gym #${gym.id}")
 
         if (this.gymDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(gym.id)
+            throw ResourceNotFoundException("gym $id does not exist")
         }
 
         return ResponseEntity(this.gymDAO.save(gym), HttpStatus.OK)
@@ -79,7 +79,7 @@ class GymController(private val gymDAO: GymDAO,
         this.logger.info("DELETE gym #$id")
 
         if (this.gymDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(id)
+            throw ResourceNotFoundException("gym $id does not exist")
         }
 
         this.gymDAO.deleteById(id)

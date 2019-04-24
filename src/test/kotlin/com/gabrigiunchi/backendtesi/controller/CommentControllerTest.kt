@@ -11,6 +11,7 @@ import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
+import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -82,6 +83,7 @@ class CommentControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("comment -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -90,31 +92,33 @@ class CommentControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
         val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("gym2", "another address", gym.city))
+        val d = DateDecorator.now()
         val comments = this.commentDAO.saveAll(listOf(
-                Comment(user, gym, "title1", "message1", 1),
-                Comment(user, anotherGym, "title2", "message2", 2),
-                Comment(user, anotherGym, "title3", "message3", 3),
-                Comment(user, gym, "title4", "message4", 5),
-                Comment(user, anotherGym, "title5", "message5", 4),
-                Comment(user, gym, "title6", "message6", 2)
+                Comment(user, gym, "title1", "message1", 1, d.date),
+                Comment(user, anotherGym, "title2", "message2", 2, d.minusMinutes(10).date),
+                Comment(user, anotherGym, "title3", "message3", 3, d.minusMinutes(15).date),
+                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20).date),
+                Comment(user, anotherGym, "title5", "message5", 4, d.minusMinutes(25).date),
+                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30).date)
         )).toList()
 
         val expectedResult = listOf(comments[0], comments[3], comments[5])
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_gym/${gym.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_gym/${gym.id}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(expectedResult[0].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(expectedResult[1].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id", Matchers.`is`(expectedResult[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`(expectedResult[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`(expectedResult[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].id", Matchers.`is`(expectedResult[2].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should not get the comments of a gym if the gym does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_gym/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_gym/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -123,31 +127,33 @@ class CommentControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
         val gym = this.mockGym()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
+        val d = DateDecorator.now()
         val comments = this.commentDAO.saveAll(listOf(
-                Comment(user, gym, "title1", "message1", 1),
-                Comment(anotherUser, gym, "title2", "message2", 2),
-                Comment(anotherUser, gym, "title3", "message3", 3),
-                Comment(user, gym, "title4", "message4", 5),
-                Comment(anotherUser, gym, "title5", "message5", 4),
-                Comment(user, gym, "title6", "message6", 2)
+                Comment(user, gym, "title1", "message1", 1, d.date),
+                Comment(anotherUser, gym, "title2", "message2", 2, d.minusMinutes(10).date),
+                Comment(anotherUser, gym, "title3", "message3", 3, d.minusMinutes(15).date),
+                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20).date),
+                Comment(anotherUser, gym, "title5", "message5", 4, d.minusMinutes(25).date),
+                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30).date)
         )).toList()
 
         val expectedResult = listOf(comments[0], comments[3], comments[5])
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_user/${user.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_user/${user.id}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(expectedResult[0].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(expectedResult[1].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id", Matchers.`is`(expectedResult[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`(expectedResult[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`(expectedResult[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].id", Matchers.`is`(expectedResult[2].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should get not the comments of a user if the user does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_user/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_user/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -192,6 +198,7 @@ class CommentControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_user/-1/by_gym/${gym.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -211,6 +218,7 @@ class CommentControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/by_user/${user.id}/by_gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -239,6 +247,7 @@ class CommentControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -250,6 +259,7 @@ class CommentControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -299,6 +309,7 @@ class CommentControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("comment -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -308,23 +319,24 @@ class CommentControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("jn", "Jn", "j", "km"))
         val gym = this.mockGym()
+        val d = DateDecorator.now()
         val comments = this.commentDAO.saveAll(listOf(
-                Comment(user, gym, "title1", "message1", 1),
-                Comment(anotherUser, gym, "title2", "message2", 2),
-                Comment(anotherUser, gym, "title3", "message3", 3),
-                Comment(user, gym, "title4", "message4", 5),
-                Comment(anotherUser, gym, "title5", "message5", 4),
-                Comment(user, gym, "title6", "message6", 2)
+                Comment(user, gym, "title1", "message1", 1, d.date),
+                Comment(anotherUser, gym, "title2", "message2", 2, d.minusMinutes(10).date),
+                Comment(anotherUser, gym, "title3", "message3", 3, d.minusMinutes(15).date),
+                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20).date),
+                Comment(anotherUser, gym, "title5", "message5", 4, d.minusMinutes(25).date),
+                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30).date)
         )).toList()
 
         val expectedResult = listOf(comments[0], comments[3], comments[5])
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(3)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(expectedResult[0].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(expectedResult[1].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[2].id", Matchers.`is`(expectedResult[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].id", Matchers.`is`(expectedResult[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[1].id", Matchers.`is`(expectedResult[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[2].id", Matchers.`is`(expectedResult[2].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

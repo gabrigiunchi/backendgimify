@@ -53,6 +53,8 @@ class TimeIntervalControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.INTERVALS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("time interval -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -94,6 +96,8 @@ class TimeIntervalControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.INTERVALS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("time interval -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

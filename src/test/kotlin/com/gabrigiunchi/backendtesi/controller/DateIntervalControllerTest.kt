@@ -52,6 +52,7 @@ class DateIntervalControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.DATE_INTERVALS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("date interval -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -98,6 +99,7 @@ class DateIntervalControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.DATE_INTERVALS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("date interval -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 }

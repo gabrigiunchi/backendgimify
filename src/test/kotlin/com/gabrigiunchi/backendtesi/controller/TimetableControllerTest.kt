@@ -95,6 +95,8 @@ class TimetableControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("timetable -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -104,14 +106,19 @@ class TimetableControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should not get a timetable by gym if the gym exists but the timetable does not`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/${this.gyms[0].id}")
+        val gymId = this.gyms[0].id
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/$gymId")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("timetable does not exist for gym $gymId")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -130,11 +137,14 @@ class TimetableControllerTest : AbstractControllerTest() {
     @Test
     fun `Should NOT create a timetable if the gym does not exist`() {
         this.gymDAO.deleteAll()
-        val timetableDTO = TimetableDTO(this.gyms[0].id, emptySet(), emptySet(), emptySet())
+        val gymId = this.gyms[0].id
+        val timetableDTO = TimetableDTO(gymId, emptySet(), emptySet(), emptySet())
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("gym $gymId does not exist")))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(0)
@@ -179,6 +189,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("timetable -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -198,6 +210,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -228,14 +242,19 @@ class TimetableControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should NOT delete a timetable by its gym id if the timetable does not exist`() {
-        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/${this.gyms[0].id}")
+        val gymId = this.gyms[0].id
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/$gymId")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("no timetable for gym $gymId")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -244,6 +263,8 @@ class TimetableControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("timetable -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
