@@ -49,14 +49,17 @@ class CommentControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should get all the comments`() {
+    fun `Should get all the comments paged`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title$it", "message$it", it) })
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.COMMENTS)
+        this.commentDAO
+                .saveAll((1..30).map { Comment(user, gym, "title$it", "m$it", 1) })
+                .toList()
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/page/0/size/20")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(20)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -476,22 +479,6 @@ class CommentControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/me/${comment.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    /************************************ PAGEABLE *******************************************************************/
-    @Test
-    fun `Should get all the comments paged`() {
-        val user = this.mockUser()
-        val gym = this.mockGym()
-        this.commentDAO
-                .saveAll((1..100).map { Comment(user, gym, "title$it", "m$it", 1) })
-                .toList()
-
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/page/0/size/20")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(20)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

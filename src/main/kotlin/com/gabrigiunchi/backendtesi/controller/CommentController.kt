@@ -25,14 +25,8 @@ class CommentController(
 
     private val logger = LoggerFactory.getLogger(CommentController::class.java)
 
-    @GetMapping
-    fun getAllComments(): ResponseEntity<Iterable<CommentDTOOutput>> {
-        this.logger.info("GET all comments")
-        return ResponseEntity(this.commentDAO.findAll().map { CommentDTOOutput(it) }, HttpStatus.OK)
-    }
-
     @GetMapping("/page/{page}/size/{size}")
-    fun getAllCommentsPaged(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<CommentDTOOutput>> {
+    fun getAllComments(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<CommentDTOOutput>> {
         this.logger.info("GET all comments, page $page and size $size")
         return ResponseEntity(
                 this.commentDAO.findAll(this.pageRequest(page, size)).map { CommentDTOOutput(it) },
