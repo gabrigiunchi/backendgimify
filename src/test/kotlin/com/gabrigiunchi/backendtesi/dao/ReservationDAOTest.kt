@@ -45,8 +45,8 @@ class ReservationDAOTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the reservations in the furure`() {
-        val asset = this.createAsset("ciclette1")
-        val user = this.createUser("gabrigiunchi")
+        val asset = this.mockAsset("ciclette1")
+        val user = this.mockUser("gabrigiunchi")
         val reservations = this.reservationDAO.saveAll(listOf(
                 Reservation(asset, user, DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date),
                 Reservation(asset, user, DateDecorator.now().minusMinutes(200).date, DateDecorator.now().minusMinutes(20).date),
@@ -65,9 +65,9 @@ class ReservationDAOTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the reservations for an asset with end after a date`() {
-        val asset1 = this.createAsset("ciclette1")
-        val asset2 = this.createAsset("ciclette2")
-        val user = this.createUser("gabrigiunchi")
+        val asset1 = this.mockAsset("ciclette1")
+        val asset2 = this.mockAsset("ciclette2")
+        val user = this.mockUser("gabrigiunchi")
         val reservations = this.reservationDAO.saveAll(listOf(
                 Reservation(asset1, user, DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date),
                 Reservation(asset1, user, DateDecorator.now().minusMinutes(200).date,
@@ -89,10 +89,10 @@ class ReservationDAOTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the reservations for a specific user and end after`() {
-        val asset1 = this.createAsset("ciclette1")
-        val asset2 = this.createAsset("ciclette2")
-        val user1 = this.createUser("gabrigiunchi")
-        val user2 = this.createUser("dnasnajda")
+        val asset1 = this.mockAsset("ciclette1")
+        val asset2 = this.mockAsset("ciclette2")
+        val user1 = this.mockUser("gabrigiunchi")
+        val user2 = this.mockUser("dnasnajda")
         val reservations = this.reservationDAO.saveAll(listOf(
                 Reservation(asset1, user1, DateDecorator.now().date, DateDecorator.now().plusMinutes(20).date),
                 Reservation(asset1, user1, DateDecorator.now().minusMinutes(200).date,
@@ -113,13 +113,13 @@ class ReservationDAOTest : AbstractControllerTest() {
         Assertions.assertThat(result.none { it.user.id == user2.id }).isTrue()
     }
 
-    private fun createAsset(name: String): Asset {
+    private fun mockAsset(name: String): Asset {
         val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         return this.assetDAO.save(Asset(name, kind, gym))
     }
 
-    private fun createUser(username: String): User {
+    private fun mockUser(username: String): User {
         return this.userDAO.save(this.userFactory.createRegularUser(username, "pass", "Gabriele", "Giunchi"))
     }
 }

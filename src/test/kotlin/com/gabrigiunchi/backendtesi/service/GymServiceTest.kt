@@ -45,8 +45,8 @@ class GymServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should calculate the rating of a gym`() {
-        val user = this.createUser()
-        val gym = this.createGym()
+        val user = this.mockUser()
+        val gym = this.mockGym()
 
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title", "message", 2),
@@ -62,7 +62,7 @@ class GymServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should calculate the rating of a gym and return -1 if no comments are present`() {
-        Assertions.assertThat(this.gymService.calculateRatingOfGym(this.createGym().id)).isEqualTo(-1.0)
+        Assertions.assertThat(this.gymService.calculateRatingOfGym(this.mockGym().id)).isEqualTo(-1.0)
     }
 
     @Test(expected = ResourceNotFoundException::class)
@@ -70,11 +70,11 @@ class GymServiceTest : AbstractControllerTest() {
         this.gymService.calculateRatingOfGym(-1)
     }
 
-    private fun createUser(): User {
+    private fun mockUser(): User {
         return this.userDAO.save(this.userFactory.createRegularUser("adsa", "jns", "jnj", "njnj"))
     }
 
-    private fun createGym(): Gym {
+    private fun mockGym(): Gym {
         val city = this.cityDAO.save(MockEntities.mockCities[0])
         return this.gymDAO.save(Gym("gym1", "address1", city))
     }

@@ -36,7 +36,7 @@ class AssetTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete a gym and all of its related assets`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val asset = Asset("asset1", this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20)), gym)
         this.assetDAO.save(asset).id
         this.gymDAO.delete(gym)
@@ -47,7 +47,7 @@ class AssetTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete an asset kind and all of its related assets`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val assetKind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         val asset = Asset("asset1", assetKind, gym)
         this.assetDAO.save(asset).id
@@ -57,7 +57,7 @@ class AssetTest : AbstractControllerTest() {
         Assertions.assertThat(this.assetKindDAO.count()).isEqualTo(0)
     }
 
-    private fun createGym(): Gym {
+    private fun mockGym(): Gym {
         return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(City(CityEnum.BERGAMO))))
     }
 

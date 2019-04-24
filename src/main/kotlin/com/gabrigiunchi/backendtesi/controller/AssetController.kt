@@ -44,6 +44,23 @@ class AssetController(
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
+    @GetMapping("/by_gym/{gymId}/by_kind/{kindId}")
+    fun getAssetsByGymAndKind(@PathVariable gymId: Int, @PathVariable kindId: Int): ResponseEntity<Collection<Asset>> {
+        this.logger.info("GET all assets in gym $gymId of kind $kindId")
+
+        if (this.assetKindDAO.findById(kindId).isEmpty) {
+            throw ResourceNotFoundException("asset kind $kindId does not exist")
+        }
+
+        if (this.gymDAO.findById(gymId).isEmpty) {
+            throw ResourceNotFoundException("gym $gymId does not exist")
+        }
+
+        return ResponseEntity(
+                this.assetDAO.findByGymAndKind(this.gymDAO.findById(gymId).get(), this.assetKindDAO.findById(kindId).get()),
+                HttpStatus.OK)
+    }
+
     @GetMapping("/by_kind/{kindId}")
     fun getAssetsByKind(@PathVariable kindId: Int): ResponseEntity<Collection<Asset>> {
         this.logger.info("GET all assets of kind $kindId")

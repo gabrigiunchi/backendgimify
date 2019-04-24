@@ -61,8 +61,8 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationLogDAO.deleteAll()
 
         this.user = this.userDAO.save(this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi"))
-        this.gym = this.createGym()
-        this.createTimetable()
+        this.gym = this.mockGym()
+        this.mockTimetable()
     }
 
 
@@ -83,21 +83,21 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the user does not exist`() {
-        val reservationDTO = ReservationDTO(-1, this.createAsset().id, Date(), DateDecorator.now().plusMinutes(20).date)
+        val reservationDTO = ReservationDTO(-1, this.mockAsset().id, Date(), DateDecorator.now().plusMinutes(20).date)
         this.reservationService.addReservation(reservationDTO)
     }
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the start is after the end`() {
         val start = DateDecorator.now().plusMinutes(200)
-        val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start.date, start.minusMinutes(20).date)
+        val reservationDTO = ReservationDTO(this.user!!.id, this.mockAsset().id, start.date, start.minusMinutes(20).date)
         this.reservationService.addReservation(reservationDTO)
     }
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the start is equal to the end`() {
         val start = DateDecorator.now().plusMinutes(10).date
-        val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start, start)
+        val reservationDTO = ReservationDTO(this.user!!.id, this.mockAsset().id, start, start)
         this.reservationService.addReservation(reservationDTO)
     }
 
@@ -105,13 +105,13 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Should not create a reservation if the duration exceeds the maximum`() {
         val start = DateDecorator.now()
         val end = start.plusMinutes(21)
-        val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start.date, end.date)
+        val reservationDTO = ReservationDTO(this.user!!.id, this.mockAsset().id, start.date, end.date)
         this.reservationService.addReservation(reservationDTO)
     }
 
     @Test(expected = ReservationConflictException::class)
     fun `Should not create a reservation if there is another one in that time`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
@@ -124,7 +124,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ReservationConflictException::class)
     fun `Should not create a reservation if there is another one in that time (edge case with same interval)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T12:00:00+0000").date))
@@ -137,7 +137,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = GymClosedException::class)
     fun `Should not create a reservation if the gym is closed`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T08:00:00+0000").date, DateDecorator.of("2050-04-04T09:00:00+0000").date))
@@ -145,7 +145,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = GymClosedException::class)
     fun `Should not create a reservation if the gym is closed (2)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T08:00:00+0000").date, DateDecorator.of("2050-04-04T11:00:00+0000").date))
@@ -153,7 +153,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = GymClosedException::class)
     fun `Should not create a reservation if the gym is closed (3)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T14:00:00+0000").date, DateDecorator.of("2050-04-04T16:00:00+0000").date))
@@ -161,7 +161,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if interval is not within the same day`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T10:00:00+0000").date, DateDecorator.of("2050-04-05T12:00:00+0000").date))
     }
@@ -171,7 +171,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val now = Date()
         val start = DateDecorator.of("2050-04-04T11:00:00+0000")
         val end = start.plusMinutes(20)
-        val reservationDTO = ReservationDTO(this.user!!.id, this.createAsset().id, start.date, end.date)
+        val reservationDTO = ReservationDTO(this.user!!.id, this.mockAsset().id, start.date, end.date)
         val savedReservation = this.reservationService.addReservation(reservationDTO)
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
         Assertions.assertThat(this.reservationLogDAO.count()).isEqualTo(1)
@@ -185,7 +185,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Two users should create reservations`() {
         val user1 = this.user!!
         val user2 = this.userDAO.save(this.userFactory.createRegularUser("jnj", "sss", "kmk", "kk"))
-        val asset1 = this.createAsset(300)
+        val asset1 = this.mockAsset(300)
         val asset2 = this.assetDAO.save(Asset("ciclette2", asset1.kind, this.gym!!))
 
         this.reservationService.addReservation(ReservationDTO(user1.id, asset1.id,
@@ -205,7 +205,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a reservation (edge case with one reservation right after the other)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -218,7 +218,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a reservation (edge case with one reservation at the same hour but a week later)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -231,7 +231,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = TooManyReservationsException::class)
     fun `Should not be possible to make 3 reservations per day`() {
-        val asset = this.createAsset()
+        val asset = this.mockAsset()
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:15:00+0000").date))
@@ -245,7 +245,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = TooManyReservationsException::class)
     fun `Should not be possible to make 3 reservations per day even if I delete one of them`() {
-        val asset = this.createAsset()
+        val asset = this.mockAsset()
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:15:00+0000").date))
@@ -263,7 +263,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     /************************************* ASSET AVAILABILITY ***********************************************/
     @Test
     fun `Should say if an asset is available in a given interval (ends before the other)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -276,7 +276,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if an asset is available in a given interval (starts after the other)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -289,7 +289,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if an asset is NOT available in a given interval (starts within the other)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -302,7 +302,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if an asset is NOT available in a given interval (end within the other)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -315,7 +315,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if an asset is NOT available in a given interval (is fully contained in the other)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -328,7 +328,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if an asset is NOT available in a given interval (fully contains the other)`() {
-        val asset = this.createAsset(300)
+        val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTO(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T11:00:00+0000").date, DateDecorator.of("2050-04-04T11:30:00+0000").date))
@@ -561,7 +561,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should check if a user own a reservation and throws an exception if the reservation belongs to another user`() {
-        val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
+        val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
         val anotherUser = this.userDAO.save(this.userFactory.createAdminUser("dasdaas", "aaaa", "Gabriele", "Giunchi"))
 
         this.reservationService.checkReservationOfUser(anotherUser, r.id)
@@ -569,22 +569,22 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should check if a user own a reservation and not throw an exception if the reservation belongs to the user`() {
-        val r = this.reservationDAO.save(Reservation(this.createAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
+        val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
         this.reservationService.checkReservationOfUser(this.user!!, r.id)
     }
 
     /**************************************** UTILS ***********************************************************/
 
-    private fun createTimetable(): Timetable {
+    private fun mockTimetable(): Timetable {
         return this.timetableDAO.save(Timetable(this.gym!!, MockEntities.mockSchedules))
     }
 
-    private fun createAsset(maxReservationTime: Int = 20): Asset {
+    private fun mockAsset(maxReservationTime: Int = 20): Asset {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, maxReservationTime))
         return this.assetDAO.save(Asset("ciclett1", kind, this.gym!!))
     }
 
-    private fun createGym(): Gym {
+    private fun mockGym(): Gym {
         return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
     }
 }

@@ -13,7 +13,7 @@ class GymService(
     fun calculateRatingOfGym(gymId: Int): Double {
         return this.gymDAO.findById(gymId)
                 .map {
-                    val ratings = this.commentDAO.findByGym(it).map { comment -> comment.rating}
+                    val ratings = this.commentDAO.findByGym(it).map { comment -> comment.rating }
                     val sum = ratings.sum()
                     if (ratings.isEmpty()) -1.0 else sum / ratings.size.toDouble()
                 }

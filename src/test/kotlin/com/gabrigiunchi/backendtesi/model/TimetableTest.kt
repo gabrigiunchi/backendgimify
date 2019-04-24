@@ -32,7 +32,7 @@ class TimetableTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete a gym and its timetable`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym))
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
         Assertions.assertThat(this.gymDAO.count()).isEqualTo(1)
@@ -45,7 +45,7 @@ class TimetableTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if it contains a date`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
@@ -90,7 +90,7 @@ class TimetableTest : AbstractControllerTest() {
 
     @Test
     fun `Should give priority to closing days`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
@@ -193,7 +193,7 @@ class TimetableTest : AbstractControllerTest() {
 
     @Test
     fun `Should give priority to closing days (date interval)`() {
-        val gym = this.createGym()
+        val gym = this.mockGym()
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
@@ -246,10 +246,10 @@ class TimetableTest : AbstractControllerTest() {
                         DateDecorator.of("2019-04-30T12:00:00+0000").date
                 )
         )
-        return Timetable(gym = this.createGym(), openings = openings, openingExceptions = exceptionalOpenings, closingDays = closingDays)
+        return Timetable(gym = this.mockGym(), openings = openings, openingExceptions = exceptionalOpenings, closingDays = closingDays)
     }
 
-    private fun createGym(): Gym {
+    private fun mockGym(): Gym {
         return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(City(CityEnum.BERGAMO))))
     }
 }

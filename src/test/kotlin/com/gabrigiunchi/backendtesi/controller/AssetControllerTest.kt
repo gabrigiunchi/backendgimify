@@ -115,6 +115,29 @@ class AssetControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should get an asset by gym and kind`() {
+        val kinds = this.assetKindDAO.saveAll(MockEntities.assetKinds).toList()
+        val gym1 = this.createGym()
+        val gym2 = this.gymDAO.save(Gym("gym2", "address", gym1.city))
+        val assets = this.assetDAO.saveAll(listOf(
+                Asset("a1", kinds[0], gym1),
+                Asset("a2", kinds[0], gym1),
+                Asset("a3", kinds[1], gym2),
+                Asset("a4", kinds[2], gym1),
+                Asset("a5", kinds[0], gym2)
+        )).toList()
+
+        val url = "${ApiUrls.ASSETS}/by_gym/${gym1.id}/by_kind/${assets[0].kind.id}"
+        this.mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", Matchers.`is`(assets[0].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[1].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should not get an asset if it does not exist`() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -133,6 +156,24 @@ class AssetControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not get an asset by kind if the kind does not exist`() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get an asset by gym and kind if the kind does not exist`() {
+        val gym = this.createGym()
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/${gym.id}/by_kind/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get an asset by gym and kind if the gym does not exist`() {
+        val kind = this.createAssetKind()
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1/by_kind/${kind.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
