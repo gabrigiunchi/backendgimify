@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.model
 
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -20,9 +21,11 @@ class Comment(
 
         val title: String,
         val message: String,
-        val rating: Int
+        val rating: Int,
+        val date: Date
 ) {
-    constructor(user: User, gym: Gym, title: String, message: String, rating: Int) : this(-1, user, gym, title, message, rating)
+    constructor(user: User, gym: Gym, title: String, message: String, rating: Int) :
+            this(-1, user, gym, title, message, rating, Date())
 
     init {
         if (this.rating < 1 || this.rating > 5) {

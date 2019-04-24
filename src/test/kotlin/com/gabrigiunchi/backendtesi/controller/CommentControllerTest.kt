@@ -11,6 +11,7 @@ import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.CommentDTO
+import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -356,6 +357,18 @@ class CommentControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should not get one of my comment by id if it does not belong to me`() {
+        val gym = this.mockGym()
+        this.mockUser("gabrigiunchi")
+        val user2 = this.userDAO.save(this.userFactory.createRegularUser("another user", "aaaa", "n", "m"))
+        val comment = this.commentDAO.save(Comment(user2, gym, "", "", 1))
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/${comment.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should get my comments by gym`() {
         val user = this.mockUser()
         val gym = this.mockGym()
@@ -443,6 +456,33 @@ class CommentControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
+    @Test
+    fun `Should not delete one of my comment by id if it does not belong to me`() {
+        val gym = this.mockGym()
+        this.mockUser("gabrigiunchi")
+        val user2 = this.userDAO.save(this.userFactory.createRegularUser("another user", "aaaa", "n", "m"))
+        val comment = this.commentDAO.save(Comment(user2, gym, "", "", 1))
+        this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/me/${comment.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    /************************************ PAGEABLE *******************************************************************/
+    @Test
+    fun `Should get all the comments paged`() {
+        val user = this.mockUser()
+        val gym = this.mockGym()
+        this.commentDAO
+                .saveAll((1..100).map { Comment(user, gym, "title$it", "m$it", 1) })
+                .toList()
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/page/0/size/20")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(20)))
+                .andDo(MockMvcResultHandlers.print())
+    }
 
     /************************************** UTILS *********************************************************************/
 

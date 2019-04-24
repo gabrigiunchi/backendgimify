@@ -7,6 +7,9 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.dto.CommentDTO
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -25,6 +28,14 @@ class CommentController(
     fun getAllComments(): ResponseEntity<Iterable<Comment>> {
         this.logger.info("GET all comments")
         return ResponseEntity(this.commentDAO.findAll(), HttpStatus.OK)
+    }
+
+    @GetMapping("/page/{page}/size/{size}")
+    fun getAllCommentsPaged(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Comment>> {
+        this.logger.info("GET all comments, page $page and size $size")
+        return ResponseEntity(
+                this.commentDAO.findAll(PageRequest.of(page, size, Sort.by("date").descending())),
+                HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
