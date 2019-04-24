@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.model.dto.TimeIntervalDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import org.assertj.core.api.Assertions
 import org.junit.Test
 import java.time.OffsetTime

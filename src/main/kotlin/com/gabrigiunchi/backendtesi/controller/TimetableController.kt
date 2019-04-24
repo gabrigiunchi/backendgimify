@@ -3,7 +3,7 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.Timetable
-import com.gabrigiunchi.backendtesi.model.dto.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import org.slf4j.LoggerFactory
 import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.http.HttpStatus

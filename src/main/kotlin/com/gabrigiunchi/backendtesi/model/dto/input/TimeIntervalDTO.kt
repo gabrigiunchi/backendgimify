@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model.dto
+package com.gabrigiunchi.backendtesi.model.dto.input
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.time.OffsetTime

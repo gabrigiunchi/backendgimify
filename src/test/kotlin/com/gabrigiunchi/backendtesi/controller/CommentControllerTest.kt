@@ -10,8 +10,7 @@ import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.User
-import com.gabrigiunchi.backendtesi.model.dto.CommentDTO
-import com.gabrigiunchi.backendtesi.util.DateDecorator
+import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -219,7 +218,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should create a comment`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 2)
+        val commentDTO = CommentDTOInput(user.id, gym.id, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
@@ -235,7 +234,7 @@ class CommentControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not create a comment if the user does not exist`() {
         val gym = this.mockGym()
-        val commentDTO = CommentDTO(-1, gym.id, "wow this is a title", "wow this is a message", 2)
+        val commentDTO = CommentDTOInput(-1, gym.id, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
@@ -246,7 +245,7 @@ class CommentControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not create a comment if the gym does not exist`() {
         val user = this.mockUser()
-        val commentDTO = CommentDTO(user.id, -1, "wow this is a title", "wow this is a message", 2)
+        val commentDTO = CommentDTOInput(user.id, -1, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
@@ -258,7 +257,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should not create a comment if the rating is less than 1`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 0)
+        val commentDTO = CommentDTOInput(user.id, gym.id, "wow this is a title", "wow this is a message", 0)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
@@ -270,7 +269,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should not create a comment if the rating is more than 5`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 6)
+        val commentDTO = CommentDTOInput(user.id, gym.id, "wow this is a title", "wow this is a message", 6)
         this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
@@ -407,7 +406,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should create a comment for the logged user`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        val commentDTO = CommentDTO(user.id, gym.id, "wow this is a title", "wow this is a message", 2)
+        val commentDTO = CommentDTOInput(user.id, gym.id, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.COMMENTS}/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
@@ -423,7 +422,7 @@ class CommentControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not create a comment for the logged user if the gym does not exist`() {
         val user = this.mockUser()
-        val commentDTO = CommentDTO(user.id, -1, "wow this is a title", "wow this is a message", 2)
+        val commentDTO = CommentDTOInput(user.id, -1, "wow this is a title", "wow this is a message", 2)
         this.mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.COMMENTS}/me")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))

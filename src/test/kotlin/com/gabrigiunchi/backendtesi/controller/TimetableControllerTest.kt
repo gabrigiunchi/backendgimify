@@ -9,7 +9,7 @@ import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.Timetable
-import com.gabrigiunchi.backendtesi.model.dto.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers

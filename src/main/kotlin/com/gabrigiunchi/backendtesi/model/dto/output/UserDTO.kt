@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model.dto
+package com.gabrigiunchi.backendtesi.model.dto.output
 
 import com.gabrigiunchi.backendtesi.model.User
 

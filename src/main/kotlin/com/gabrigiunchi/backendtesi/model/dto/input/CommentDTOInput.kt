@@ -1,6 +1,6 @@
-package com.gabrigiunchi.backendtesi.model.dto
+package com.gabrigiunchi.backendtesi.model.dto.input
 
-class CommentDTO(
+class CommentDTOInput(
         val userId: Int,
         val gymId: Int,
         val title: String,

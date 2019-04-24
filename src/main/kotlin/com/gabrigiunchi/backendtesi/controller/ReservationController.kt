@@ -5,8 +5,8 @@ import com.gabrigiunchi.backendtesi.dao.ReservationDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.Reservation
-import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
+import com.gabrigiunchi.backendtesi.model.dto.output.ReservationDTOOutput
 import com.gabrigiunchi.backendtesi.service.ReservationService
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.slf4j.LoggerFactory
@@ -28,47 +28,54 @@ class ReservationController(
     private val logger = LoggerFactory.getLogger(ReservationController::class.java)
 
     @GetMapping
-    fun getAllReservations(): ResponseEntity<Iterable<Reservation>> {
+    fun getAllReservations(): ResponseEntity<Iterable<ReservationDTOOutput>> {
         this.logger.info("GET all reservations")
-        return ResponseEntity(this.reservationDAO.findAll(), HttpStatus.OK)
+        return ResponseEntity(this.reservationDAO.findAll().map { ReservationDTOOutput(it) }, HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
-    fun getReservationById(@PathVariable id: Int): ResponseEntity<Reservation> {
+    fun getReservationById(@PathVariable id: Int): ResponseEntity<ReservationDTOOutput> {
         this.logger.info("GET reservation #$id")
-        return this.reservationDAO.findById(id).map { ResponseEntity(it, HttpStatus.OK) }.orElseThrow { ResourceNotFoundException(id) }
-    }
-
-
-    @GetMapping("/of_asset/{id}")
-    fun getAllReservationsByAsset(@PathVariable id: Int): ResponseEntity<Collection<Reservation>> {
-        this.logger.info("GET all reservations of gym #$id")
-        return this.assetDAO.findById(id).map { ResponseEntity(this.reservationDAO.findByAsset(it), HttpStatus.OK) }
+        return this.reservationDAO.findById(id)
+                .map { ResponseEntity(ReservationDTOOutput(it), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException(id) }
     }
 
-    @GetMapping("/of_asset/{id}/future")
-    fun getAllFutureReservationsByAsset(@PathVariable id: Int): ResponseEntity<Collection<Reservation>> {
-        this.logger.info("GET all future reservations of gym #$id")
-        return this.assetDAO.findById(id)
-                .map { ResponseEntity(this.reservationDAO.findByAssetAndEndAfter(it, Date()), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException(id) }
+
+    @GetMapping("/of_asset/{assetId}")
+    fun getAllReservationsByAsset(@PathVariable assetId: Int): ResponseEntity<List<ReservationDTOOutput>> {
+        this.logger.info("GET all reservations of asset #$assetId")
+        return this.assetDAO.findById(assetId)
+                .map { ResponseEntity(this.reservationDAO.findByAsset(it).map { r -> ReservationDTOOutput(r) }, HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException(assetId) }
     }
 
-    @GetMapping("/of_asset/{id}/today")
-    fun getAllReservationOfTodayByAsset(@PathVariable id: Int): ResponseEntity<Collection<Reservation>> {
-        this.logger.info("GET all reservation of today for asset $id")
-        return this.assetDAO.findById(id)
+    @GetMapping("/of_asset/{assetId}/future")
+    fun getAllFutureReservationsByAsset(@PathVariable assetId: Int): ResponseEntity<List<ReservationDTOOutput>> {
+        this.logger.info("GET all future reservations of asset #$assetId")
+        return this.assetDAO.findById(assetId)
+                .map {
+                    ResponseEntity(
+                            this.reservationDAO.findByAssetAndEndAfter(it, Date()).map { r -> ReservationDTOOutput(r) },
+                            HttpStatus.OK)
+                }
+                .orElseThrow { ResourceNotFoundException(assetId) }
+    }
+
+    @GetMapping("/of_asset/{assetId}/today")
+    fun getAllReservationOfTodayByAsset(@PathVariable assetId: Int): ResponseEntity<List<ReservationDTOOutput>> {
+        this.logger.info("GET all reservation of today for asset $assetId")
+        return this.assetDAO.findById(assetId)
                 .map {
                     ResponseEntity(
                             this.reservationDAO.findByAssetAndEndBetween(
                                     it,
                                     DateDecorator.startOfToday().date,
                                     DateDecorator.endOfToday().date
-                            ),
+                            ).map { reservation -> ReservationDTOOutput(reservation) },
                             HttpStatus.OK)
                 }
-                .orElseThrow { ResourceNotFoundException(id) }
+                .orElseThrow { ResourceNotFoundException(assetId) }
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}")
@@ -101,9 +108,11 @@ class ReservationController(
     }
 
     @PostMapping
-    fun addReservation(@Valid @RequestBody reservationDTO: ReservationDTO): ResponseEntity<Reservation> {
+    fun addReservation(@Valid @RequestBody reservationDTO: ReservationDTOInput): ResponseEntity<ReservationDTOOutput> {
         this.logger.info("POST reservation")
-        return ResponseEntity(this.reservationService.addReservation(reservationDTO), HttpStatus.CREATED)
+        return ResponseEntity(
+                ReservationDTOOutput(this.reservationService.addReservation(reservationDTO)),
+                HttpStatus.CREATED)
     }
 
     @DeleteMapping("/{id}")
@@ -120,31 +129,41 @@ class ReservationController(
     /********************************* MY RESERVATIONS *****************************************************/
 
     @GetMapping("/me")
-    fun getAllReservationsOfLoggedUser(): ResponseEntity<Collection<Reservation>> {
+    fun getAllReservationsOfLoggedUser(): ResponseEntity<List<ReservationDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all reservations of user #${user.id}")
-        return ResponseEntity(this.reservationDAO.findByUser(user), HttpStatus.OK)
+        return ResponseEntity(
+                this.reservationDAO.findByUser(user).map { ReservationDTOOutput(it) },
+                HttpStatus.OK)
     }
 
     @GetMapping("/me/future")
-    fun getAllFutureReservationsOfLoggedUser(): ResponseEntity<Collection<Reservation>> {
+    fun getAllFutureReservationsOfLoggedUser(): ResponseEntity<Collection<ReservationDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all future reservations of user #${user.id}")
-        return ResponseEntity(this.reservationDAO.findByUserAndEndAfter(user, DateDecorator.now().date), HttpStatus.OK)
+        return ResponseEntity(
+                this.reservationDAO
+                        .findByUserAndEndAfter(user, DateDecorator.now().date)
+                        .map { ReservationDTOOutput(it) },
+                HttpStatus.OK)
     }
 
     @GetMapping("/me/{id}")
-    fun getReservationOfUserById(@PathVariable id: Int): ResponseEntity<Reservation> {
+    fun getReservationOfUserById(@PathVariable id: Int): ResponseEntity<ReservationDTOOutput> {
         val user = this.getLoggedUser()
         this.logger.info("GET reservations #$id of user #${user.id}")
-        return ResponseEntity(this.reservationService.getReservationOfUserById(user, id), HttpStatus.OK)
+        return ResponseEntity(
+                ReservationDTOOutput(this.reservationService.getReservationOfUserById(user, id)),
+                HttpStatus.OK)
     }
 
     @PostMapping("/me")
-    fun addReservationForLoggedUser(@Valid @RequestBody reservationDTO: ReservationDTO): ResponseEntity<Reservation> {
+    fun addReservationForLoggedUser(@Valid @RequestBody reservationDTO: ReservationDTOInput): ResponseEntity<ReservationDTOOutput> {
         val user = this.getLoggedUser()
         this.logger.info("POST reservation for user #${user.id}")
-        return ResponseEntity(this.reservationService.addReservation(reservationDTO, user.id), HttpStatus.CREATED)
+        return ResponseEntity(
+                ReservationDTOOutput(this.reservationService.addReservation(reservationDTO, user.id)),
+                HttpStatus.CREATED)
     }
 
     @DeleteMapping("/me/{id}")

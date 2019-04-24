@@ -5,7 +5,7 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
-import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
@@ -210,7 +210,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
-        val reservation = ReservationDTO(
+        val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2050-04-04T10:00:00+0000").date,
@@ -236,7 +236,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
-        val reservation = ReservationDTO(
+        val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2019-04-22T10:00:00+0000").date,
@@ -255,7 +255,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
-        val reservation = ReservationDTO(
+        val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2050-04-05T10:00:00+0000").date,
@@ -279,7 +279,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.reservationDAO.save(Reservation(asset, user, DateDecorator.of("2050-04-04T11:00:00+0000").date,
                 DateDecorator.of("2050-04-04T11:10:00+0000").date))
 
-        val reservation = ReservationDTO(
+        val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2050-04-04T10:55:00+0000").date,
@@ -301,19 +301,19 @@ class ReservationControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
 
         val reservations = listOf(
-                ReservationDTO(
+                ReservationDTOInput(
                         userID = user.id,
                         assetID = asset.id,
                         start = DateDecorator.of("2050-04-04T10:55:00+0000").date,
                         end = DateDecorator.of("2050-04-04T11:05:00+0000").date),
 
-                ReservationDTO(
+                ReservationDTOInput(
                         userID = user.id,
                         assetID = asset.id,
                         start = DateDecorator.of("2050-04-11T10:55:00+0000").date,
                         end = DateDecorator.of("2050-04-11T11:05:00+0000").date),
 
-                ReservationDTO(
+                ReservationDTOInput(
                         userID = user.id,
                         assetID = asset.id,
                         start = DateDecorator.of("2050-04-18T10:55:00+0000").date,
@@ -486,7 +486,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
-        val reservation = ReservationDTO(
+        val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2050-04-04T10:00:00+0000").date,

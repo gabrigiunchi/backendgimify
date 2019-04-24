@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.model.dto.TimeIntervalDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.OffsetTime
 import java.util.*

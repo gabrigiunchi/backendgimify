@@ -4,7 +4,7 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
-import com.gabrigiunchi.backendtesi.model.dto.TimeIntervalDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before

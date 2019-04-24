@@ -6,7 +6,7 @@ import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.model.TimeInterval
-import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before

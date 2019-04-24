@@ -3,7 +3,7 @@ package com.gabrigiunchi.backendtesi.service
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.exceptions.*
 import com.gabrigiunchi.backendtesi.model.*
-import com.gabrigiunchi.backendtesi.model.dto.ReservationDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -23,7 +23,7 @@ class ReservationService(
     @Value("\${application.maxReservationsPerDay}")
     private var maxReservationsPerDay: Int = 0
 
-    fun addReservation(reservationDTO: ReservationDTO, userId: Int): Reservation {
+    fun addReservation(reservationDTO: ReservationDTOInput, userId: Int): Reservation {
         if (reservationDTO.end.before(Date())) {
             throw BadRequestException("reservation must be in the future")
         }
@@ -71,7 +71,7 @@ class ReservationService(
         return savedReservation
     }
 
-    fun addReservation(reservationDTO: ReservationDTO): Reservation {
+    fun addReservation(reservationDTO: ReservationDTOInput): Reservation {
         return this.addReservation(reservationDTO, reservationDTO.userID)
     }
 

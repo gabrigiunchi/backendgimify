@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.model.dto.DateIntervalDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.DateIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.util.*
 import javax.persistence.Entity

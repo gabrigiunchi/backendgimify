@@ -5,7 +5,8 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Comment
-import com.gabrigiunchi.backendtesi.model.dto.CommentDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
+import com.gabrigiunchi.backendtesi.model.dto.output.CommentDTOOutput
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -25,45 +26,47 @@ class CommentController(
     private val logger = LoggerFactory.getLogger(CommentController::class.java)
 
     @GetMapping
-    fun getAllComments(): ResponseEntity<Iterable<Comment>> {
+    fun getAllComments(): ResponseEntity<Iterable<CommentDTOOutput>> {
         this.logger.info("GET all comments")
-        return ResponseEntity(this.commentDAO.findAll(), HttpStatus.OK)
+        return ResponseEntity(this.commentDAO.findAll().map { CommentDTOOutput(it) }, HttpStatus.OK)
     }
 
     @GetMapping("/page/{page}/size/{size}")
-    fun getAllCommentsPaged(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Comment>> {
+    fun getAllCommentsPaged(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<CommentDTOOutput>> {
         this.logger.info("GET all comments, page $page and size $size")
         return ResponseEntity(
-                this.commentDAO.findAll(PageRequest.of(page, size, Sort.by("date").descending())),
+                this.commentDAO
+                        .findAll(PageRequest.of(page, size, Sort.by("date").descending()))
+                        .map { CommentDTOOutput(it) },
                 HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
-    fun getCommentById(@PathVariable id: Int): ResponseEntity<Comment> {
+    fun getCommentById(@PathVariable id: Int): ResponseEntity<CommentDTOOutput> {
         this.logger.info("GET comment $id")
         return this.commentDAO.findById(id)
-                .map { ResponseEntity(it, HttpStatus.OK) }
+                .map { ResponseEntity(CommentDTOOutput(it), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("comment $id does not exist") }
     }
 
     @GetMapping("/by_gym/{gymId}")
-    fun getCommentsByGym(@PathVariable gymId: Int): ResponseEntity<Collection<Comment>> {
+    fun getCommentsByGym(@PathVariable gymId: Int): ResponseEntity<List<CommentDTOOutput>> {
         this.logger.info("GET comments of gym $gymId")
         return this.gymDAO.findById(gymId)
-                .map { ResponseEntity(this.commentDAO.findByGym(it), HttpStatus.OK) }
+                .map { gym -> ResponseEntity(this.commentDAO.findByGym(gym).map { CommentDTOOutput(it) }, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
     @GetMapping("/by_user/{userId}")
-    fun getCommentsByUser(@PathVariable userId: Int): ResponseEntity<Collection<Comment>> {
+    fun getCommentsByUser(@PathVariable userId: Int): ResponseEntity<List<CommentDTOOutput>> {
         this.logger.info("GET comments of user $userId")
         return this.userDAO.findById(userId)
-                .map { ResponseEntity(this.commentDAO.findByUser(it), HttpStatus.OK) }
+                .map { user -> ResponseEntity(this.commentDAO.findByUser(user).map { CommentDTOOutput(it) }, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
     }
 
     @GetMapping("/by_user/{userId}/by_gym/{gymId}")
-    fun getCommentsByUserAndGym(@PathVariable userId: Int, @PathVariable gymId: Int): ResponseEntity<Collection<Comment>> {
+    fun getCommentsByUserAndGym(@PathVariable userId: Int, @PathVariable gymId: Int): ResponseEntity<Collection<CommentDTOOutput>> {
         this.logger.info("GET comments of user $userId of gym $gymId")
 
         if (this.userDAO.findById(userId).isEmpty) {
@@ -75,12 +78,14 @@ class CommentController(
         }
 
         return ResponseEntity(
-                this.commentDAO.findByUserAndGym(this.userDAO.findById(userId).get(), this.gymDAO.findById(gymId).get()),
+                this.commentDAO
+                        .findByUserAndGym(this.userDAO.findById(userId).get(), this.gymDAO.findById(gymId).get())
+                        .map { CommentDTOOutput(it) },
                 HttpStatus.OK)
     }
 
     @PostMapping
-    fun createComment(@Valid @RequestBody commentDTO: CommentDTO): ResponseEntity<Comment> {
+    fun createComment(@Valid @RequestBody commentDTO: CommentDTOInput): ResponseEntity<CommentDTOOutput> {
         this.logger.info("POST comment")
 
         if (this.userDAO.findById(commentDTO.userId).isEmpty) {
@@ -91,14 +96,16 @@ class CommentController(
             throw ResourceNotFoundException("gym ${commentDTO.gymId} does not exist")
         }
 
-        return ResponseEntity(this.commentDAO.save(
+        val saved = this.commentDAO.save(
                 Comment(
                         this.userDAO.findById(commentDTO.userId).get(),
                         this.gymDAO.findById(commentDTO.gymId).get(),
                         commentDTO.title,
                         commentDTO.message,
                         commentDTO.rating)
-        ), HttpStatus.CREATED)
+        )
+
+        return ResponseEntity(CommentDTOOutput(saved), HttpStatus.CREATED)
     }
 
     @DeleteMapping("/{id}")
@@ -116,28 +123,28 @@ class CommentController(
     /************************************ MY COMMENTS ***************************************************************/
 
     @GetMapping("/me")
-    fun getAllMyComments(): ResponseEntity<Iterable<Comment>> {
+    fun getAllMyComments(): ResponseEntity<Iterable<CommentDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all comments of logged user (${user.id})")
-        return ResponseEntity(this.commentDAO.findByUser(user), HttpStatus.OK)
+        return ResponseEntity(this.commentDAO.findByUser(user).map { CommentDTOOutput(it) }, HttpStatus.OK)
     }
 
     @GetMapping("/me/{id}")
-    fun getMyCommentById(@PathVariable id: Int): ResponseEntity<Comment> {
+    fun getMyCommentById(@PathVariable id: Int): ResponseEntity<CommentDTOOutput> {
         return this.commentDAO.findByIdAndUser(id, this.getLoggedUser())
-                .map { ResponseEntity(it, HttpStatus.OK) }
+                .map { ResponseEntity(CommentDTOOutput(it), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("comment $id of user ${this.getLoggedUser().id} does not exist") }
     }
 
     @GetMapping("/me/by_gym/{gymId}")
-    fun getMyCommentsByGym(@PathVariable gymId: Int): ResponseEntity<Collection<Comment>> {
+    fun getMyCommentsByGym(@PathVariable gymId: Int): ResponseEntity<Collection<CommentDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET comments of gym $gymId of logged user ${user.id})")
         return this.getCommentsByUserAndGym(user.id, gymId)
     }
 
     @PostMapping("/me")
-    fun createCommentForLoggedUser(@Valid @RequestBody commentDTO: CommentDTO): ResponseEntity<Comment> {
+    fun createCommentForLoggedUser(@Valid @RequestBody commentDTO: CommentDTOInput): ResponseEntity<CommentDTOOutput> {
         val user = this.getLoggedUser()
         this.logger.info("POST comment for logged user ${user.id})")
 
@@ -145,14 +152,16 @@ class CommentController(
             throw ResourceNotFoundException("gym ${commentDTO.gymId} does not exist")
         }
 
-        return ResponseEntity(this.commentDAO.save(
+        val savedComment = this.commentDAO.save(
                 Comment(
                         user,
                         this.gymDAO.findById(commentDTO.gymId).get(),
                         commentDTO.title,
                         commentDTO.message,
                         commentDTO.rating)
-        ), HttpStatus.CREATED)
+        )
+
+        return ResponseEntity(CommentDTOOutput(savedComment), HttpStatus.CREATED)
     }
 
     @DeleteMapping("/me/{id}")

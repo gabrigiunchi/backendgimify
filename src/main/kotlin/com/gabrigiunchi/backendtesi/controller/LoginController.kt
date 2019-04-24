@@ -4,8 +4,8 @@ import com.gabrigiunchi.backendtesi.config.security.JwtTokenProvider
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.AccessDeniedException
 import com.gabrigiunchi.backendtesi.model.UserRole
-import com.gabrigiunchi.backendtesi.model.dto.Token
-import com.gabrigiunchi.backendtesi.model.dto.ValidateUserDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.ValidateUserDTO
+import com.gabrigiunchi.backendtesi.model.dto.output.Token
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

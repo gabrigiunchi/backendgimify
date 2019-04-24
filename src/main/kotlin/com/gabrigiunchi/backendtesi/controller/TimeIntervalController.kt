@@ -2,7 +2,7 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.model.TimeInterval
-import com.gabrigiunchi.backendtesi.model.dto.TimeIntervalDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import org.slf4j.LoggerFactory
 import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.http.HttpStatus

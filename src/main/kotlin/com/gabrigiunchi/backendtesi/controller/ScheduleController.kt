@@ -3,7 +3,7 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
 import com.gabrigiunchi.backendtesi.model.Schedule
-import com.gabrigiunchi.backendtesi.model.dto.ScheduleDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import org.slf4j.LoggerFactory
 import org.springframework.data.rest.webmvc.ResourceNotFoundException
 import org.springframework.http.HttpStatus
