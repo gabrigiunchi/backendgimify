@@ -71,4 +71,11 @@ public class ResourceControllerAdvice {
     VndErrors tooManyReservationsHandler(TooManyReservationsException ex) {
         return new VndErrors("Too many reservations", ex.getMessage());
     }
+
+    @ResponseBody
+    @ExceptionHandler(ReservationThresholdExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    VndErrors reservationThresholdExceededExceptionHandler(ReservationThresholdExceededException ex) {
+        return new VndErrors("Reservation threshold exceeded", ex.getMessage());
+    }
 }

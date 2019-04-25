@@ -14,6 +14,8 @@ import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import java.time.DayOfWeek
 import java.util.*
 
 class ReservationServiceTest : AbstractControllerTest() {
@@ -47,6 +49,9 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var reservationLogDAO: ReservationLogDAO
+
+    @Value("\${application.reservationThresholdInDays}")
+    private var reservationThresholdInDays: Int = 0
 
     private var user: User? = null
     private var gym: Gym? = null
@@ -166,6 +171,14 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
                 DateDecorator.of("2050-04-04T10:00:00+0000").date, DateDecorator.of("2050-04-05T12:00:00+0000").date))
+    }
+
+    @Test(expected = ReservationThresholdExceededException::class)
+    fun `Should not create a reservation if interval beyond the threshold`() {
+        val asset = this.mockAsset(300)
+        val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val end = start.plusMinutes(5)
+        this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id, start.date, end.date))
     }
 
     @Test
@@ -600,6 +613,61 @@ class ReservationServiceTest : AbstractControllerTest() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         val now = DateDecorator.now().date
         this.reservationService.getAvailableAssetsInCity(kind.id, this.gym!!.city.id, now, now)
+    }
+
+    @Test
+    fun `Should return empty list when searching for available assets if the interval is beyond the threshold`() {
+        this.timetableDAO.deleteAll()
+        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01+00:00", "23:59+00:00"))) }.toSet()
+        this.timetableDAO.save(Timetable(this.gym!!, openings))
+        val asset = this.mockAsset(300)
+        val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val end = start.plusMinutes(5)
+
+        // Before the threshold
+        Assertions.assertThat(this.reservationService.getAvailableAssets(asset.kind.id,
+                start.minusDays(1).date, start.minusDays(1).plusMinutes(1).date).size).isNotEqualTo(0)
+
+        // After threshold
+        Assertions.assertThat(this.reservationService.getAvailableAssets(asset.kind.id, start.date, end.date).size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Should return empty list when searching for available assets if the interval is beyond the threshold (city filter)`() {
+        this.timetableDAO.deleteAll()
+        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01+00:00", "23:59+00:00"))) }.toSet()
+        this.timetableDAO.save(Timetable(this.gym!!, openings))
+        val asset = this.mockAsset(300)
+        val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val end = start.plusMinutes(5)
+        val cityId = this.gym!!.city.id
+
+        // Before the threshold
+        Assertions.assertThat(this.reservationService.getAvailableAssetsInCity(asset.kind.id, cityId,
+                start.minusDays(1).date, start.minusDays(1).plusMinutes(1).date).size).isNotEqualTo(0)
+
+        // After threshold
+        Assertions.assertThat(this.reservationService.getAvailableAssetsInCity(asset.kind.id, cityId, start.date, end.date).size)
+                .isEqualTo(0)
+    }
+
+    @Test
+    fun `Should return empty list when searching for available assets if the interval is beyond the threshold (gym filter)`() {
+        this.timetableDAO.deleteAll()
+        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01+00:00", "23:59+00:00"))) }.toSet()
+        this.timetableDAO.save(Timetable(this.gym!!, openings))
+        val asset = this.mockAsset(300)
+        val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val end = start.plusMinutes(5)
+        val gymId = this.gym!!.id
+
+        // Before the threshold
+        Assertions.assertThat(this.reservationService.getAvailableAssetsInGym(asset.kind.id, gymId,
+                start.minusDays(1).date, start.minusDays(1).plusMinutes(1).date).size).isNotEqualTo(0)
+
+        // After threshold
+        Assertions.assertThat(this.reservationService.getAvailableAssetsInGym(asset.kind.id, gymId, start.date, end.date).size)
+                .isEqualTo(0)
     }
 
     /*************************************** OTHERS **********************************************************/
