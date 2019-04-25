@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
@@ -86,6 +87,13 @@ class TimetableTest : AbstractControllerTest() {
 
         // Tuesday 30 April 2019 10:00
         Assertions.assertThat(timetable.contains(DateDecorator.of("2019-04-30T10:00:00+0000").date)).isTrue()
+    }
+
+    @Test
+    fun `Should say it does not contain a date if the date is one of the recurring exceptions`() {
+        val timetable = this.createTimetable()
+        Assertions.assertThat(timetable.contains(DateDecorator.of("2019-12-18T09:00:00+0000").date)).isTrue()
+        Assertions.assertThat(timetable.contains(DateDecorator.of("2019-12-25T09:00:00+0000").date)).isFalse()
     }
 
     @Test
@@ -192,6 +200,24 @@ class TimetableTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should say if it does not contain a date interval (recurring exceptions)`() {
+        val timetable = this.createTimetable()
+        Assertions.assertThat(timetable.contains(
+                DateInterval(
+                        DateDecorator.of("2019-12-18T09:00:00+0000").date,
+                        DateDecorator.of("2019-12-18T09:30:00+0000").date
+                ))
+        ).isTrue()
+
+        Assertions.assertThat(timetable.contains(
+                DateInterval(
+                        DateDecorator.of("2019-12-25T09:00:00+0000").date,
+                        DateDecorator.of("2019-12-25T09:30:00+0000").date
+                ))
+        ).isFalse()
+    }
+
+    @Test
     fun `Should give priority to closing days (date interval)`() {
         val gym = this.mockGym()
         val openings = setOf(
@@ -222,18 +248,21 @@ class TimetableTest : AbstractControllerTest() {
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
-                )),
+                        TimeInterval("13:00+00:00", "19:00+00:00")),
+                        MockEntities.mockMonthDays
+                ),
 
                 Schedule(DayOfWeek.WEDNESDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
-                )),
+                        TimeInterval("13:00+00:00", "19:00+00:00")),
+                        MockEntities.mockMonthDays
+                ),
 
                 Schedule(DayOfWeek.FRIDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
-                ))
+                        TimeInterval("13:00+00:00", "19:00+00:00")),
+                        MockEntities.mockMonthDays
+                )
         )
         val closingDays = setOf(
                 // Monday 29 April 2019

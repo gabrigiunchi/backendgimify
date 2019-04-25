@@ -69,13 +69,14 @@ class ScheduleControllerTest : AbstractControllerTest() {
         val intervals = setOf(
                 TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")))
 
-        val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, intervals)
+        val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, intervals, MockEntities.mockMonthDays)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.SCHEDULES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(scheduleDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.dayOfWeek", Matchers.`is`(scheduleDTO.dayOfWeek.toString())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals.length()", Matchers.`is`(scheduleDTO.timeIntervals.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptions.length()", Matchers.`is`(scheduleDTO.exceptions.size)))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(1)

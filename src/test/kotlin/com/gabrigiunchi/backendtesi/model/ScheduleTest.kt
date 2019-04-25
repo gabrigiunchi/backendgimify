@@ -44,13 +44,13 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(0)
     }
 
-
     @Test
     fun `Should say if it contains a date`() {
         val date = DateDecorator.of("2019-04-20T10:00:00+0000").date
-        val schedule = Schedule(DayOfWeek.SATURDAY, setOf(
-                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))
-        ))
+        val schedule = Schedule(DayOfWeek.SATURDAY,
+                setOf(TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))),
+                MockEntities.mockMonthDays
+        )
 
         Assertions.assertThat(schedule.contains(date)).isTrue()
     }
@@ -83,6 +83,16 @@ class ScheduleTest : AbstractControllerTest() {
         ))
 
         Assertions.assertThat(schedule.contains(date)).isTrue()
+    }
+
+    @Test
+    fun `Should say if it does not contain a date if the date is in the recurring exceptions`() {
+        val schedule = Schedule(DayOfWeek.FRIDAY,
+                setOf(TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))),
+                MockEntities.mockMonthDays
+        )
+
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2020-12-25T10:00:00+0000").date)).isFalse()
     }
 
     @Test
@@ -294,5 +304,33 @@ class ScheduleTest : AbstractControllerTest() {
                         DateDecorator.of("2019-04-21T012:00:00+0000").date,
                         DateDecorator.of("2019-04-21T015:00:00+0000").date))
         ).isFalse()
+    }
+
+    @Test
+    fun `Should say if does not contain a date interval if the interval is contained in the recurring exceptions`() {
+        val schedule = Schedule(DayOfWeek.FRIDAY, setOf(
+                TimeInterval(OffsetTime.parse("08:00+00:00"), OffsetTime.parse("16:00+00:00"))),
+                MockEntities.mockMonthDays
+        )
+
+        Assertions.assertThat(schedule.contains(
+                DateInterval(
+                        DateDecorator.of("2020-12-25T12:00:00+0000").date,
+                        DateDecorator.of("2020-12-25T14:00:00+0000").date))
+        ).isFalse()
+    }
+
+    /************************************ EXCEPTIONS *******************************************************************/
+
+    @Test
+    fun `Should say if the recurring exceptions contain a date`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, emptySet(), MockEntities.mockMonthDays)
+        Assertions.assertThat(schedule.exceptionsContain(DateDecorator.of("2019-12-25T09:00:00+0000").date)).isTrue()
+    }
+
+    @Test
+    fun `Should say if the recurring exceptions does not contain a date`() {
+        val schedule = Schedule(DayOfWeek.SUNDAY, emptySet(), MockEntities.mockMonthDays)
+        Assertions.assertThat(schedule.exceptionsContain(DateDecorator.of("2019-11-25T09:00:00+0000").date)).isFalse()
     }
 }

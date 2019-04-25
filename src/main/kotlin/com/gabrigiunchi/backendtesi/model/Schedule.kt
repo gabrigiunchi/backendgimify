@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
+import java.time.MonthDay
 import java.util.*
 import javax.persistence.*
 
@@ -15,29 +16,37 @@ class Schedule(
         val dayOfWeek: DayOfWeek,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
-        val timeIntervals: Set<TimeInterval>
+        val timeIntervals: Set<TimeInterval>,
+
+        @ElementCollection
+        val exceptions: Set<MonthDay>
 ) {
-    constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals)
-    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals)
+    constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals, scheduleDTO.exceptions)
+    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals, emptySet())
+    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>, exceptions: Set<MonthDay>) :
+            this(-1, dayOfWeek, timeIntervals, exceptions)
 
     private fun isSameDay(date: Date): Boolean = DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value
 
-    fun contains(date: Date): Boolean {
-        return if (this.isSameDay(date)) {
-            this.timeIntervals.any { it.contains(date) }
-        } else false
-    }
+    fun contains(date: Date): Boolean = this.isSameDay(date) && !this.exceptionsContain(date) && this.timeIntervals.any { it.contains(date) }
 
     fun contains(dateInterval: DateInterval): Boolean {
-        return if (dateInterval.isWithinSameDay() && this.isSameDay(dateInterval.start)) {
-            this.timeIntervals.any { it.contains(dateInterval.start) && it.contains(dateInterval.end) }
-        } else false
+        return dateInterval.isWithinSameDay() &&
+                this.isSameDay(dateInterval.start) &&
+                !this.exceptionsContain(dateInterval.start) &&
+                this.timeIntervals.any { it.contains(dateInterval.start) && it.contains(dateInterval.end) }
+    }
+
+    fun exceptionsContain(date: Date): Boolean {
+        val d = DateDecorator.of(date)
+        return this.exceptions.any { it.monthValue == d.month + 1 && it.dayOfMonth == d.day }
     }
 
     fun toMap(): Map<String, Any> {
         return mapOf(
                 Pair("id", this.id.toString()),
                 Pair("dayOfWeek", this.dayOfWeek.toString()),
-                Pair("timeIntervals", this.timeIntervals.map { it.toMap() }))
+                Pair("timeIntervals", this.timeIntervals.map { it.toMap() }),
+                Pair("exceptions", this.exceptions.map { it.toString() }))
     }
 }

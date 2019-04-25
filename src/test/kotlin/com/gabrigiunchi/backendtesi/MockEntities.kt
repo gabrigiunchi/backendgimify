@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
+import java.time.MonthDay
 import java.time.OffsetTime
 
 object MockEntities {
@@ -23,8 +24,15 @@ object MockEntities {
             TimeInterval(OffsetTime.parse("16:00:00+00:00"), OffsetTime.parse("18:00:00+00:00"))
     )
 
+    val mockMonthDays = setOf(
+            MonthDay.of(12, 25),
+            MonthDay.of(12, 26),
+            MonthDay.of(12, 30),
+            MonthDay.of(1, 1)
+    )
+
     val mockSchedules = setOf(
-            Schedule(DayOfWeek.MONDAY, this.mockTimeIntervals.take(2).toSet()),
+            Schedule(DayOfWeek.MONDAY, this.mockTimeIntervals.take(2).toSet(), this.mockMonthDays),
             Schedule(DayOfWeek.TUESDAY, setOf(this.mockTimeIntervals[2], this.mockTimeIntervals[3]))
     )
 

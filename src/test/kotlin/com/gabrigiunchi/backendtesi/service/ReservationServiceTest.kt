@@ -77,7 +77,9 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the asset does not exist`() {
-        val reservationDTO = ReservationDTOInput(this.user!!.id, -1, Date(), DateDecorator.now().plusMinutes(20).date)
+        val start = DateDecorator.now().plusMinutes(5)
+        val end = start.plusMinutes(5)
+        val reservationDTO = ReservationDTOInput(this.user!!.id, -1, start.date, end.date)
         this.reservationService.addReservation(reservationDTO, reservationDTO.userID)
     }
 
@@ -103,7 +105,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the duration exceeds the maximum`() {
-        val start = DateDecorator.now()
+        val start = DateDecorator.now().plusMinutes(1)
         val end = start.plusMinutes(21)
         val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start.date, end.date)
         this.reservationService.addReservation(reservationDTO)

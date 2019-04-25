@@ -14,9 +14,15 @@ class DateDecorator(val date: Date) {
     val year: Int
         get() = this.calendar.get(Calendar.YEAR)
 
+    /**
+     * Range 0-11
+     */
     val month: Int
         get() = this.calendar.get(Calendar.MONTH)
 
+    /**
+     * Range 1-31
+     */
     val day: Int
         get() = this.calendar.get(Calendar.DAY_OF_MONTH)
 
