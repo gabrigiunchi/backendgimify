@@ -108,16 +108,27 @@ class DBInitializer {
     }
 
     fun initTimetables() {
-        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings())) }
+        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings)) }
         this.logger.info("Init timetables")
     }
 
-    private fun openings() = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("08:00+00:00", "20:00+00:00")), this.holidays()) }.toSet()
-    private fun holidays() = setOf(
-            MonthDay.of(12, 25),
-            MonthDay.of(12, 26),
-            MonthDay.of(4, 25),
-            MonthDay.of(6, 2),
-            MonthDay.of(1, 1),
-            MonthDay.of(5, 1))
+    private val openings: Set<Schedule>
+        get() = DayOfWeek.values().map { Schedule(it, this.timeIntervals, this.holidays) }.toSet()
+
+    private val timeIntervals: Set<TimeInterval>
+        get() = setOf(TimeInterval("08:00+00:00", "12:00+00:00"))
+
+    private val holidays: Set<MonthDay>
+        get() = setOf(
+                MonthDay.of(1, 1),
+                MonthDay.of(1, 6),
+                MonthDay.of(4, 25),
+                MonthDay.of(5, 1),
+                MonthDay.of(6, 2),
+                MonthDay.of(8, 15),
+                MonthDay.of(9, 1),
+                MonthDay.of(12, 25),
+                MonthDay.of(12, 26),
+                MonthDay.of(12, 31)
+        )
 }
