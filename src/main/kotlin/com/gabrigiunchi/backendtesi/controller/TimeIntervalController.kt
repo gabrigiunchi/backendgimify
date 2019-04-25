@@ -28,9 +28,7 @@ class TimeIntervalController(private val timeIntervalDAO: TimeIntervalDAO) {
     fun findIntervalById(@PathVariable id: Int): ResponseEntity<TimeInterval> {
         this.logger.info("GET interval #$id")
         return ResponseEntity(
-                this.timeIntervalDAO.findById(id)
-                        .map { it }
-                        .orElseThrow { ResourceNotFoundException("time interval $id does not exist") },
+                this.timeIntervalDAO.findById(id).orElseThrow { ResourceNotFoundException("time interval $id does not exist") },
                 HttpStatus.OK)
     }
 
@@ -43,12 +41,8 @@ class TimeIntervalController(private val timeIntervalDAO: TimeIntervalDAO) {
     @DeleteMapping("/{id}")
     fun deleteInterval(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE interval #$id")
-
-        if (this.timeIntervalDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("time interval $id does not exist")
-        }
-
-        this.timeIntervalDAO.deleteById(id)
+        val timeInterval = this.timeIntervalDAO.findById(id).orElseThrow { ResourceNotFoundException("time interval $id does not exist") }
+        this.timeIntervalDAO.delete(timeInterval)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

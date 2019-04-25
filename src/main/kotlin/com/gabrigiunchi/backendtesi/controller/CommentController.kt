@@ -67,55 +67,26 @@ class CommentController(
     @GetMapping("/by_user/{userId}/by_gym/{gymId}")
     fun getCommentsByUserAndGym(@PathVariable userId: Int, @PathVariable gymId: Int): ResponseEntity<Collection<CommentDTOOutput>> {
         this.logger.info("GET comments of user $userId of gym $gymId")
-
-        if (this.userDAO.findById(userId).isEmpty) {
-            throw ResourceNotFoundException("user $userId does not exist")
-        }
-
-        if (this.gymDAO.findById(gymId).isEmpty) {
-            throw ResourceNotFoundException("gym $gymId does not exist")
-        }
-
-        return ResponseEntity(
-                this.commentDAO
-                        .findByUserAndGym(this.userDAO.findById(userId).get(), this.gymDAO.findById(gymId).get())
-                        .map { CommentDTOOutput(it) },
-                HttpStatus.OK)
+        val user = this.userDAO.findById(userId).orElseThrow { ResourceNotFoundException("user $userId does not exist") }
+        val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+        return ResponseEntity(this.commentDAO.findByUserAndGym(user, gym).map { CommentDTOOutput(it) }, HttpStatus.OK)
     }
 
     @PostMapping
     fun createComment(@Valid @RequestBody commentDTO: CommentDTOInput): ResponseEntity<CommentDTOOutput> {
         this.logger.info("POST comment")
-
-        if (this.userDAO.findById(commentDTO.userId).isEmpty) {
-            throw ResourceNotFoundException("user ${commentDTO.userId} does not exist")
-        }
-
-        if (this.gymDAO.findById(commentDTO.gymId).isEmpty) {
-            throw ResourceNotFoundException("gym ${commentDTO.gymId} does not exist")
-        }
-
-        val saved = this.commentDAO.save(
-                Comment(
-                        this.userDAO.findById(commentDTO.userId).get(),
-                        this.gymDAO.findById(commentDTO.gymId).get(),
-                        commentDTO.title,
-                        commentDTO.message,
-                        commentDTO.rating)
-        )
-
-        return ResponseEntity(CommentDTOOutput(saved), HttpStatus.CREATED)
+        val user = this.userDAO.findById(commentDTO.userId).orElseThrow { ResourceNotFoundException("user ${commentDTO.userId} does not exist") }
+        val gym = this.gymDAO.findById(commentDTO.gymId).orElseThrow { ResourceNotFoundException("gym ${commentDTO.gymId} does not exist") }
+        return ResponseEntity(
+                CommentDTOOutput(this.commentDAO.save(Comment(user, gym, commentDTO.title, commentDTO.message, commentDTO.rating))),
+                HttpStatus.CREATED)
     }
 
     @DeleteMapping("/{id}")
     fun deleteCommentById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE comment $id")
-
-        if (this.commentDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("comment $id does not exist")
-        }
-
-        this.commentDAO.deleteById(id)
+        val comment = this.commentDAO.findById(id).orElseThrow { ResourceNotFoundException("comment $id does not exist") }
+        this.commentDAO.delete(comment)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
@@ -149,20 +120,12 @@ class CommentController(
         val user = this.getLoggedUser()
         this.logger.info("POST comment for logged user ${user.id})")
 
-        if (this.gymDAO.findById(commentDTO.gymId).isEmpty) {
-            throw ResourceNotFoundException("gym ${commentDTO.gymId} does not exist")
-        }
+        val gym = this.gymDAO.findById(commentDTO.gymId)
+                .orElseThrow { ResourceNotFoundException("gym ${commentDTO.gymId} does not exist") }
 
-        val savedComment = this.commentDAO.save(
-                Comment(
-                        user,
-                        this.gymDAO.findById(commentDTO.gymId).get(),
-                        commentDTO.title,
-                        commentDTO.message,
-                        commentDTO.rating)
-        )
-
-        return ResponseEntity(CommentDTOOutput(savedComment), HttpStatus.CREATED)
+        return ResponseEntity(
+                CommentDTOOutput(this.commentDAO.save(Comment(user, gym, commentDTO.title, commentDTO.message, commentDTO.rating))),
+                HttpStatus.CREATED)
     }
 
     @DeleteMapping("/me/{id}")

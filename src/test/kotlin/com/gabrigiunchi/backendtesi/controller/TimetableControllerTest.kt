@@ -168,7 +168,7 @@ class TimetableControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should update a timetable`() {
-        val timetable = this.timetableDAO.save(this.timetables[0])
+        val timetable = this.timetableDAO.save(Timetable(this.gyms.first()))
         val openings = this.schedules.toList().takeLast(2)
         val timetableDTO = TimetableDTO(
                 gymId = timetable.gym.id,
@@ -183,15 +183,18 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetable.openings.size)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetable.exceptionalOpenings.size)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetableDTO.openings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetableDTO.exceptionalOpenings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetableDTO.closingDays.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()",
                         Matchers.`is`(MockEntities.mockHolidays.size)))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
+        val updatedTimetable = this.timetableDAO.findById(timetable.id).get()
+        Assertions.assertThat(updatedTimetable.openings.size).isEqualTo(timetableDTO.openings.size)
+        Assertions.assertThat(updatedTimetable.recurringExceptions.size).isEqualTo(timetableDTO.recurringExceptions.size)
     }
 
     @Test

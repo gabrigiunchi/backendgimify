@@ -121,11 +121,10 @@ class ReservationController(
     @DeleteMapping("/{id}")
     fun deleteReservationById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE reservation #$id")
-        if (this.reservationDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("reservation $id does not exist")
-        }
-
-        this.reservationDAO.deleteById(id)
+        this.reservationDAO.delete(
+                this.reservationDAO.findById(id)
+                        .orElseThrow { ResourceNotFoundException("reservation $id does not exist") }
+        )
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

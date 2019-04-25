@@ -49,12 +49,8 @@ class TimetableController(
     @PostMapping
     fun createTimetable(@Valid @RequestBody timetable: TimetableDTO): ResponseEntity<Timetable> {
         this.logger.info("CREATE timetable")
-
-        if (this.gymDAO.findById(timetable.gymId).isEmpty) {
-            throw ResourceNotFoundException("gym ${timetable.gymId} does not exist")
-        }
-
-        val gym = this.gymDAO.findById(timetable.gymId).get()
+        val gym = this.gymDAO.findById(timetable.gymId)
+                .orElseThrow { ResourceNotFoundException("gym ${timetable.gymId} does not exist") }
 
         return ResponseEntity(this.timetableDAO.save(Timetable(-1, timetable, gym)), HttpStatus.CREATED)
     }
@@ -67,41 +63,26 @@ class TimetableController(
             throw ResourceNotFoundException("timetable $id does not exist")
         }
 
-        if (this.gymDAO.findById(timetableDTO.gymId).isEmpty) {
-            throw ResourceNotFoundException("gym ${timetableDTO.gymId} does not exist")
-        }
+        val gym = this.gymDAO.findById(timetableDTO.gymId)
+                .orElseThrow { ResourceNotFoundException("gym ${timetableDTO.gymId} does not exist") }
 
-        return ResponseEntity(this.timetableDAO.save(Timetable(id, timetableDTO, this.gymDAO.findById(timetableDTO.gymId).get())),
-                HttpStatus.OK)
+        return ResponseEntity(this.timetableDAO.save(Timetable(id, timetableDTO, gym)), HttpStatus.OK)
     }
 
     @DeleteMapping("/{id}")
     fun deleteTimetableById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE timetable #$id")
-
-        if (this.timetableDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("timetable $id does not exist")
-        }
-
-        this.timetableDAO.deleteById(id)
+        val timetable = this.timetableDAO.findById(id).orElseThrow { ResourceNotFoundException("timetable $id does not exist") }
+        this.timetableDAO.delete(timetable)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
     @DeleteMapping("/by_gym/{gymId}")
     fun deleteTimetableByGymId(@PathVariable gymId: Int): ResponseEntity<Void> {
         this.logger.info("DELETE timetable of gym #$gymId")
-
-        if (this.gymDAO.findById(gymId).isEmpty) {
-            throw ResourceNotFoundException("gym $gymId does not exist")
-        }
-
-        val timetable = this.timetableDAO.findByGym(this.gymDAO.findById(gymId).get())
-
-        if (timetable.isEmpty) {
-            throw ResourceNotFoundException("no timetable for gym $gymId")
-        }
-
-        this.timetableDAO.delete(timetable.get())
+        val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+        val timetable = this.timetableDAO.findByGym(gym).orElseThrow { ResourceNotFoundException("no timetable for gym $gymId") }
+        this.timetableDAO.delete(timetable)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

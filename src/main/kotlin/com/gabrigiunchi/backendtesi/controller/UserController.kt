@@ -59,11 +59,8 @@ class UserController(
     @DeleteMapping("/{id}")
     fun deleteUser(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE user #$id")
-        if (this.userDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("user $id does not exist")
-        }
-
-        this.userDAO.deleteById(id)
+        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        this.userDAO.delete(user)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

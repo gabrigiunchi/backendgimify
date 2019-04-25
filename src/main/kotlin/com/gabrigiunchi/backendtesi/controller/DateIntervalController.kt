@@ -26,11 +26,9 @@ class DateIntervalController(private val dateIntervalDAO: DateIntervalDAO) {
     @GetMapping("/{id}")
     fun findDateIntervalById(@PathVariable id: Int): ResponseEntity<DateInterval> {
         this.logger.info("GET date interval #$id")
-        return ResponseEntity(
-                this.dateIntervalDAO.findById(id)
-                        .map { it }
-                        .orElseThrow { ResourceNotFoundException("date interval $id does not exist") },
-                HttpStatus.OK)
+        return this.dateIntervalDAO.findById(id)
+                .map { ResponseEntity(it, HttpStatus.OK) }
+                .orElseThrow { ResourceNotFoundException("date interval $id does not exist") }
     }
 
     @PostMapping
@@ -42,12 +40,8 @@ class DateIntervalController(private val dateIntervalDAO: DateIntervalDAO) {
     @DeleteMapping("/{id}")
     fun deleteDateInterval(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE date interval #$id")
-
-        if (this.dateIntervalDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("date interval $id does not exist")
-        }
-
-        this.dateIntervalDAO.deleteById(id)
+        val dateInterval = this.dateIntervalDAO.findById(id).orElseThrow { ResourceNotFoundException("date interval $id does not exist") }
+        this.dateIntervalDAO.delete(dateInterval)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

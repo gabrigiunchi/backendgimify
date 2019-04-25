@@ -77,12 +77,7 @@ class GymController(private val gymDAO: GymDAO,
     @DeleteMapping("/{id}")
     fun deleteGym(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE gym #$id")
-
-        if (this.gymDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("gym $id does not exist")
-        }
-
-        this.gymDAO.deleteById(id)
+        this.gymDAO.delete(this.gymDAO.findById(id).orElseThrow { ResourceNotFoundException("gym $id does not exist") })
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

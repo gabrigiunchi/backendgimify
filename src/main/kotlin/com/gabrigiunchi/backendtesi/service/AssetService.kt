@@ -34,7 +34,7 @@ class AssetService {
      */
     private fun checkName(asset: Asset) {
         if (this.assetDAO.findByGymAndName(asset.gym, asset.name).isPresent) {
-            throw ResourceAlreadyExistsException(asset.name)
+            throw ResourceAlreadyExistsException("asset with name ${asset.name} already exists")
         }
     }
 }

@@ -35,7 +35,7 @@ class AssetController(
     fun getAssetByInd(@PathVariable id: Int): ResponseEntity<Asset> {
         this.logger.info("GET asset #$id")
         return this.assetDAO.findById(id)
-                .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
+                .map { ResponseEntity(it, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("asset $id does not exist") }
     }
 
@@ -50,18 +50,9 @@ class AssetController(
     @GetMapping("/by_gym/{gymId}/by_kind/{kindId}")
     fun getAssetsByGymAndKind(@PathVariable gymId: Int, @PathVariable kindId: Int): ResponseEntity<Collection<Asset>> {
         this.logger.info("GET all assets in gym $gymId of kind $kindId")
-
-        if (this.assetKindDAO.findById(kindId).isEmpty) {
-            throw ResourceNotFoundException("asset kind $kindId does not exist")
-        }
-
-        if (this.gymDAO.findById(gymId).isEmpty) {
-            throw ResourceNotFoundException("gym $gymId does not exist")
-        }
-
-        return ResponseEntity(
-                this.assetDAO.findByGymAndKind(this.gymDAO.findById(gymId).get(), this.assetKindDAO.findById(kindId).get()),
-                HttpStatus.OK)
+        val kind = this.assetKindDAO.findById(kindId).orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
+        val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+        return ResponseEntity(this.assetDAO.findByGymAndKind(gym, kind), HttpStatus.OK)
     }
 
     @GetMapping("/by_kind/{kindId}/page/{page}/size/{size}")
@@ -87,12 +78,8 @@ class AssetController(
     @DeleteMapping("/{id}")
     fun deleteAsset(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE asset #$id")
-
-        if (this.assetDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("asset $id does not exist")
-        }
-
-        this.assetDAO.deleteById(id)
+        val asset = this.assetDAO.findById(id).orElseThrow { ResourceNotFoundException("asset $id does not exist") }
+        this.assetDAO.delete(asset)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

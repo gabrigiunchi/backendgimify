@@ -31,7 +31,7 @@ class AssetKindController {
     fun getAssetKindByInd(@PathVariable id: Int): ResponseEntity<AssetKind> {
         this.logger.info("GET asset kind #$id")
         return this.assetKindDAO.findById(id)
-                .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
+                .map { ResponseEntity(it, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }
 
@@ -50,9 +50,7 @@ class AssetKindController {
         this.logger.info("PUT asset kind: ${assetKind.name}")
         return this.assetKindDAO.findById(id)
                 .map { ResponseEntity(this.assetKindDAO.save(assetKind), HttpStatus.OK) }
-                .orElseThrow {
-                    throw ResourceNotFoundException("asset kind $id does not exist")
-                }
+                .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }
 
     @PatchMapping("/{id}/max_time/{time}")
@@ -75,11 +73,8 @@ class AssetKindController {
     fun deleteAssetKind(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE asset kind #$id")
 
-        if (this.assetKindDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("asset kind $id does not exist")
-        }
-
-        this.assetKindDAO.deleteById(id)
+        val kind = this.assetKindDAO.findById(id).orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
+        this.assetKindDAO.delete(kind)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

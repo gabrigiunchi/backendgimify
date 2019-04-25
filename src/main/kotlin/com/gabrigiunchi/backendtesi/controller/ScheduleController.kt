@@ -27,7 +27,7 @@ class ScheduleController(private val scheduleDAO: ScheduleDAO) {
     fun findScheduleById(@PathVariable id: Int): ResponseEntity<Schedule> {
         this.logger.info("GET schedule #$id")
         return ResponseEntity(
-                this.scheduleDAO.findById(id).map { it }.orElseThrow { ResourceNotFoundException("schedule $id does not exist") },
+                this.scheduleDAO.findById(id).orElseThrow { ResourceNotFoundException("schedule $id does not exist") },
                 HttpStatus.OK)
     }
 
@@ -40,12 +40,8 @@ class ScheduleController(private val scheduleDAO: ScheduleDAO) {
     @DeleteMapping("/{id}")
     fun deleteSchedule(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE schedule #$id")
-
-        if (this.scheduleDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("schedule $id does not exist")
-        }
-
-        this.scheduleDAO.deleteById(id)
+        val schedule = this.scheduleDAO.findById(id).orElseThrow { ResourceNotFoundException("schedule $id does not exist") }
+        this.scheduleDAO.delete(schedule)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

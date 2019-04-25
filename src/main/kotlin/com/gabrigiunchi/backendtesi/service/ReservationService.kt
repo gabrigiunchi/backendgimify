@@ -45,16 +45,14 @@ class ReservationService(
             throw ReservationThresholdExceededException()
         }
 
-        if (this.assetDAO.findById(reservationDTO.assetID).isEmpty) {
-            throw ResourceNotFoundException("asset ${reservationDTO.assetID} does not exist")
-        }
+        val asset = this.assetDAO.findById(reservationDTO.assetID)
+                .orElseThrow { ResourceNotFoundException("asset ${reservationDTO.assetID} does not exist") }
 
         val user = this.getUser(userId)
         if (this.numberOfReservationsMadeByUserInDate(user, Date()) >= this.maxReservationsPerDay) {
             throw TooManyReservationsException()
         }
 
-        val asset = this.assetDAO.findById(reservationDTO.assetID).get()
         if (!this.isReservationDurationValid(asset, reservationDTO.start, reservationDTO.end)) {
             throw BadRequestException("reservation duration exceeds maximum (max=${asset.kind.maxReservationTime} minutes)")
         }
@@ -193,15 +191,12 @@ class ReservationService(
     @Throws(ResourceNotFoundException::class)
     fun getReservationOfUser(user: User, reservationId: Int): Reservation {
         return this.reservationDAO.findByIdAndUser(reservationId, user)
-                .map { it }
                 .orElseThrow { ResourceNotFoundException("reservation $reservationId does not exist or is not owned by user ${user.id}") }
     }
 
     @Throws(ResourceNotFoundException::class)
     private fun getUser(userID: Int): User {
-        return this.userDAO.findById(userID)
-                .map { it }
-                .orElseThrow { ResourceNotFoundException("user $userID does not exist") }
+        return this.userDAO.findById(userID).orElseThrow { ResourceNotFoundException("user $userID does not exist") }
     }
 
     private fun isBeyondTheThreshold(date: Date) = date > DateDecorator.now().plusDays(this.reservationThresholdInDays).date

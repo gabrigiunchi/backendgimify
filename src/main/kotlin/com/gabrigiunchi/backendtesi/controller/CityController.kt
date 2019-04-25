@@ -52,12 +52,8 @@ class CityController(private val cityDAO: CityDAO) {
     @DeleteMapping("/{id}")
     fun deleteCityById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE city #$id")
-
-        if (this.cityDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("city $id does not exist")
-        }
-
-        this.cityDAO.deleteById(id)
+        val city = this.cityDAO.findById(id).orElseThrow { ResourceNotFoundException("city $id does not exist") }
+        this.cityDAO.delete(city)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }
