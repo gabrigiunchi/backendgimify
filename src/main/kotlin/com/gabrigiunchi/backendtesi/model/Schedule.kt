@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
-import java.time.MonthDay
 import java.util.*
 import javax.persistence.*
 

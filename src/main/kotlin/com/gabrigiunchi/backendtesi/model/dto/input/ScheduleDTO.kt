@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.model.dto.input
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.TimeInterval
 import java.time.DayOfWeek
-import java.time.MonthDay
 
 class ScheduleDTO(val dayOfWeek: DayOfWeek, val timeIntervals: Set<TimeInterval>) {
     fun toJson(): String {

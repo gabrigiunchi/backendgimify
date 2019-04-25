@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi.config
 
 import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
+import com.gabrigiunchi.backendtesi.constants.Constants
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
-import java.time.MonthDay
 
 @Service
 class DBInitializer {
@@ -108,27 +108,13 @@ class DBInitializer {
     }
 
     fun initTimetables() {
-        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings, emptySet(), emptySet(), this.holidays)) }
+        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings, emptySet(), emptySet(), Constants.holidays)) }
         this.logger.info("Init timetables")
     }
 
     private val openings: Set<Schedule>
-        get() = DayOfWeek.values().map { Schedule(it, this.timeIntervals)}.toSet()
+        get() = DayOfWeek.values().map { Schedule(it, this.timeIntervals) }.toSet()
 
     private val timeIntervals: Set<TimeInterval>
         get() = setOf(TimeInterval("08:00+00:00", "12:00+00:00"))
-
-    private val holidays: Set<MonthDay>
-        get() = setOf(
-                MonthDay.of(1, 1),
-                MonthDay.of(1, 6),
-                MonthDay.of(4, 25),
-                MonthDay.of(5, 1),
-                MonthDay.of(6, 2),
-                MonthDay.of(8, 15),
-                MonthDay.of(9, 1),
-                MonthDay.of(12, 25),
-                MonthDay.of(12, 26),
-                MonthDay.of(12, 31)
-        )
 }

@@ -34,9 +34,6 @@ class Timetable(
 
     constructor(gym: Gym, openings: Set<Schedule>) : this(-1, gym, openings, emptySet(), emptySet(), emptySet())
 
-    constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>) :
-            this(-1, gym, openings, closingDays, emptySet(), emptySet())
-
     constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>, exceptionalOpenings: Set<DateInterval>) :
             this(-1, gym, openings, closingDays, exceptionalOpenings, emptySet())
 
