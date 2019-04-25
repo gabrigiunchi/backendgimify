@@ -90,7 +90,9 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the user does not exist`() {
-        val reservationDTO = ReservationDTOInput(-1, this.mockAsset().id, Date(), DateDecorator.now().plusMinutes(20).date)
+        val start = DateDecorator.now().plusMinutes(1)
+        val end = start.plusMinutes(10)
+        val reservationDTO = ReservationDTOInput(-1, this.mockAsset().id, start.date, end.date)
         this.reservationService.addReservation(reservationDTO)
     }
 
@@ -677,13 +679,13 @@ class ReservationServiceTest : AbstractControllerTest() {
         val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
         val anotherUser = this.userDAO.save(this.userFactory.createAdminUser("dasdaas", "aaaa", "Gabriele", "Giunchi"))
 
-        this.reservationService.checkReservationOfUser(anotherUser, r.id)
+        this.reservationService.getReservationOfUser(anotherUser, r.id)
     }
 
     @Test
     fun `Should check if a user own a reservation and not throw an exception if the reservation belongs to the user`() {
         val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, Date(), DateDecorator.now().plusMinutes(20).date))
-        this.reservationService.checkReservationOfUser(this.user!!, r.id)
+        this.reservationService.getReservationOfUser(this.user!!, r.id)
     }
 
 
@@ -702,6 +704,29 @@ class ReservationServiceTest : AbstractControllerTest() {
 
         val date = DateDecorator.createDate("2019-04-24").date
         Assertions.assertThat(this.reservationService.numberOfReservationsMadeByUserInDate(user, date)).isEqualTo(2)
+    }
+
+    @Test
+    fun `Should delete the reservation of a user`() {
+        val start = DateDecorator.of("2050-04-04T11:00:00+0000")
+        val end = start.plusMinutes(20)
+        val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start.date, end.date)
+        val savedReservation = this.reservationService.addReservation(reservationDTO)
+
+        this.reservationService.deleteReservationOfUser(this.user!!, savedReservation.id)
+        Assertions.assertThat(this.reservationDAO.findById(savedReservation.id).isEmpty).isTrue()
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not delete the reservation of a user if the reservation is not of the user`() {
+        val user1 = this.user!!
+        val user2 = this.userDAO.save(this.userFactory.createRegularUser("dnjasda", "nj", "s", "", ""))
+        val start = DateDecorator.of("2050-04-04T11:00:00+0000")
+        val end = start.plusMinutes(20)
+        val reservationDTO = ReservationDTOInput(user2.id, this.mockAsset().id, start.date, end.date)
+        val savedReservation = this.reservationService.addReservation(reservationDTO)
+
+        this.reservationService.deleteReservationOfUser(user1, savedReservation.id)
     }
 
     /**************************************** UTILS ***********************************************************/

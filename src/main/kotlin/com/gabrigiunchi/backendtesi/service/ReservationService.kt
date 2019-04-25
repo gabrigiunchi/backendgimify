@@ -12,6 +12,7 @@ import java.util.*
 
 @Service
 class ReservationService(
+        private val mailService: MailService,
         private val reservationLogDAO: ReservationLogDAO,
         private val cityDAO: CityDAO,
         private val gymDAO: GymDAO,
@@ -26,6 +27,10 @@ class ReservationService(
 
     @Value("\${application.reservationThresholdInDays}")
     private var reservationThresholdInDays: Int = 0
+
+    @Value("\${application.mail.enabled}")
+    private var mailEnabled: Boolean = false
+
 
     fun addReservation(reservationDTO: ReservationDTOInput, userId: Int): Reservation {
         if (reservationDTO.start < Date()) {
@@ -72,6 +77,10 @@ class ReservationService(
         )
         this.reservationLogDAO.save(ReservationLog(savedReservation))
 
+        if (this.mailEnabled) {
+            this.sendConfirmationEmail(savedReservation)
+        }
+
         return savedReservation
     }
 
@@ -79,15 +88,14 @@ class ReservationService(
         return this.addReservation(reservationDTO, reservationDTO.userID)
     }
 
-    fun getReservationOfUserById(user: User, reservationId: Int): Reservation {
-        this.checkReservationOfUser(user, reservationId)
-        return this.reservationDAO.findById(reservationId).get()
-    }
-
     fun deleteReservationOfUser(user: User, reservationId: Int): Reservation {
-        this.checkReservationOfUser(user, reservationId)
-        val reservation = this.reservationDAO.findById(reservationId).get()
+        val reservation = this.getReservationOfUser(user, reservationId)
         this.reservationDAO.delete(reservation)
+
+        if (this.mailEnabled) {
+            this.sendCancellationConfirmation(reservation)
+        }
+
         return reservation
     }
 
@@ -182,16 +190,11 @@ class ReservationService(
         return DateDecorator.of(start).plusMinutes(asset.kind.maxReservationTime).date >= end
     }
 
-    /**
-     * Check if the reservation belongs to the user
-     * @throws ResourceNotFoundException if the user does not exist
-     * @throws ResourceNotFoundException if the reservation does not exist or the user is not the owner
-     */
     @Throws(ResourceNotFoundException::class)
-    fun checkReservationOfUser(user: User, reservationId: Int) {
-        if (this.reservationDAO.findByUser(user).none { it.id == reservationId }) {
-            throw ResourceNotFoundException("user ${user.id} does not have reservation $reservationId")
-        }
+    fun getReservationOfUser(user: User, reservationId: Int): Reservation {
+        return this.reservationDAO.findByIdAndUser(reservationId, user)
+                .map { it }
+                .orElseThrow { ResourceNotFoundException("reservation $reservationId does not exist or is not owned by user ${user.id}") }
     }
 
     @Throws(ResourceNotFoundException::class)
@@ -202,4 +205,26 @@ class ReservationService(
     }
 
     private fun isBeyondTheThreshold(date: Date) = date > DateDecorator.now().plusDays(this.reservationThresholdInDays).date
+
+    private fun sendConfirmationEmail(reservation: Reservation) {
+        val user = reservation.user
+        val content = "Hi ${user.name} ${user.surname}, here's your reservation:\n" +
+                "Gym: ${reservation.asset.gym.name}\n" +
+                "Address: ${reservation.asset.gym.address}\n" +
+                "Asset: ${reservation.asset.name}\n" +
+                "Date: ${reservation.start} - ${reservation.end}"
+
+        Thread { this.mailService.sendEmail(user.email, "Reservation Confirmation", content) }.start()
+    }
+
+    private fun sendCancellationConfirmation(reservation: Reservation) {
+        val user = reservation.user
+        val content = "Hi ${user.name} ${user.surname}, you just cancelled the reservation: \n" +
+                "Gym: ${reservation.asset.gym.name}\n" +
+                "Address: ${reservation.asset.gym.address}\n" +
+                "Asset: ${reservation.asset.name}\n" +
+                "Date: ${DateDecorator.of(reservation.start).format()} - ${DateDecorator.of(reservation.end).format()}"
+
+        Thread { this.mailService.sendEmail(user.email, "Cancellation Confirmation", content) }.start()
+    }
 }

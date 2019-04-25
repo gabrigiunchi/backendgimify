@@ -458,7 +458,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("user ${user.id} does not have reservation -1")))
+                        "$[0].message", Matchers.`is`("reservation -1 does not exist or is not owned by user ${user.id}")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -487,7 +487,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("user ${user1.id} does not have reservation $id")))
+                        "$[0].message", Matchers.`is`("reservation $id does not exist or is not owned by user ${user1.id}")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -538,7 +538,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`(
-                        "user ${user.id} does not have reservation -1")))
+                        "reservation -1 does not exist or is not owned by user ${user.id}")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -567,7 +567,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("user ${user1.id} does not have reservation $id")))
+                        "$[0].message", Matchers.`is`("reservation $id does not exist or is not owned by user ${user1.id}")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
