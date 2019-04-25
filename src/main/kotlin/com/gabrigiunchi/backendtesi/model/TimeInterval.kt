@@ -1,8 +1,10 @@
 package com.gabrigiunchi.backendtesi.model
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.OffsetTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -17,12 +19,17 @@ class TimeInterval(
         val start: OffsetTime,
         val end: OffsetTime
 ) {
+
+    companion object {
+        private const val format = "HH:mm+00:00"
+    }
+
     constructor(start: String, end: String) : this(OffsetTime.parse(start), OffsetTime.parse(end))
-    constructor(start: OffsetTime, end: OffsetTime) : this(-1, start, end)
+    private constructor(start: OffsetTime, end: OffsetTime) : this(-1, start, end)
     constructor(timeIntervalDTO: TimeIntervalDTO) : this(-1, timeIntervalDTO.start, timeIntervalDTO.end)
 
     constructor(start: Date, end: Date) :
-            this(DateDecorator.of(start).format("HH:mm+00:00"), DateDecorator.of(end).format("HH:mm+00:00"))
+            this(DateDecorator.of(start).format(format), DateDecorator.of(end).format(format))
 
     init {
         if (this.start > this.end) {
@@ -30,7 +37,7 @@ class TimeInterval(
         }
     }
 
-    fun contains(date: Date): Boolean = OffsetTime.parse(DateDecorator.of(date).format("HH:mm+00:00")) in this.start..this.end
+    fun contains(date: Date): Boolean = OffsetTime.parse(DateDecorator.of(date).format(format)) in this.start..this.end
 
     fun contains(dateInterval: DateInterval) =
             dateInterval.isWithinSameDay() && this.contains(dateInterval.start) && this.contains(dateInterval.end)
@@ -44,11 +51,13 @@ class TimeInterval(
                 (timeInterval.start <= this.end && timeInterval.end <= this.start))
     }
 
+    override fun toString() = this.toMap().toString()
+
     fun toMap(): Map<String, String> {
         return mapOf(
                 Pair("id", this.id.toString()),
-                Pair("start", this.start.toString()),
-                Pair("end", this.end.toString())
+                Pair("start", this.start.format(DateTimeFormatter.ofPattern(format))),
+                Pair("end", this.end.format(DateTimeFormatter.ofPattern(format)))
         )
     }
 }

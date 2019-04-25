@@ -1,16 +1,22 @@
 package com.gabrigiunchi.backendtesi.config
 
 import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
+import com.gabrigiunchi.backendtesi.controller.CommentController
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.DayOfWeek
+import java.time.MonthDay
 
 @Service
 class DBInitializer {
+
+    private val logger = LoggerFactory.getLogger(DBInitializer::class.java)
 
     @Autowired
     private lateinit var userDAO: UserDAO
@@ -30,7 +36,12 @@ class DBInitializer {
     @Autowired
     private lateinit var cityDAO: CityDAO
 
+    @Autowired
+    private lateinit var timetableDAO: TimetableDAO
+
     private var cities = listOf<City>()
+    private var gyms = listOf<Gym>()
+    private var roles = listOf<UserRole>()
 
     private val maxReservationTimes = mapOf(
             Pair(AssetKindEnum.CICLETTE, 60),
@@ -45,48 +56,68 @@ class DBInitializer {
         this.initGyms()
         this.initAssetKinds()
         this.initAssets()
+        this.initTimetables()
+        this.logger.info("DB initialized")
     }
 
     fun initUserRole() {
-        this.userRoleDAO.saveAll(
-                UserRoleEnum.values().map { value -> UserRole(-1, value.toString()) }
-        )
+        this.roles = this.userRoleDAO.saveAll(UserRoleEnum.values().map { value -> UserRole(-1, value.toString()) }).toList()
+        this.logger.info("Init user roles")
     }
 
     fun initUsers() {
-        val roles = this.userRoleDAO.findAll().toList()
+        this.userDAO.saveAll(listOf(
+                User("gabrigiunchi", SHA256PasswordEncoder().encode("aaaa"),
+                        "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com", mutableListOf(roles[0])),
 
-        val users = listOf(
-                User("gabrigiunchi", SHA256PasswordEncoder().encode("aaaa"), "Gabriele", "Giunchi", mutableListOf(roles[0])),
-                User("baseuser", SHA256PasswordEncoder().encode("bbbb"), "User", "Anonimo", mutableListOf(roles[1]))
+                User("baseuser", SHA256PasswordEncoder().encode("bbbb"), "User",
+                        "Anonimo", "prova@gmail.com", mutableListOf(roles[1])))
         )
 
-        this.userDAO.saveAll(users)
+        this.logger.info("Init users")
     }
 
     fun initGyms() {
-        this.gymDAO.saveAll(listOf(
+        this.gyms = this.gymDAO.saveAll(listOf(
                 Gym("gym1", "Via1", this.cities[0]),
                 Gym("gym2", "Via2", this.cities[0]),
                 Gym("gym3", "Via3", this.cities[1]),
-                Gym("gym4", "Via4", this.cities[2])))
+                Gym("gym4", "Via4", this.cities[2]))).toList()
+
+        this.logger.info("Init gyms")
     }
 
     fun initAssetKinds() {
         this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it] ?: 20) })
+        this.logger.info("Init asset kinds")
     }
 
     fun initAssets() {
-        val gyms = this.gymDAO.findAll().toList()
         this.assetDAO.saveAll(listOf(
                 Asset("tr01", this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), gyms[0]),
                 Asset("c01", this.assetKindDAO.findByName(AssetKindEnum.CICLETTE.name).get(), gyms[0]),
                 Asset("p01", this.assetKindDAO.findByName(AssetKindEnum.PANCA.name).get(), gyms[1]),
                 Asset("tr01", this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), gyms[2])
         ))
+        this.logger.info("Init assets")
     }
 
     fun initCities() {
         this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it) }).toList()
+        this.logger.info("Init cities")
     }
+
+    fun initTimetables() {
+        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings())) }
+        this.logger.info("Init timetables")
+    }
+
+    private fun openings() = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("08:00+00:00", "20:00+00:00")), this.holidays()) }.toSet()
+    private fun holidays() = setOf(
+            MonthDay.of(12, 25),
+            MonthDay.of(12, 26),
+            MonthDay.of(4, 25),
+            MonthDay.of(6, 2),
+            MonthDay.of(1, 1),
+            MonthDay.of(5, 1))
 }

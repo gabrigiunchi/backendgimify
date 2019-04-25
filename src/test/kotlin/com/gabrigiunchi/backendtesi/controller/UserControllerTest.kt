@@ -36,9 +36,9 @@ class UserControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get all users`() {
         this.userDAO.saveAll(listOf(
-                User("gabrigiunchi", "dsndja", "Gabriele", "Giunchi"),
-                User("fragiunchi", "dsndja", "Francesco", "Giunchi"),
-                User("fabiogiunchi", "dsndja", "Fabio", "Giunchi")))
+                User("gabrigiunchi", "dsndja", "Gabriele", "Giunchi", "mail@mail.com"),
+                User("fragiunchi", "dsndja", "Francesco", "Giunchi", "mail@mail.com"),
+                User("fabiogiunchi", "dsndja", "Fabio", "Giunchi", "mail@mail.com")))
 
         this.mockMvc.perform(get("${ApiUrls.USERS}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -49,7 +49,7 @@ class UserControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get a user given its id`() {
-        val user = this.userDAO.save(User("giggi", "ddnsakjn", "Gianni", "Riccio"))
+        val user = this.userDAO.save(User("giggi", "ddnsakjn", "Gianni", "Riccio", "mail@mail.com"))
         this.mockMvc.perform(get("${ApiUrls.USERS}/${user.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -70,7 +70,7 @@ class UserControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get a the details of a user`() {
-        val user = this.userDAO.save(User("giggi", "ddnsakjn", "Gianni", "Riccio"))
+        val user = this.userDAO.save(User("giggi", "ddnsakjn", "Gianni", "Riccio", "mail@mail.com"))
         this.mockMvc.perform(get("${ApiUrls.USERS}/${user.id}/details")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -93,7 +93,7 @@ class UserControllerTest : AbstractControllerTest() {
     @Test
     fun `Should create a user`() {
         val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        val user = User("giggi", "ddnsakjn", "", "", roles.toMutableList())
+        val user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", roles.toMutableList())
         mockMvc.perform(post(ApiUrls.USERS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(user)))
@@ -105,7 +105,7 @@ class UserControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not create a user if it already exists`() {
         val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        val user = User("giggi", "ddnsakjn", "", "", roles.toMutableList())
+        val user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", roles.toMutableList())
         userDAO.save(user)
         mockMvc.perform(post(ApiUrls.USERS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +129,7 @@ class UserControllerTest : AbstractControllerTest() {
     @Test
     fun `Should delete a user`() {
         val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        var user = User("giggi", "ddnsakjn", "", "", roles.toMutableList())
+        var user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", roles.toMutableList())
         user = this.userDAO.save(user)
         mockMvc.perform(delete("${ApiUrls.USERS}/${user.id}")
                 .contentType(MediaType.APPLICATION_JSON))

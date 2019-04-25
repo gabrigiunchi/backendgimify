@@ -702,7 +702,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     private fun mockUser(username: String = "gabrigiunchi"): User {
-        return this.userDAO.save(User(username, "aaaa", "Gabriele", "Giunchi"))
+        return this.userDAO.save(User(username, "aaaa", "Gabriele", "Giunchi", "mail@mail.com"))
     }
 
     private fun mockAsset(gym: Gym, name: String = "asset"): Asset {

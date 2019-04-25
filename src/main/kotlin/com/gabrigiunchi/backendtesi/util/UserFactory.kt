@@ -12,14 +12,14 @@ class UserFactory {
     @Autowired
     private lateinit var userRoleDAO: UserRoleDAO
 
-    fun createAdminUser(username: String, password: String, name: String, surname: String): User {
+    fun createAdminUser(username: String, password: String, name: String, surname: String, email: String = "prova@server.com"): User {
         val roles = this.userRoleDAO.findByName(UserRoleEnum.ADMINISTRATOR.toString())
-        return User(username, password, name, surname, roles.toMutableList())
+        return User(username, password, name, surname, email, roles.toMutableList())
     }
 
-    fun createRegularUser(username: String, password: String, name: String, surname: String): User {
+    fun createRegularUser(username: String, password: String, name: String, surname: String, email: String = "prova@server.com"): User {
         val roles = this.userRoleDAO.findByName(UserRoleEnum.USER.toString())
-        return User(username, password, name, surname, roles.toMutableList())
+        return User(username, password, name, surname, email, roles.toMutableList())
     }
 
 }

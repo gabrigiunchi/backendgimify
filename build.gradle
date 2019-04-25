@@ -37,6 +37,7 @@ dependencies {
 	implementation 'com.h2database:h2'
 	implementation 'org.hibernate:hibernate-entitymanager:5.2.9.Final'
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	implementation 'com.sendgrid:sendgrid-java:4.0.1'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

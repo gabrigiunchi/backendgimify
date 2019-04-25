@@ -84,9 +84,11 @@ class ReservationService(
         return this.reservationDAO.findById(reservationId).get()
     }
 
-    fun deleteReservationOfUser(user: User, reservationId: Int) {
+    fun deleteReservationOfUser(user: User, reservationId: Int): Reservation {
         this.checkReservationOfUser(user, reservationId)
-        this.reservationDAO.deleteById(reservationId)
+        val reservation = this.reservationDAO.findById(reservationId).get()
+        this.reservationDAO.delete(reservation)
+        return reservation
     }
 
     fun getAvailableAssets(kindId: Int, start: Date, end: Date): Collection<Asset> {

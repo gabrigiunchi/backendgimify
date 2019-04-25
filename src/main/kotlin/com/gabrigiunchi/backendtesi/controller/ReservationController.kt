@@ -5,11 +5,14 @@ import com.gabrigiunchi.backendtesi.dao.ReservationDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
+import com.gabrigiunchi.backendtesi.model.Reservation
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.ReservationDTOOutput
+import com.gabrigiunchi.backendtesi.service.MailService
 import com.gabrigiunchi.backendtesi.service.ReservationService
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -23,12 +26,16 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/reservations")
 class ReservationController(
+        private val mailService: MailService,
         private val reservationService: ReservationService,
         private val assetDAO: AssetDAO,
         private val reservationDAO: ReservationDAO,
         userDAO: UserDAO) : BaseController(userDAO) {
 
     private val logger = LoggerFactory.getLogger(ReservationController::class.java)
+
+    @Value("\${application.mail.enabled}")
+    private var mailEnabled: Boolean = false
 
     @GetMapping("/page/{page}/size/{size}")
     fun getAllReservations(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {
@@ -164,18 +171,50 @@ class ReservationController(
     fun addReservationForLoggedUser(@Valid @RequestBody reservationDTO: ReservationDTOInput): ResponseEntity<ReservationDTOOutput> {
         val user = this.getLoggedUser()
         this.logger.info("POST reservation for user #${user.id}")
-        return ResponseEntity(
-                ReservationDTOOutput(this.reservationService.addReservation(reservationDTO, user.id)),
-                HttpStatus.CREATED)
+
+        val savedReservation = this.reservationService.addReservation(reservationDTO, user.id)
+
+        if (this.mailEnabled) {
+            this.sendConfirmationEmail(savedReservation)
+        }
+
+        return ResponseEntity(ReservationDTOOutput(savedReservation), HttpStatus.CREATED)
     }
 
     @DeleteMapping("/me/{id}")
     fun deleteReservationForLoggedUser(@PathVariable(name = "id") reservationId: Int): ResponseEntity<Void> {
         val user = this.getLoggedUser()
         this.logger.info("DELETE reservation #$reservationId of user #${user.id}")
-        this.reservationService.deleteReservationOfUser(user, reservationId)
+        val deletedReservation = this.reservationService.deleteReservationOfUser(user, reservationId)
+
+        if (this.mailEnabled) {
+            this.sendCancellationConfirmation(deletedReservation)
+        }
+
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
     private fun pageRequest(page: Int, size: Int, sort: Sort = Sort.by("id")) = PageRequest.of(page, size, sort)
+
+    private fun sendConfirmationEmail(reservation: Reservation) {
+        val user = this.getLoggedUser()
+        val content = "Hi $user.name, here's your reservation:\n" +
+                "Gym: ${reservation.asset.gym.name}\n" +
+                "Address: ${reservation.asset.gym.address}" +
+                "Asset: ${reservation.asset.name}" +
+                "Date: ${reservation.start} - ${reservation.end}"
+
+        Thread{ this.mailService.sendEmail(user.email, "Reservation Confirmation", content)}.start()
+    }
+
+    private fun sendCancellationConfirmation(reservation: Reservation) {
+        val user = this.getLoggedUser()
+        val content = "Hi $user.name, you just cancelled the reservation: \n" +
+                "Gym: ${reservation.asset.gym.name}\n" +
+                "Address: ${reservation.asset.gym.address}" +
+                "Asset: ${reservation.asset.name}" +
+                "Date: ${reservation.start} - ${reservation.end}"
+
+        Thread{ this.mailService.sendEmail(user.email, "Cancellation Confirmation", content)}.start()
+    }
 }

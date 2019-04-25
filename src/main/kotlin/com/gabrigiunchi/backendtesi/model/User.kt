@@ -12,6 +12,7 @@ class User(
         val password: String,
         val name: String,
         val surname: String,
+        val email: String,
 
         @ManyToMany(fetch = FetchType.EAGER)
         val roles: MutableCollection<UserRole>,
@@ -21,16 +22,16 @@ class User(
 
     var isActive = true
 
-    constructor(username: String, password: String, name: String, surname: String, roles: MutableCollection<UserRole>) :
-            this(-1, username, password, name, surname, roles, Date(),
+    constructor(username: String, password: String, name: String, surname: String, email: String, roles: MutableCollection<UserRole>) :
+            this(-1, username, password, name, surname, email, roles, Date(),
                     DateDecorator.now().plusMinutes(2 * 30 * 24 * 60).date)
 
 
-    constructor(username: String, password: String, name: String, surname: String) :
-            this(username, password, name, surname, mutableListOf())
+    constructor(username: String, password: String, name: String, surname: String, email: String) :
+            this(username, password, name, surname, email, mutableListOf())
 
 
     override fun toString(): String {
-        return "{id:$id, username:$username, password:$password, name:$name, surname:$surname}"
+        return "{id:$id, username:$username, password:$password, name:$name, surname:$surname, email:$email}"
     }
 }
