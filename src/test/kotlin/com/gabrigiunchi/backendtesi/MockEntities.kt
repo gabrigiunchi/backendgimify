@@ -17,10 +17,10 @@ object MockEntities {
     )
 
     val mockTimeIntervals = listOf(
-            TimeInterval("10:00:00+00:00", "12:00:00+00:00"),
-            TimeInterval("12:00:00+00:00", "14:00:00+00:00"),
-            TimeInterval("14:00:00+00:00", "16:00:00+00:00"),
-            TimeInterval("16:00:00+00:00", "18:00:00+00:00")
+            TimeInterval("10:00+00:00", "12:00+00:00"),
+            TimeInterval("12:00+00:00", "14:00+00:00"),
+            TimeInterval("14:00+00:00", "16:00+00:00"),
+            TimeInterval("16:00+00:00", "18:00+00:00")
     )
 
     val mockMonthDays = setOf(
