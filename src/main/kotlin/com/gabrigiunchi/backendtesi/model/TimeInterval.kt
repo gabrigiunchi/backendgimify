@@ -25,7 +25,7 @@ class TimeInterval(
             this(DateDecorator.of(start).format("HH:mm+00:00"), DateDecorator.of(end).format("HH:mm+00:00"))
 
     init {
-        if (this.start.isAfter(this.end)) {
+        if (this.start > this.end) {
             throw IllegalArgumentException("start is after the end")
         }
     }

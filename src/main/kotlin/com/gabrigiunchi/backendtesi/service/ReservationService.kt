@@ -28,16 +28,12 @@ class ReservationService(
     private var reservationThresholdInDays: Int = 0
 
     fun addReservation(reservationDTO: ReservationDTOInput, userId: Int): Reservation {
-        if (reservationDTO.start.before(Date())) {
+        if (reservationDTO.start < Date()) {
             throw BadRequestException("reservation must be in the future")
         }
 
-        if (reservationDTO.start.after(reservationDTO.end)) {
+        if (reservationDTO.start >= (reservationDTO.end)) {
             throw BadRequestException("start is after the end")
-        }
-
-        if (reservationDTO.start == reservationDTO.end) {
-            throw BadRequestException("start cannot be equals to the end")
         }
 
         if (this.isBeyondTheThreshold(reservationDTO.start)) {
@@ -96,7 +92,7 @@ class ReservationService(
     fun getAvailableAssets(kindId: Int, start: Date, end: Date): Collection<Asset> {
         this.checkInterval(start, end)
 
-        if (start.before(Date()) || this.isBeyondTheThreshold(start)) {
+        if (start < Date() || this.isBeyondTheThreshold(start)) {
             return emptyList()
         }
 
@@ -111,7 +107,7 @@ class ReservationService(
         this.checkInterval(start, end)
         this.getCity(cityId)
 
-        if (start.before(Date()) || this.isBeyondTheThreshold(start)) {
+        if (start < Date() || this.isBeyondTheThreshold(start)) {
             return emptyList()
         }
 
@@ -127,7 +123,7 @@ class ReservationService(
         this.checkInterval(start, end)
         val gym = this.getGym(gymId)
 
-        if (start.before(Date()) || this.isBeyondTheThreshold(start)) {
+        if (start < Date() || this.isBeyondTheThreshold(start)) {
             return emptyList()
         }
 
@@ -203,5 +199,5 @@ class ReservationService(
                 .orElseThrow { ResourceNotFoundException("user $userID does not exist") }
     }
 
-    private fun isBeyondTheThreshold(date: Date) = date.after(DateDecorator.now().plusDays(this.reservationThresholdInDays).date)
+    private fun isBeyondTheThreshold(date: Date) = date > DateDecorator.now().plusDays(this.reservationThresholdInDays).date
 }

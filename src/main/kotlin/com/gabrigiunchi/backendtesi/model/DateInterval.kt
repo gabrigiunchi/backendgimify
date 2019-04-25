@@ -32,7 +32,7 @@ class DateInterval(
     fun isWithinSameDay(): Boolean = DateDecorator.of(this.start).isSameDay(this.end)
 
     init {
-        if (this.start.after(this.end)) {
+        if (this.start > this.end) {
             throw IllegalArgumentException("start is after the end")
         }
     }

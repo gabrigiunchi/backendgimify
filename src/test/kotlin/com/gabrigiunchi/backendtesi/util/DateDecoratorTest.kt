@@ -80,7 +80,7 @@ class DateDecoratorTest {
     fun `Should return the maximum date possible`() {
         val max = DateDecorator.max()
         Assertions.assertThat(max.date.time).isEqualTo(Long.MAX_VALUE)
-        Assertions.assertThat(max.date.after(DateDecorator.now().date)).isTrue()
+        Assertions.assertThat(max.date > DateDecorator.now().date).isTrue()
     }
 
     @Test
