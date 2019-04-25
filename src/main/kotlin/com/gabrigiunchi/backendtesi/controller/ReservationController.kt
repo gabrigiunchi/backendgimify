@@ -198,23 +198,23 @@ class ReservationController(
 
     private fun sendConfirmationEmail(reservation: Reservation) {
         val user = this.getLoggedUser()
-        val content = "Hi $user.name, here's your reservation:\n" +
+        val content = "Hi ${user.name} ${user.surname}, here's your reservation:\n" +
                 "Gym: ${reservation.asset.gym.name}\n" +
                 "Address: ${reservation.asset.gym.address}" +
                 "Asset: ${reservation.asset.name}" +
                 "Date: ${reservation.start} - ${reservation.end}"
 
-        Thread{ this.mailService.sendEmail(user.email, "Reservation Confirmation", content)}.start()
+        Thread { this.mailService.sendEmail(user.email, "Reservation Confirmation", content) }.start()
     }
 
     private fun sendCancellationConfirmation(reservation: Reservation) {
         val user = this.getLoggedUser()
-        val content = "Hi $user.name, you just cancelled the reservation: \n" +
+        val content = "Hi ${user.name} ${user.surname}, you just cancelled the reservation: \n" +
                 "Gym: ${reservation.asset.gym.name}\n" +
                 "Address: ${reservation.asset.gym.address}" +
                 "Asset: ${reservation.asset.name}" +
                 "Date: ${reservation.start} - ${reservation.end}"
 
-        Thread{ this.mailService.sendEmail(user.email, "Cancellation Confirmation", content)}.start()
+        Thread { this.mailService.sendEmail(user.email, "Cancellation Confirmation", content) }.start()
     }
 }

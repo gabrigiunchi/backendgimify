@@ -6,7 +6,6 @@ import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
 import java.time.MonthDay
-import java.time.OffsetTime
 
 object MockEntities {
 
@@ -21,7 +20,7 @@ object MockEntities {
             TimeInterval("10:00:00+00:00", "12:00:00+00:00"),
             TimeInterval("12:00:00+00:00", "14:00:00+00:00"),
             TimeInterval("14:00:00+00:00", "16:00:00+00:00"),
-            TimeInterval("16:00:00+00:00","18:00:00+00:00")
+            TimeInterval("16:00:00+00:00", "18:00:00+00:00")
     )
 
     val mockMonthDays = setOf(

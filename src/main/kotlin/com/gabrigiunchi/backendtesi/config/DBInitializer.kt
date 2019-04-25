@@ -1,7 +1,6 @@
 package com.gabrigiunchi.backendtesi.config
 
 import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
-import com.gabrigiunchi.backendtesi.controller.CommentController
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
@@ -50,8 +49,8 @@ class DBInitializer {
             Pair(AssetKindEnum.TAPIS_ROULANT, 60))
 
     fun initDB() {
+        this.logger.info("Initializing DB")
         this.initCities()
-        this.initUserRole()
         this.initUsers()
         this.initGyms()
         this.initAssetKinds()
@@ -66,6 +65,7 @@ class DBInitializer {
     }
 
     fun initUsers() {
+        this.initUserRole()
         this.userDAO.saveAll(listOf(
                 User("gabrigiunchi", SHA256PasswordEncoder().encode("aaaa"),
                         "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com", mutableListOf(roles[0])),

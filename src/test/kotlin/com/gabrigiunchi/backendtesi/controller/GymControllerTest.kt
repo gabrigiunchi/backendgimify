@@ -49,11 +49,17 @@ class GymControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should get all gyms`() {
+    fun `Should get all the gyms`() {
+        this.gymDAO.saveAll(listOf(
+                Gym("gym1", "address", this.city),
+                Gym("gym2", "address", this.city),
+                Gym("gym3", "address", this.city),
+                Gym("gym4", "address", this.city)
+        ))
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.greaterThanOrEqualTo(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

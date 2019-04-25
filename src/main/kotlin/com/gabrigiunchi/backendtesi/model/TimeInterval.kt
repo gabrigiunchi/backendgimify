@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.OffsetTime
@@ -16,28 +16,32 @@ class TimeInterval(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
-        val start: OffsetTime,
-        val end: OffsetTime
-) {
+        val start: String,
+        val end: String) {
 
     companion object {
         private const val format = "HH:mm+00:00"
     }
 
-    constructor(start: String, end: String) : this(OffsetTime.parse(start), OffsetTime.parse(end))
-    private constructor(start: OffsetTime, end: OffsetTime) : this(-1, start, end)
+    @JsonIgnore
+    private val startOffsetTime: OffsetTime = OffsetTime.parse(start)
+
+    @JsonIgnore
+    private val endOffsetTime: OffsetTime = OffsetTime.parse(end)
+
+    constructor(start: String, end: String) : this(-1, start, end)
     constructor(timeIntervalDTO: TimeIntervalDTO) : this(-1, timeIntervalDTO.start, timeIntervalDTO.end)
 
     constructor(start: Date, end: Date) :
-            this(DateDecorator.of(start).format(format), DateDecorator.of(end).format(format))
+            this(-1, DateDecorator.of(start).format(format), DateDecorator.of(end).format(format))
 
     init {
-        if (this.start > this.end) {
+        if (this.startOffsetTime > this.endOffsetTime) {
             throw IllegalArgumentException("start is after the end")
         }
     }
 
-    fun contains(date: Date): Boolean = OffsetTime.parse(DateDecorator.of(date).format(format)) in this.start..this.end
+    fun contains(date: Date): Boolean = OffsetTime.parse(DateDecorator.of(date).format(format)) in this.startOffsetTime..this.endOffsetTime
 
     fun contains(dateInterval: DateInterval) =
             dateInterval.isWithinSameDay() && this.contains(dateInterval.start) && this.contains(dateInterval.end)
@@ -50,8 +54,6 @@ class TimeInterval(
         return !((this.start <= timeInterval.end && this.end <= timeInterval.start) ||
                 (timeInterval.start <= this.end && timeInterval.end <= this.start))
     }
-
-    override fun toString() = this.toMap().toString()
 
     fun toMap(): Map<String, String> {
         return mapOf(

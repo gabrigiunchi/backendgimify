@@ -1,13 +1,15 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.BackendtesiApplication
+import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
+import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
+import com.gabrigiunchi.backendtesi.model.Gym
 import org.assertj.core.api.Assertions
 import org.junit.Assert
 import org.junit.Before
@@ -37,15 +39,20 @@ class AssetServiceTest {
     @Autowired
     private lateinit var assetDAO: AssetDAO
 
+    @Autowired
+    private lateinit var cityDAO: CityDAO
+
     @Before
     fun clearDB() {
+        this.gymDAO.deleteAll()
+        this.cityDAO.deleteAll()
+        this.assetKindDAO.deleteAll()
         this.assetDAO.deleteAll()
     }
 
     @Test
     fun `Should create an asset`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = Asset(-1, "ciclette1", kind, this.gymDAO.findAll().first())
+        val asset = Asset(-1, "ciclette1", this.mockAssetKind(), this.mockGym())
         val savedAsset = this.assetService.createAsset(asset)
         Assertions.assertThat(this.assetDAO.findById(savedAsset.id)).isPresent
         Assertions.assertThat(this.assetDAO.findById(savedAsset.id).get().name).isEqualTo(asset.name)
@@ -53,8 +60,7 @@ class AssetServiceTest {
 
     @Test
     fun `Should not create an asset if its id already exists`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = this.assetDAO.save(Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first()))
+        val asset = this.mockAsset(this.mockGym())
         this.assetDAO.save(asset)
         try {
             this.assetService.createAsset(asset)
@@ -68,8 +74,13 @@ class AssetServiceTest {
 
     @Test
     fun `Should not create an asset if its name already exists inside the gym`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val gyms = this.gymDAO.findAll().toList()
+        val kind = this.assetKindDAO.save(MockEntities.assetKinds.first())
+        val city = this.cityDAO.save(MockEntities.mockCities.first())
+        val gyms = this.gymDAO.saveAll(listOf(
+                this.gymDAO.save(Gym("gym1", "address1", city)),
+                this.gymDAO.save(Gym("gym2", "address1", city)),
+                this.gymDAO.save(Gym("gym3", "address1", city))
+        )).toList()
 
         // Two assets in different gyms can have the same name
         val asset1 = this.assetService.createAsset(Asset("ciclette2", kind, gyms[0]))
@@ -92,8 +103,7 @@ class AssetServiceTest {
 
     @Test
     fun `Should update an asset`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = this.assetService.createAsset(Asset(-1, "ciclette1", kind, this.gymDAO.findAll().first()))
+        val asset = this.mockAsset(this.mockGym())
         val newAsset = Asset(asset.id, "new name for this asset", asset.kind, asset.gym)
 
         this.assetService.updateAsset(newAsset, asset.id)
@@ -103,9 +113,7 @@ class AssetServiceTest {
 
     @Test
     fun `Should not update an asset if its id does not exist`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val asset = this.assetDAO.save(Asset(-1, "ciclette2", kind, this.gymDAO.findAll().first()))
-        this.assetDAO.save(asset)
+        val asset = this.mockAsset(this.mockGym())
         try {
             this.assetService.updateAsset(asset, -1)
             Assert.fail()
@@ -118,8 +126,13 @@ class AssetServiceTest {
 
     @Test
     fun `Should not update an asset if its name already exists inside the gym`() {
-        val kind = this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get()
-        val gyms = this.gymDAO.findAll().toList()
+        val kind = this.mockAssetKind()
+        val city = this.cityDAO.save(MockEntities.mockCities.first())
+        val gyms = this.gymDAO.saveAll(listOf(
+                this.gymDAO.save(Gym("gym1", "address1", city)),
+                this.gymDAO.save(Gym("gym2", "address1", city)),
+                this.gymDAO.save(Gym("gym3", "address1", city))
+        )).toList()
 
         // Two assets in different gyms can have the same name
         val asset1 = this.assetService.createAsset(Asset("ciclette2", kind, gyms[0]))
@@ -138,5 +151,12 @@ class AssetServiceTest {
         }
     }
 
+    private fun mockAssetKind() = this.assetKindDAO.save(MockEntities.assetKinds.first())
 
+    private fun mockGym(): Gym {
+        val city = this.cityDAO.save(MockEntities.mockCities[0])
+        return this.gymDAO.save(Gym("gym1", "address1", city))
+    }
+
+    private fun mockAsset(gym: Gym) = this.assetDAO.save(Asset("ciclette2", this.mockAssetKind(), gym))
 }

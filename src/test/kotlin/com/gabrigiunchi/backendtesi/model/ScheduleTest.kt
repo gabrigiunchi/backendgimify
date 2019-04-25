@@ -10,7 +10,6 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.DayOfWeek
-import java.time.OffsetTime
 
 class ScheduleTest : AbstractControllerTest() {
     @Autowired

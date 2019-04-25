@@ -218,7 +218,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2050-04-04T10:00:00+0000").date,
-                end = DateDecorator.of("2050-04-04T11:00:00+0000").date)
+                end = DateDecorator.of("2050-04-04T10:15:00+0000").date)
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -263,7 +263,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2050-04-05T10:00:00+0000").date,
-                end = DateDecorator.of("2050-04-05T11:00:00+0000").date)
+                end = DateDecorator.of("2050-04-05T10:15:00+0000").date)
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -502,7 +502,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 userID = this.mockUser().id,
                 assetID = asset.id,
                 start = DateDecorator.of("2050-04-04T10:00:00+0000").date,
-                end = DateDecorator.of("2050-04-04T11:00:00+0000").date)
+                end = DateDecorator.of("2050-04-04T10:10:00+0000").date)
 
         mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.RESERVATIONS}/me")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -519,7 +519,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val savedId = this.reservationDAO.save(
                 Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
-                        DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date)
+                        DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T10:15:00+0000").date)
         ).id
 
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/$savedId")
@@ -706,7 +706,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     private fun mockAsset(gym: Gym, name: String = "asset"): Asset {
-        return this.assetDAO.save(Asset(name, this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), gym))
+        return this.assetDAO.save(Asset(name, this.assetKindDAO.save(MockEntities.assetKinds.first()), gym))
     }
 
     private fun mockReservations(): List<Reservation> {

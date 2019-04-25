@@ -15,7 +15,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.time.OffsetTime
 
 class TimeIntervalControllerTest : AbstractControllerTest() {
 
@@ -62,10 +61,10 @@ class TimeIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create an interval`() {
-        val intervalDTO = TimeIntervalDTO(OffsetTime.parse("10:00Z"), OffsetTime.parse("12:00Z"))
+        val intervalDTO = TimeIntervalDTO("10:00Z", "12:00Z")
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIME_INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(intervalDTO.toJson()))
+                .content(json(intervalDTO)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.start", Matchers.`is`("10:00Z")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.end", Matchers.`is`("12:00Z")))
@@ -74,7 +73,7 @@ class TimeIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should NOT create an interval if the start is after the end`() {
-        val intervalDTO = TimeIntervalDTO(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00"))
+        val intervalDTO = TimeIntervalDTO("15:00+00:00", "12:00+00:00")
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIME_INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(intervalDTO)))
