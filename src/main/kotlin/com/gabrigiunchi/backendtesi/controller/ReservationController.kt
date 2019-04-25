@@ -200,8 +200,8 @@ class ReservationController(
         val user = this.getLoggedUser()
         val content = "Hi ${user.name} ${user.surname}, here's your reservation:\n" +
                 "Gym: ${reservation.asset.gym.name}\n" +
-                "Address: ${reservation.asset.gym.address}" +
-                "Asset: ${reservation.asset.name}" +
+                "Address: ${reservation.asset.gym.address}\n" +
+                "Asset: ${reservation.asset.name}\n" +
                 "Date: ${reservation.start} - ${reservation.end}"
 
         Thread { this.mailService.sendEmail(user.email, "Reservation Confirmation", content) }.start()
@@ -211,9 +211,9 @@ class ReservationController(
         val user = this.getLoggedUser()
         val content = "Hi ${user.name} ${user.surname}, you just cancelled the reservation: \n" +
                 "Gym: ${reservation.asset.gym.name}\n" +
-                "Address: ${reservation.asset.gym.address}" +
-                "Asset: ${reservation.asset.name}" +
-                "Date: ${reservation.start} - ${reservation.end}"
+                "Address: ${reservation.asset.gym.address}\n" +
+                "Asset: ${reservation.asset.name}\n" +
+                "Date: ${DateDecorator.of(reservation.start).format()} - ${DateDecorator.of(reservation.end).format()}"
 
         Thread { this.mailService.sendEmail(user.email, "Cancellation Confirmation", content) }.start()
     }

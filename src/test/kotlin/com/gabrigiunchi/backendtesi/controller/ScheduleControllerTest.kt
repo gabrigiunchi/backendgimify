@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.ScheduleDAO
 import com.gabrigiunchi.backendtesi.dao.TimeIntervalDAO
+import com.gabrigiunchi.backendtesi.model.Schedule
 import com.gabrigiunchi.backendtesi.model.TimeInterval
 import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import org.assertj.core.api.Assertions
@@ -52,7 +53,21 @@ class ScheduleControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(schedule.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.dayOfWeek", Matchers.`is`(schedule.dayOfWeek.toString())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals.length()", Matchers.`is`(schedule.timeIntervals.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()", Matchers.`is`(schedule.recurringExceptions.size)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not format the time interval in an ambiguous way (with Z at the end)`() {
+        val schedule = this.scheduleDAO.save(Schedule(DayOfWeek.MONDAY, setOf(TimeInterval("10:00+00:00", "12:00+00:00"))))
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.SCHEDULES}/${schedule.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(schedule.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dayOfWeek", Matchers.`is`(schedule.dayOfWeek.toString())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals.length()", Matchers.`is`(schedule.timeIntervals.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals[0].start", Matchers.`is`("10:00+00:00")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals[0].end", Matchers.`is`("12:00+00:00")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()", Matchers.`is`(schedule.recurringExceptions.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
