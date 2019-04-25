@@ -76,6 +76,10 @@ class TimetableControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/${timetable.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetable.openings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetable.exceptionalOpenings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -86,6 +90,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetable.openings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetable.exceptionalOpenings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
                 .andDo(MockMvcResultHandlers.print())
     }
@@ -157,7 +163,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         val timetableDTO = TimetableDTO(
                 gymId = timetable.gym.id,
                 openings = openings.toSet(),
-                openingExceptions = emptySet(),
+                exceptionalOpenings = emptySet(),
                 closingDays = emptySet()
         )
 
@@ -166,7 +172,9 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetable.openings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetable.exceptionalOpenings.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
                 .andDo(MockMvcResultHandlers.print())
 
@@ -180,7 +188,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         val timetableDTO = TimetableDTO(
                 gymId = timetable.gym.id,
                 openings = openings.toSet(),
-                openingExceptions = emptySet(),
+                exceptionalOpenings = emptySet(),
                 closingDays = emptySet()
         )
 
@@ -201,7 +209,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         val timetableDTO = TimetableDTO(
                 gymId = -1,
                 openings = openings.toSet(),
-                openingExceptions = emptySet(),
+                exceptionalOpenings = emptySet(),
                 closingDays = emptySet()
         )
 

@@ -71,7 +71,7 @@ class TimetableTest : AbstractControllerTest() {
                 // Tuesday 30 April 2019
                 DateInterval(DateDecorator.createDate("2019-04-30").date, DateDecorator.createDate("2019-04-31").date)
         )
-        val timetable = Timetable(gym = gym, openings = openings, openingExceptions = exceptionalOpenings, closingDays = closingDays)
+        val timetable = Timetable(gym = gym, openings = openings, exceptionalOpenings = exceptionalOpenings, closingDays = closingDays)
 
         // Monday 22 April 2019 10:00
         Assertions.assertThat(timetable.contains(DateDecorator.of("2019-04-22T10:00:00+0000").date)).isTrue()
@@ -113,7 +113,7 @@ class TimetableTest : AbstractControllerTest() {
                 // Monday 29 April 2019
                 DateInterval(DateDecorator.createDate("2019-04-29T08:00:00+0000").date, DateDecorator.of("2019-04-29T19:00:00+0000").date)
         )
-        val timetable = Timetable(gym = gym, openings = openings, openingExceptions = exceptionalOpenings, closingDays = closingDays)
+        val timetable = Timetable(gym = gym, openings = openings, exceptionalOpenings = exceptionalOpenings, closingDays = closingDays)
 
         // Monday 29 April 2019 10:00
         Assertions.assertThat(timetable.contains(DateDecorator.of("2019-04-29T10:00:00+0000").date)).isFalse()
@@ -234,7 +234,7 @@ class TimetableTest : AbstractControllerTest() {
                 // Monday 29 April 2019
                 DateInterval(DateDecorator.createDate("2019-04-29T08:00:00+0000").date, DateDecorator.of("2019-04-29T19:00:00+0000").date)
         )
-        val timetable = Timetable(gym = gym, openings = openings, openingExceptions = exceptionalOpenings, closingDays = closingDays)
+        val timetable = Timetable(gym = gym, openings = openings, exceptionalOpenings = exceptionalOpenings, closingDays = closingDays)
 
         Assertions.assertThat(timetable.contains(
                 DateInterval(
@@ -275,7 +275,7 @@ class TimetableTest : AbstractControllerTest() {
                         DateDecorator.of("2019-04-30T12:00:00+0000").date
                 )
         )
-        return Timetable(gym = this.mockGym(), openings = openings, openingExceptions = exceptionalOpenings, closingDays = closingDays)
+        return Timetable(gym = this.mockGym(), openings = openings, exceptionalOpenings = exceptionalOpenings, closingDays = closingDays)
     }
 
     private fun mockGym(): Gym {

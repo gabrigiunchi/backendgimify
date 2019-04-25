@@ -23,7 +23,7 @@ class Timetable(
         val closingDays: Set<DateInterval>,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
-        val openingExceptions: Set<DateInterval>
+        val exceptionalOpenings: Set<DateInterval>
 ) {
     constructor(gym: Gym) : this(-1, gym, emptySet(), emptySet(), emptySet())
 
@@ -32,18 +32,18 @@ class Timetable(
     constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>) :
             this(-1, gym, openings, closingDays, emptySet())
 
-    constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>, openingExceptions: Set<DateInterval>) :
-            this(-1, gym, openings, closingDays, openingExceptions)
+    constructor(gym: Gym, openings: Set<Schedule>, closingDays: Set<DateInterval>, exceptionalOpenings: Set<DateInterval>) :
+            this(-1, gym, openings, closingDays, exceptionalOpenings)
 
 
     fun contains(date: Date): Boolean {
         return this.closingDays.none { it.contains(date) } &&
-                (this.openingExceptions.any { it.contains(date) } || this.openings.any { it.contains(date) })
+                (this.exceptionalOpenings.any { it.contains(date) } || this.openings.any { it.contains(date) })
     }
 
     fun contains(dateInterval: DateInterval): Boolean {
         return this.closingDays.none { it.overlaps(dateInterval) } &&
-                (this.openingExceptions.any { it.contains(dateInterval) } || this.openings.any { it.contains(dateInterval) })
+                (this.exceptionalOpenings.any { it.contains(dateInterval) } || this.openings.any { it.contains(dateInterval) })
     }
 
     constructor(id: Int, timetableDTO: TimetableDTO, gym: Gym) :
@@ -51,7 +51,7 @@ class Timetable(
                     id = id,
                     gym = gym,
                     openings = timetableDTO.openings,
-                    openingExceptions = timetableDTO.openingExceptions,
+                    exceptionalOpenings = timetableDTO.exceptionalOpenings,
                     closingDays = timetableDTO.closingDays
             )
 }

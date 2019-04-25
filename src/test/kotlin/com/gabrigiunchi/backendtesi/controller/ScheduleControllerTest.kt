@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.DayOfWeek
-import java.time.OffsetTime
 
 class ScheduleControllerTest : AbstractControllerTest() {
 
@@ -50,7 +49,10 @@ class ScheduleControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.SCHEDULES}/${schedule.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(schedule.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.dayOfWeek", Matchers.`is`(schedule.dayOfWeek.toString())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals.length()", Matchers.`is`(schedule.timeIntervals.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()", Matchers.`is`(schedule.recurringExceptions.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -65,18 +67,14 @@ class ScheduleControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a schedule`() {
-        this.scheduleDAO.deleteAll()
-        val intervals = setOf(
-                TimeInterval(OffsetTime.parse("10:00:00+00:00"), OffsetTime.parse("12:00:00+00:00")))
-
-        val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, intervals, MockEntities.mockMonthDays)
+        val scheduleDTO = ScheduleDTO(DayOfWeek.WEDNESDAY, setOf(TimeInterval("10:00+00:00", "12:00+00:00")), MockEntities.mockMonthDays)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.SCHEDULES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(scheduleDTO.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.dayOfWeek", Matchers.`is`(scheduleDTO.dayOfWeek.toString())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.timeIntervals.length()", Matchers.`is`(scheduleDTO.timeIntervals.size)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.exceptions.length()", Matchers.`is`(scheduleDTO.exceptions.size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()", Matchers.`is`(scheduleDTO.recurringExceptions.size)))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.scheduleDAO.count()).isEqualTo(1)

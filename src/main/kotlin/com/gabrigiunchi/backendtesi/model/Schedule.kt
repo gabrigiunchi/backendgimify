@@ -19,12 +19,12 @@ class Schedule(
         val timeIntervals: Set<TimeInterval>,
 
         @ElementCollection
-        val exceptions: Set<MonthDay>
+        val recurringExceptions: Set<MonthDay>
 ) {
-    constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals, scheduleDTO.exceptions)
+    constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals, scheduleDTO.recurringExceptions)
     constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals, emptySet())
-    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>, exceptions: Set<MonthDay>) :
-            this(-1, dayOfWeek, timeIntervals, exceptions)
+    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>, recurringExceptions: Set<MonthDay>) :
+            this(-1, dayOfWeek, timeIntervals, recurringExceptions)
 
     private fun isSameDay(date: Date): Boolean = DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value
 
@@ -39,7 +39,7 @@ class Schedule(
 
     fun exceptionsContain(date: Date): Boolean {
         val d = DateDecorator.of(date)
-        return this.exceptions.any { it.monthValue == d.month + 1 && it.dayOfMonth == d.day }
+        return this.recurringExceptions.any { it.monthValue == d.month + 1 && it.dayOfMonth == d.day }
     }
 
     fun toMap(): Map<String, Any> {
@@ -47,6 +47,6 @@ class Schedule(
                 Pair("id", this.id.toString()),
                 Pair("dayOfWeek", this.dayOfWeek.toString()),
                 Pair("timeIntervals", this.timeIntervals.map { it.toMap() }),
-                Pair("exceptions", this.exceptions.map { it.toString() }))
+                Pair("recurringExceptions", this.recurringExceptions.map { it.toString() }))
     }
 }
