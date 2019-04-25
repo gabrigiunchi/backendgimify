@@ -90,13 +90,6 @@ class TimetableTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say it does not contain a date if the date is one of the recurring exceptions`() {
-        val timetable = this.createTimetable()
-        Assertions.assertThat(timetable.contains(DateDecorator.of("2019-12-18T09:00:00+0000").date)).isTrue()
-        Assertions.assertThat(timetable.contains(DateDecorator.of("2019-12-25T09:00:00+0000").date)).isFalse()
-    }
-
-    @Test
     fun `Should give priority to closing days`() {
         val gym = this.mockGym()
         val openings = setOf(
@@ -200,24 +193,6 @@ class TimetableTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should say if it does not contain a date interval (recurring exceptions)`() {
-        val timetable = this.createTimetable()
-        Assertions.assertThat(timetable.contains(
-                DateInterval(
-                        DateDecorator.of("2019-12-18T09:00:00+0000").date,
-                        DateDecorator.of("2019-12-18T09:30:00+0000").date
-                ))
-        ).isTrue()
-
-        Assertions.assertThat(timetable.contains(
-                DateInterval(
-                        DateDecorator.of("2019-12-25T09:00:00+0000").date,
-                        DateDecorator.of("2019-12-25T09:30:00+0000").date
-                ))
-        ).isFalse()
-    }
-
-    @Test
     fun `Should give priority to closing days (date interval)`() {
         val gym = this.mockGym()
         val openings = setOf(
@@ -244,24 +219,86 @@ class TimetableTest : AbstractControllerTest() {
         ).isFalse()
     }
 
+    /************************************ RECURRING EXCEPTIONS *******************************************************************/
+
+    @Test
+    fun `Should say if it does not contain a date interval (recurring exceptions)`() {
+        val timetable = Timetable(
+                gym = this.mockGym(),
+                recurringExceptions = MockEntities.mockHolidays,
+                closingDays = emptySet(),
+                openings = MockEntities.wildcardSchedules,
+                exceptionalOpenings = emptySet()
+        )
+        Assertions.assertThat(timetable.contains(
+                DateInterval(
+                        DateDecorator.of("2019-12-18T09:00:00+0000").date,
+                        DateDecorator.of("2019-12-18T09:30:00+0000").date
+                ))
+        ).isTrue()
+
+        Assertions.assertThat(timetable.contains(
+                DateInterval(
+                        DateDecorator.of("2019-12-25T09:00:00+0000").date,
+                        DateDecorator.of("2019-12-25T09:30:00+0000").date
+                ))
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should say it does not contain a date if the date is one of the recurring exceptions`() {
+        val timetable = Timetable(
+                gym = this.mockGym(),
+                recurringExceptions = MockEntities.mockHolidays,
+                closingDays = emptySet(),
+                openings = MockEntities.wildcardSchedules,
+                exceptionalOpenings = emptySet()
+        )
+        Assertions.assertThat(timetable.contains(DateDecorator.of("2019-12-18T09:00:00+0000").date)).isTrue()
+        Assertions.assertThat(timetable.contains(DateDecorator.of("2019-12-25T09:00:00+0000").date)).isFalse()
+    }
+
+    @Test
+    fun `Should say if the recurring exceptions contain a date`() {
+        val timetable = Timetable(
+                gym = this.mockGym(),
+                recurringExceptions = MockEntities.mockHolidays,
+                closingDays = emptySet(),
+                openings = MockEntities.wildcardSchedules,
+                exceptionalOpenings = emptySet()
+        )
+        Assertions.assertThat(timetable.exceptionsContain(DateDecorator.of("2019-12-25T01:00:00+0000").date)).isTrue()
+    }
+
+    @Test
+    fun `Should say if the recurring exceptions does not contain a date`() {
+        val timetable = Timetable(
+                gym = this.mockGym(),
+                recurringExceptions = MockEntities.mockHolidays,
+                closingDays = emptySet(),
+                openings = MockEntities.wildcardSchedules,
+                exceptionalOpenings = emptySet()
+        )
+        Assertions.assertThat(timetable.exceptionsContain(DateDecorator.of("2019-02-02T01:00:00+0000").date)).isFalse()
+    }
+
+    /**************************************** UTILS *************************************************************************/
+
     private fun createTimetable(): Timetable {
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")),
-                        MockEntities.mockMonthDays
+                        TimeInterval("13:00+00:00", "19:00+00:00"))
                 ),
 
                 Schedule(DayOfWeek.WEDNESDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")),
-                        MockEntities.mockMonthDays
+                        TimeInterval("13:00+00:00", "19:00+00:00"))
                 ),
 
                 Schedule(DayOfWeek.FRIDAY, setOf(
                         TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")),
-                        MockEntities.mockMonthDays
+                        TimeInterval("13:00+00:00", "19:00+00:00"))
                 )
         )
         val closingDays = setOf(

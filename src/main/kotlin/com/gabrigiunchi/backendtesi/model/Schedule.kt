@@ -16,37 +16,25 @@ class Schedule(
         val dayOfWeek: DayOfWeek,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
-        val timeIntervals: Set<TimeInterval>,
-
-        @ElementCollection
-        val recurringExceptions: Set<MonthDay>
+        val timeIntervals: Set<TimeInterval>
 ) {
-    constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals, scheduleDTO.recurringExceptions)
-    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals, emptySet())
-    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>, recurringExceptions: Set<MonthDay>) :
-            this(-1, dayOfWeek, timeIntervals, recurringExceptions)
+    constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals)
+    constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals)
 
     private fun isSameDay(date: Date): Boolean = DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value
 
-    fun contains(date: Date): Boolean = this.isSameDay(date) && !this.exceptionsContain(date) && this.timeIntervals.any { it.contains(date) }
+    fun contains(date: Date): Boolean = this.isSameDay(date) && this.timeIntervals.any { it.contains(date) }
 
     fun contains(dateInterval: DateInterval): Boolean {
         return dateInterval.isWithinSameDay() &&
                 this.isSameDay(dateInterval.start) &&
-                !this.exceptionsContain(dateInterval.start) &&
                 this.timeIntervals.any { it.contains(dateInterval.start) && it.contains(dateInterval.end) }
-    }
-
-    fun exceptionsContain(date: Date): Boolean {
-        val d = DateDecorator.of(date)
-        return this.recurringExceptions.any { it.monthValue == d.month + 1 && it.dayOfMonth == d.day }
     }
 
     fun toMap(): Map<String, Any> {
         return mapOf(
                 Pair("id", this.id.toString()),
                 Pair("dayOfWeek", this.dayOfWeek.toString()),
-                Pair("timeIntervals", this.timeIntervals.map { it.toMap() }),
-                Pair("recurringExceptions", this.recurringExceptions.map { it.toString() }))
+                Pair("timeIntervals", this.timeIntervals.map { it.toMap() }))
     }
 }

@@ -53,7 +53,13 @@ class TimetableControllerTest : AbstractControllerTest() {
         )).toList()
 
         this.timetables = listOf(
-                Timetable(gym = gyms[0], closingDays = this.dateIntervals.take(1).toSet(), openings = this.schedules.take(2).toSet()),
+                Timetable(
+                        gym = gyms[0],
+                        closingDays = this.dateIntervals.take(1).toSet(),
+                        openings = this.schedules.take(2).toSet(),
+                        recurringExceptions = MockEntities.mockHolidays,
+                        exceptionalOpenings = emptySet()),
+
                 Timetable(gym = gyms[1]),
                 Timetable(gym = gyms[2]),
                 Timetable(gym = gyms[3])
@@ -80,6 +86,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetable.exceptionalOpenings.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()",
+                        Matchers.`is`(MockEntities.mockHolidays.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -93,6 +101,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetable.exceptionalOpenings.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()",
+                        Matchers.`is`(MockEntities.mockHolidays.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -130,7 +140,7 @@ class TimetableControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a timetable`() {
-        val timetableDTO = TimetableDTO(this.gyms[0].id, emptySet(), emptySet(), emptySet())
+        val timetableDTO = TimetableDTO(this.gyms[0].id, emptySet(), emptySet(), emptySet(), MockEntities.mockHolidays)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))
@@ -144,7 +154,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     fun `Should NOT create a timetable if the gym does not exist`() {
         this.gymDAO.deleteAll()
         val gymId = this.gyms[0].id
-        val timetableDTO = TimetableDTO(gymId, emptySet(), emptySet(), emptySet())
+        val timetableDTO = TimetableDTO(gymId, emptySet(), emptySet(), emptySet(), MockEntities.mockHolidays)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))
@@ -164,7 +174,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 gymId = timetable.gym.id,
                 openings = openings.toSet(),
                 exceptionalOpenings = emptySet(),
-                closingDays = emptySet()
+                closingDays = emptySet(),
+                recurringExceptions = MockEntities.mockHolidays
         )
 
         Assertions.assertThat(timetable.id).isNotEqualTo(-1)
@@ -176,6 +187,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetable.exceptionalOpenings.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()",
+                        Matchers.`is`(MockEntities.mockHolidays.size)))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
@@ -189,7 +202,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 gymId = timetable.gym.id,
                 openings = openings.toSet(),
                 exceptionalOpenings = emptySet(),
-                closingDays = emptySet()
+                closingDays = emptySet(),
+                recurringExceptions = MockEntities.mockHolidays
         )
 
         Assertions.assertThat(timetable.id).isNotEqualTo(-1)
@@ -210,7 +224,8 @@ class TimetableControllerTest : AbstractControllerTest() {
                 gymId = -1,
                 openings = openings.toSet(),
                 exceptionalOpenings = emptySet(),
-                closingDays = emptySet()
+                closingDays = emptySet(),
+                recurringExceptions = MockEntities.mockHolidays
         )
 
         Assertions.assertThat(timetable.id).isNotEqualTo(-1)
