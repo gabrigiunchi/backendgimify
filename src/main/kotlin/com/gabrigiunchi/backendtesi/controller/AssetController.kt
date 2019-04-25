@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
+import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
 import com.gabrigiunchi.backendtesi.service.AssetService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -64,14 +65,14 @@ class AssetController(
     }
 
     @PostMapping
-    fun createAsset(@Valid @RequestBody asset: Asset): ResponseEntity<Asset> {
+    fun createAsset(@Valid @RequestBody asset: AssetDTOInput): ResponseEntity<Asset> {
         this.logger.info("CREATE asset")
         return ResponseEntity(this.assetService.createAsset(asset), HttpStatus.CREATED)
     }
 
     @PutMapping("/{id}")
-    fun updateAsset(@Valid @RequestBody asset: Asset, @PathVariable id: Int): ResponseEntity<Asset> {
-        this.logger.info("PUT asset #${asset.id}")
+    fun updateAsset(@Valid @RequestBody asset: AssetDTOInput, @PathVariable id: Int): ResponseEntity<Asset> {
+        this.logger.info("PUT asset #$id")
         return ResponseEntity(assetService.updateAsset(asset, id), HttpStatus.OK)
     }
 

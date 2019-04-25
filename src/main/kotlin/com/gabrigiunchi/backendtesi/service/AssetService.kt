@@ -1,40 +1,51 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
+import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
+import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
-import org.springframework.beans.factory.annotation.Autowired
+import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
 import org.springframework.stereotype.Service
 
 @Service
-class AssetService {
+class AssetService(
+        private val assetDAO: AssetDAO,
+        private val gymDAO: GymDAO,
+        private val assetKindDAO: AssetKindDAO
+) {
 
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
+    fun createAsset(asset: AssetDTOInput): Asset {
+        val kind = this.assetKindDAO.findById(asset.kindId)
+                .orElseThrow { ResourceNotFoundException("asset kind ${asset.kindId} does not exist") }
 
-    fun createAsset(asset: Asset): Asset {
-        if (this.assetDAO.findById(asset.id).isPresent) {
-            throw ResourceAlreadyExistsException(asset.id)
-        }
-        this.checkName(asset)
-        return this.assetDAO.save(asset)
+        val gym = this.gymDAO.findById(asset.gymId)
+                .orElseThrow { ResourceNotFoundException("gym ${asset.gymId} does not exist") }
+
+        this.checkName(asset.name, gym)
+        return this.assetDAO.save(Asset(asset.name, kind, gym))
     }
 
-    fun updateAsset(asset: Asset, id: Int): Asset {
+    fun updateAsset(asset: AssetDTOInput, id: Int): Asset {
         if (this.assetDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException(asset.id)
+            throw ResourceNotFoundException("asset $id does not exist")
         }
-        this.checkName(asset)
-        return this.assetDAO.save(asset)
+        val kind = this.assetKindDAO.findById(asset.kindId)
+                .orElseThrow { ResourceNotFoundException("asset kind ${asset.kindId} does not exist") }
+
+        val gym = this.gymDAO.findById(asset.gymId).orElseThrow { ResourceNotFoundException("gym ${asset.gymId} does not exist") }
+        this.checkName(asset.name, gym)
+        return this.assetDAO.save(Asset(id, asset.name, kind, gym))
     }
 
     /**
      * Check if the name is unique inside the gym
      */
-    private fun checkName(asset: Asset) {
-        if (this.assetDAO.findByGymAndName(asset.gym, asset.name).isPresent) {
-            throw ResourceAlreadyExistsException("asset with name ${asset.name} already exists")
+    private fun checkName(name: String, gym: Gym) {
+        if (this.assetDAO.findByGymAndName(gym, name).isPresent) {
+            throw ResourceAlreadyExistsException("asset with name $name already exists")
         }
     }
 }

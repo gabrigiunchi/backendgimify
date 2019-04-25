@@ -6,7 +6,6 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.AssetKind
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -14,12 +13,10 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/asset_kinds")
-class AssetKindController {
+class AssetKindController(
+        private val assetKindDAO: AssetKindDAO) {
 
     private val logger = LoggerFactory.getLogger(AssetKindController::class.java)
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
 
     @GetMapping
     fun getAssetKinds(): ResponseEntity<Iterable<AssetKind>> {
@@ -39,7 +36,7 @@ class AssetKindController {
     fun createAssetKind(@Valid @RequestBody assetKind: AssetKind): ResponseEntity<AssetKind> {
         this.logger.info("CREATE asset kind: ${assetKind.name}")
         if (this.assetKindDAO.findById(assetKind.id).isPresent || this.assetKindDAO.findByName(assetKind.name).isPresent) {
-            throw ResourceAlreadyExistsException(assetKind.id)
+            throw ResourceAlreadyExistsException("asset kind ${assetKind.id} already exists")
         }
 
         return ResponseEntity(this.assetKindDAO.save(assetKind), HttpStatus.CREATED)

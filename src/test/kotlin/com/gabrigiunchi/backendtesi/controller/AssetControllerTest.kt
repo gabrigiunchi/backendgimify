@@ -10,6 +10,7 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.AssetKind
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
@@ -191,8 +192,7 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create an asset`() {
-        val kind = this.createAssetKind()
-        val asset = Asset("ciclette2", kind, this.createGym())
+        val asset = AssetDTOInput("ciclette2", this.createAssetKind().id, this.createGym().id)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -204,21 +204,20 @@ class AssetControllerTest : AbstractControllerTest() {
     @Test
     fun `Should update an asset`() {
         val kind = this.createAssetKind()
-        val asset = Asset("ciclette2", kind, this.createGym())
-        val savedAsset = this.assetDAO.save(asset)
-        asset.name = "newName"
+        val gym = this.createGym()
+        val savedAsset = this.assetDAO.save(Asset("ciclette2", kind, gym))
+        val assetDTOInput = AssetDTOInput("newName", kind.id, gym.id)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/${savedAsset.id}")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(asset)))
+                .content(json(assetDTOInput)))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(asset.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`("newName")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should not update an asset if it does not exist`() {
-        val kind = this.createAssetKind()
-        val asset = Asset(-1, "ciclette2", kind, this.createGym())
+        val asset = AssetDTOInput("aaa", this.createAssetKind().id, this.createGym().id)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -227,25 +226,54 @@ class AssetControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should not create an asset if its id already exist`() {
-        val kind = this.createAssetKind()
-        val asset = this.assetDAO.save(Asset("ciclette2", kind, this.createGym()))
-        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
+    fun `Should not update an asset if the gym does not exist`() {
+        val asset = this.assetDAO.save(Asset("dsa", this.createAssetKind(), this.createGym()))
+        val assetDTO = AssetDTOInput("aaa", this.createAssetKind().id, -1)
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/${asset.id}")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(asset)))
-                .andExpect(MockMvcResultMatchers.status().isConflict)
+                .content(json(assetDTO)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not update an asset if the asset kind does not exist`() {
+        val asset = this.assetDAO.save(Asset("dsa", this.createAssetKind(), this.createGym()))
+        val assetDTO = AssetDTOInput("aaa", -1, this.createGym().id)
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/${asset.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(assetDTO)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should not create an asset if its name already exists inside the gym`() {
-        val kind = this.createAssetKind()
-        val asset = this.assetDAO.save(Asset("ciclette2", kind, this.createGym()))
-        this.assetDAO.save(asset)
+        val asset = this.assetDAO.save(Asset("ciclette2", this.createAssetKind(), this.createGym()))
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(AssetDTOInput(asset))))
+                .andExpect(MockMvcResultMatchers.status().isConflict)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not create an asset if the gym does not exist`() {
+        val asset = AssetDTOInput("aaa", this.createAssetKind().id, -1)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
-                .andExpect(MockMvcResultMatchers.status().isConflict)
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not create an asset if the asset kind does not exist`() {
+        val asset = AssetDTOInput("aaa", -1, this.createGym().id)
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(asset)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
     }
 

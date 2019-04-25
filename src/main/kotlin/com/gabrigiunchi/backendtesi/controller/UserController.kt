@@ -6,7 +6,6 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.output.UserDTO
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
@@ -16,9 +15,7 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/users")
-class UserController(
-        @Autowired val userDAO: UserDAO
-) {
+class UserController(private val userDAO: UserDAO) {
 
     val logger = LoggerFactory.getLogger(UserController::class.java)!!
 

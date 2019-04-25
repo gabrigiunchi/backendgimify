@@ -10,8 +10,8 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
 import org.assertj.core.api.Assertions
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,27 +52,13 @@ class AssetServiceTest {
 
     @Test
     fun `Should create an asset`() {
-        val asset = Asset(-1, "ciclette1", this.mockAssetKind(), this.mockGym())
+        val asset = AssetDTOInput("ciclette1", this.mockAssetKind().id, this.mockGym().id)
         val savedAsset = this.assetService.createAsset(asset)
         Assertions.assertThat(this.assetDAO.findById(savedAsset.id)).isPresent
         Assertions.assertThat(this.assetDAO.findById(savedAsset.id).get().name).isEqualTo(asset.name)
     }
 
-    @Test
-    fun `Should not create an asset if its id already exists`() {
-        val asset = this.mockAsset(this.mockGym())
-        this.assetDAO.save(asset)
-        try {
-            this.assetService.createAsset(asset)
-            Assert.fail()
-        } catch (e: ResourceAlreadyExistsException) {
-            // OK
-        } catch (e: Exception) {
-            Assert.fail()
-        }
-    }
-
-    @Test
+    @Test(expected = ResourceAlreadyExistsException::class)
     fun `Should not create an asset if its name already exists inside the gym`() {
         val kind = this.assetKindDAO.save(MockEntities.assetKinds.first())
         val city = this.cityDAO.save(MockEntities.mockCities.first())
@@ -83,20 +69,25 @@ class AssetServiceTest {
         )).toList()
 
         // Two assets in different gyms can have the same name
-        val asset1 = this.assetService.createAsset(Asset("ciclette2", kind, gyms[0]))
-        val asset2 = this.assetService.createAsset(Asset("ciclette2", kind, gyms[1]))
+        val asset1 = this.assetService.createAsset(AssetDTOInput("ciclette2", kind.id, gyms[0].id))
+        val asset2 = this.assetService.createAsset(AssetDTOInput("ciclette2", kind.id, gyms[1].id))
 
         Assertions.assertThat(this.assetDAO.findById(asset1.id)).isPresent
         Assertions.assertThat(this.assetDAO.findById(asset2.id)).isPresent
+        this.assetService.createAsset(AssetDTOInput("ciclette2", kind.id, gyms[0].id))
+    }
 
-        try {
-            this.assetService.createAsset(Asset("ciclette2", kind, gyms[0]))
-            Assert.fail()
-        } catch (e: ResourceAlreadyExistsException) {
-            // OK
-        } catch (e: Exception) {
-            Assert.fail()
-        }
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not create an asset if the gym does not exist`() {
+        val kind = this.assetKindDAO.save(MockEntities.assetKinds.first())
+        val asset = AssetDTOInput("jnjadas", kind.id, -1)
+        this.assetService.createAsset(asset)
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not create an asset if the asset kind does not exist`() {
+        val asset = AssetDTOInput("jnjadas", -1, this.mockGym().id)
+        this.assetService.createAsset(asset)
     }
 
     /************************************ UPDATE **********************************************************/
@@ -104,27 +95,31 @@ class AssetServiceTest {
     @Test
     fun `Should update an asset`() {
         val asset = this.mockAsset(this.mockGym())
-        val newAsset = Asset(asset.id, "new name for this asset", asset.kind, asset.gym)
-
+        val newAsset = AssetDTOInput("new name for this asset", asset.kind.id, asset.gym.id)
         this.assetService.updateAsset(newAsset, asset.id)
         Assertions.assertThat(this.assetDAO.findById(asset.id)).isPresent
         Assertions.assertThat(this.assetDAO.findById(asset.id).get().name).isEqualTo("new name for this asset")
     }
 
-    @Test
+    @Test(expected = ResourceNotFoundException::class)
     fun `Should not update an asset if its id does not exist`() {
         val asset = this.mockAsset(this.mockGym())
-        try {
-            this.assetService.updateAsset(asset, -1)
-            Assert.fail()
-        } catch (e: ResourceNotFoundException) {
-            // OK
-        } catch (e: Exception) {
-            Assert.fail()
-        }
+        this.assetService.updateAsset(AssetDTOInput(asset), -1)
     }
 
-    @Test
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not update an asset if the gym not exist`() {
+        val asset = this.mockAsset(this.mockGym())
+        this.assetService.updateAsset(AssetDTOInput("dashbdhas", asset.kind.id, -1), asset.id)
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not update an asset if the asset kind not exist`() {
+        val asset = this.mockAsset(this.mockGym())
+        this.assetService.updateAsset(AssetDTOInput("dashbdhas", -1, asset.gym.id), asset.id)
+    }
+
+    @Test(expected = ResourceAlreadyExistsException::class)
     fun `Should not update an asset if its name already exists inside the gym`() {
         val kind = this.mockAssetKind()
         val city = this.cityDAO.save(MockEntities.mockCities.first())
@@ -135,20 +130,12 @@ class AssetServiceTest {
         )).toList()
 
         // Two assets in different gyms can have the same name
-        val asset1 = this.assetService.createAsset(Asset("ciclette2", kind, gyms[0]))
-        val asset2 = this.assetService.createAsset(Asset("ciclette3", kind, gyms[0]))
+        val asset1 = this.assetService.createAsset(AssetDTOInput("ciclette2", kind.id, gyms[0].id))
+        val asset2 = this.assetService.createAsset(AssetDTOInput("ciclette3", kind.id, gyms[0].id))
 
         Assertions.assertThat(this.assetDAO.findById(asset1.id)).isPresent
         Assertions.assertThat(this.assetDAO.findById(asset2.id)).isPresent
-
-        try {
-            this.assetService.updateAsset(Asset("ciclette3", kind, gyms[0]), asset1.id)
-            Assert.fail()
-        } catch (e: ResourceAlreadyExistsException) {
-            // OK
-        } catch (e: Exception) {
-            Assert.fail()
-        }
+        this.assetService.updateAsset(AssetDTOInput("ciclette3", kind.id, gyms[0].id), asset1.id)
     }
 
     private fun mockAssetKind() = this.assetKindDAO.save(MockEntities.assetKinds.first())
