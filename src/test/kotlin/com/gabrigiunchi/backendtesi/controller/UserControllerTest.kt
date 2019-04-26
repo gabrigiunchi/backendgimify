@@ -126,28 +126,10 @@ class UserControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should get the logged user`() {
-        this.userDAO.deleteAll()
-        val user = this.userDAO.save(
-                this.userFactory.createRegularUser(
-                        "gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabri@gmail.com"))
-
-        mockMvc.perform(get("${ApiUrls.USERS}/me")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(user.id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(user.name)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.surname", Matchers.`is`(user.surname)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", Matchers.`is`(user.email)))
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
     @WithMockUser(username = "gabrigiunchi", password = "aaaa", authorities = ["USER"])
     fun `Should deactivate a user`() {
         this.userDAO.deleteAll()
-        val user = this.userDAO.save(this.userFactory.createRegularUser("gabrigiunchi", "aaaa", "", "", ""))
+        val user = this.mockUser
         Assertions.assertThat(user.isActive).isTrue()
 
         mockMvc.perform(get("${ApiUrls.USERS}/me")
@@ -171,4 +153,71 @@ class UserControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
+
+    @Test
+    fun `Should enable the notifications of a users`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser
+        mockMvc.perform(patch("${ApiUrls.USERS}/${user.id}/notifications/active/false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(user.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(user.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.surname", Matchers.`is`(user.surname)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", Matchers.`is`(user.email)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.notificationsEnabled", Matchers.`is`(false)))
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.userDAO.findById(user.id).get().notificationsEnabled).isFalse()
+    }
+
+    @Test
+    fun `Should not enable the notifications of a user if it does not exist`() {
+        mockMvc.perform(patch("${ApiUrls.USERS}/-1/notifications/active/false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    /************************************** ME ************************************************************************/
+
+    @Test
+    fun `Should get the logged user`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser
+        mockMvc.perform(get("${ApiUrls.USERS}/me")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(user.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(user.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.surname", Matchers.`is`(user.surname)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", Matchers.`is`(user.email)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should change my notifications preferences`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser
+        mockMvc.perform(patch("${ApiUrls.USERS}/me/notifications/active/false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(user.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(user.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.surname", Matchers.`is`(user.surname)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", Matchers.`is`(user.email)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.notificationsEnabled", Matchers.`is`(false)))
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.userDAO.findById(user.id).get().notificationsEnabled).isFalse()
+    }
+
+
+    private val mockUser: User
+        get() = this.userDAO.save(this.userFactory.createRegularUser(
+                "gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabri@gmail.com"))
 }

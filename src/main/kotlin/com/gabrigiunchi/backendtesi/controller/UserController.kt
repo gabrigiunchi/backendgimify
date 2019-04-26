@@ -33,13 +33,6 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
                 .orElseThrow { ResourceNotFoundException("user $id does not exist") }
     }
 
-    @GetMapping("/me")
-    fun getMyDetails(): ResponseEntity<User> {
-        val loggedUser = this.getLoggedUser()
-        this.logger.info("GET logged user (#${loggedUser.id})")
-        return ResponseEntity(loggedUser, HttpStatus.OK)
-    }
-
     @PostMapping
     fun createUser(@Valid @RequestBody user: User): ResponseEntity<UserDTO> {
         this.logger.info("POST a new user")
@@ -62,10 +55,35 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
 
     @PatchMapping("/{id}/active/{active}")
     fun enableUser(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<Void> {
-        this.logger.info("PATCH to set user active=$active")
+        this.logger.info("PATCH to set user #$id active=$active")
         val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
         user.isActive = active
         this.userDAO.save(user)
         return ResponseEntity(HttpStatus.OK)
+    }
+
+    @PatchMapping("/{id}/notifications/active/{active}")
+    fun enableUserNotifications(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<UserDTO> {
+        this.logger.info("PATCH to set user #$id notifications=$active")
+        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        user.notificationsEnabled = active
+        return ResponseEntity(UserDTO(this.userDAO.save(user)), HttpStatus.OK)
+    }
+
+    /*************************************** ME ********************************************************************/
+
+    @GetMapping("/me")
+    fun getMyDetails(): ResponseEntity<User> {
+        val loggedUser = this.getLoggedUser()
+        this.logger.info("GET logged user (#${loggedUser.id})")
+        return ResponseEntity(loggedUser, HttpStatus.OK)
+    }
+
+    @PatchMapping("/me/notifications/active/{active}")
+    fun enableMyNotifications(@PathVariable active: Boolean): ResponseEntity<UserDTO> {
+        val user = this.getLoggedUser()
+        this.logger.info("PATCH to set logged user #${user.id} notifications=$active")
+        user.notificationsEnabled = active
+        return ResponseEntity(UserDTO(this.userDAO.save(user)), HttpStatus.OK)
     }
 }

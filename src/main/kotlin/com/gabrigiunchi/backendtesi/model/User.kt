@@ -22,6 +22,7 @@ class User(
         val validFrom: Date,
         val expireDate: Date) {
 
+    var notificationsEnabled = true
     var isActive = true
 
     constructor(username: String, password: String, name: String, surname: String, email: String, roles: MutableCollection<UserRole>) :

@@ -7,6 +7,8 @@ data class UserDTO(
         val username: String,
         val name: String,
         val surname: String,
-        val email: String) {
-    constructor(user: User) : this(user.id, user.username, user.name, user.surname, user.email)
+        val email: String,
+        val notificationsEnabled: Boolean) {
+
+    constructor(user: User) : this(user.id, user.username, user.name, user.surname, user.email, user.notificationsEnabled)
 }
