@@ -14,6 +14,7 @@ import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -44,6 +45,10 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var reservationLogDAO: ReservationLogDAO
+
+    @Value("\${application.reservationThresholdInDays}")
+    private var reservationThresholdInDays: Int = 0
+
 
     @Before
     fun clearDB() {
@@ -339,6 +344,29 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(reservations[2])))
                 .andExpect(MockMvcResultMatchers.status().isForbidden)
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return bad request if the reservation is beyond the threshold`() {
+        this.userDAO.deleteAll()
+        val gym = this.mockGym()
+        this.timetableDAO.save(Timetable(gym, MockEntities.wildcardSchedules))
+        val asset = this.mockAsset(gym)
+        val user = this.mockUser()
+        val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val end = start.plusMinutes(5)
+        val reservation = ReservationDTOInput(
+                userID = user.id,
+                assetID = asset.id,
+                start = start.date,
+                end = end.date)
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservation)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("The reservation is beyond the threshold")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

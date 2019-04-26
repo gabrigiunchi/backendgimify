@@ -8,6 +8,7 @@ import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.util.*
 
 @Service
@@ -159,7 +160,8 @@ class ReservationService(
         return this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
     }
 
-    /******************************* UTILS ************************************************************/
+    /*************************************** UTILS ************************************************************/
+
     fun numberOfReservationsMadeByUserInDate(user: User, date: Date): Int {
         val d = DateDecorator.of(date)
         return this.reservationLogDAO.findByUserAndDateBetween(user, d.minusDays(1).date, d.plusDays(1).date)
@@ -203,22 +205,42 @@ class ReservationService(
 
     private fun sendConfirmationEmail(reservation: Reservation) {
         val user = reservation.user
-        val content = "Hi ${user.name} ${user.surname}, here's your reservation:\n" +
-                "Gym: ${reservation.asset.gym.name}\n" +
-                "Address: ${reservation.asset.gym.address}\n" +
-                "Asset: ${reservation.asset.name}\n" +
-                "Date: ${reservation.start} - ${reservation.end}"
+        val duration = Duration.between(reservation.start.toInstant(), reservation.end.toInstant()).toMinutes()
+
+        val content = StringBuilder()
+                .appendln("Hi ${user.name} ${user.surname}, here's the details of your reservation:")
+                .appendln()
+                .appendln("Gym: ${reservation.asset.gym.name}")
+                .appendln()
+                .appendln("Address: ${reservation.asset.gym.address}")
+                .appendln()
+                .appendln("Asset: ${reservation.asset.name}")
+                .appendln()
+                .appendln("Date: ${reservation.start} - ${reservation.end}")
+                .appendln()
+                .appendln("Duration: $duration minutes")
+                .toString()
 
         Thread { this.mailService.sendEmail(user.email, "Reservation Confirmation", content) }.start()
     }
 
     private fun sendCancellationConfirmation(reservation: Reservation) {
         val user = reservation.user
-        val content = "Hi ${user.name} ${user.surname}, you just cancelled the reservation: \n" +
-                "Gym: ${reservation.asset.gym.name}\n" +
-                "Address: ${reservation.asset.gym.address}\n" +
-                "Asset: ${reservation.asset.name}\n" +
-                "Date: ${DateDecorator.of(reservation.start).format()} - ${DateDecorator.of(reservation.end).format()}"
+        val duration = Duration.between(reservation.start.toInstant(), reservation.end.toInstant()).toMinutes()
+
+        val content = StringBuilder()
+                .appendln("Hi ${user.name} ${user.surname}, you just cancelled the reservation:")
+                .appendln()
+                .appendln("Gym: ${reservation.asset.gym.name}")
+                .appendln()
+                .appendln("Address: ${reservation.asset.gym.address}")
+                .appendln()
+                .appendln("Asset: ${reservation.asset.name}")
+                .appendln()
+                .appendln("Date: ${reservation.start} - ${reservation.end}")
+                .appendln()
+                .appendln("Duration: $duration minutes")
+                .toString()
 
         Thread { this.mailService.sendEmail(user.email, "Cancellation Confirmation", content) }.start()
     }

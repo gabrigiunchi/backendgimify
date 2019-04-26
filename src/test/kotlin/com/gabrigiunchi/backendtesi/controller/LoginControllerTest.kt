@@ -64,6 +64,7 @@ class LoginControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(credentials)))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Invalid username/password supplied")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -80,6 +81,7 @@ class LoginControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(credentials)))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Invalid username/password supplied")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

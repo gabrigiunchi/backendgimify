@@ -20,7 +20,6 @@ class TimeIntervalTest {
         TimeInterval("10:00:00+00:00", "08:00:00+00:00")
     }
 
-
     @Test
     fun `Should say if a time intervals contains a date`() {
         val date = DateDecorator.of("2018-10-10T10:00:00+0000").date
@@ -30,9 +29,16 @@ class TimeIntervalTest {
 
     @Test
     fun `Should say if a time intervals contains a date considering timeZone`() {
-        val date = DateDecorator.of("2018-10-10T16:00:00+0200").date
         val timeInterval = TimeInterval("10:00+00:00", "16:00+00:00")
-        Assertions.assertThat(timeInterval.contains(date)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:00+0200").date)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:00+0200").date)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a time intervals contains a time considering timeZone`() {
+        val timeInterval = TimeInterval("10:00+02:00", "16:00+00:00")
+        Assertions.assertThat(timeInterval.contains("12:00+02:00")).isTrue()
+        Assertions.assertThat(timeInterval.contains("10:00+00:00")).isTrue()
     }
 
     @Test

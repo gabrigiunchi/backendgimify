@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.OffsetTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.persistence.Entity
@@ -23,12 +24,6 @@ class TimeInterval(
         private const val format = "HH:mm+00:00"
     }
 
-    @JsonIgnore
-    private val startOffsetTime: OffsetTime = OffsetTime.parse(start)
-
-    @JsonIgnore
-    private val endOffsetTime: OffsetTime = OffsetTime.parse(end)
-
     constructor(start: String, end: String) : this(-1, start, end)
     constructor(timeIntervalDTO: TimeIntervalDTO) : this(-1, timeIntervalDTO.start, timeIntervalDTO.end)
 
@@ -41,7 +36,8 @@ class TimeInterval(
         }
     }
 
-    fun contains(date: Date): Boolean = OffsetTime.parse(DateDecorator.of(date).format(format)) in this.startOffsetTime..this.endOffsetTime
+    fun contains(time: String): Boolean = OffsetTime.parse(time) in this.startOffsetTime..this.endOffsetTime
+    fun contains(date: Date): Boolean = this.contains(DateDecorator.of(date).format(format))
 
     fun contains(dateInterval: DateInterval) =
             dateInterval.isWithinSameDay() && this.contains(dateInterval.start) && this.contains(dateInterval.end)
@@ -62,4 +58,11 @@ class TimeInterval(
                 Pair("end", this.end.format(DateTimeFormatter.ofPattern(format)))
         )
     }
+
+    private val startOffsetTime: OffsetTime
+        get() = OffsetTime.parse(start).withOffsetSameLocal(ZoneOffset.UTC)
+
+    private val endOffsetTime: OffsetTime
+        get() = OffsetTime.parse(end).withOffsetSameLocal(ZoneOffset.UTC)
+
 }
