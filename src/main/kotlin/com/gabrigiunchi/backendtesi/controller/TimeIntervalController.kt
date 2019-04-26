@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/v1/timeIntervals")
+@RequestMapping("/api/v1/time_intervals")
 class TimeIntervalController(private val timeIntervalDAO: TimeIntervalDAO) {
 
     private val logger = LoggerFactory.getLogger(TimeIntervalController::class.java)

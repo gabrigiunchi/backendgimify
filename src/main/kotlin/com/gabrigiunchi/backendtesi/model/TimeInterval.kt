@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.OffsetTime
