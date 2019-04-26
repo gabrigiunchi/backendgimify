@@ -6,7 +6,8 @@ import javax.persistence.*
 
 @Entity
 class User(
-        @Id @GeneratedValue(strategy = GenerationType.AUTO) val id: Int,
+        @Id @GeneratedValue(strategy = GenerationType.AUTO)
+        val id: Int,
 
         val username: String,
         val password: String,
@@ -23,8 +24,7 @@ class User(
     var isActive = true
 
     constructor(username: String, password: String, name: String, surname: String, email: String, roles: MutableCollection<UserRole>) :
-            this(-1, username, password, name, surname, email, roles, Date(),
-                    DateDecorator.now().plusMinutes(2 * 30 * 24 * 60).date)
+            this(-1, username, password, name, surname, email, roles, Date(), DateDecorator.max().date)
 
 
     constructor(username: String, password: String, name: String, surname: String, email: String) :

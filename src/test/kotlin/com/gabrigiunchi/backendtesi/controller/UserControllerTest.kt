@@ -12,6 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -140,6 +141,53 @@ class UserControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not delete a user if it does not exist`() {
         mockMvc.perform(delete("${ApiUrls.USERS}/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get the logged user`() {
+        this.userDAO.deleteAll()
+        val user = this.userDAO.save(
+                this.userFactory.createRegularUser(
+                        "gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabri@gmail.com"))
+
+        mockMvc.perform(get("${ApiUrls.USERS}/me")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(user.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(user.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.surname", Matchers.`is`(user.surname)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", Matchers.`is`(user.email)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    @WithMockUser(username = "gabrigiunchi", password = "aaaa", authorities = ["USER"])
+    fun `Should deactivate a user`() {
+        this.userDAO.deleteAll()
+        val user = this.userDAO.save(this.userFactory.createRegularUser("gabrigiunchi", "aaaa", "", "", ""))
+        Assertions.assertThat(user.isActive).isTrue()
+
+        mockMvc.perform(get("${ApiUrls.USERS}/me")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andDo(MockMvcResultHandlers.print())
+
+        mockMvc.perform(patch("${ApiUrls.USERS}/${user.id}/active/false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.userDAO.findByUsername(user.username).get().isActive).isFalse()
+    }
+
+    @Test
+    fun `Should not deactivate a user if it does not exist`() {
+        mockMvc.perform(patch("${ApiUrls.USERS}/-1/active/false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))

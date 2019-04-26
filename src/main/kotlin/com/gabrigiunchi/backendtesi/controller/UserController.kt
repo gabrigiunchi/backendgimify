@@ -15,7 +15,7 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/users")
-class UserController(private val userDAO: UserDAO) {
+class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
 
     val logger = LoggerFactory.getLogger(UserController::class.java)!!
 
@@ -27,10 +27,17 @@ class UserController(private val userDAO: UserDAO) {
 
     @GetMapping("/{id}")
     fun getUserByid(@PathVariable id: Int): ResponseEntity<UserDTO> {
-        this.logger.info("GET REQUEST for user #$id")
+        this.logger.info("GET user #$id")
         return this.userDAO.findById(id)
                 .map { user -> ResponseEntity(UserDTO(user), HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("user $id does not exist") }
+    }
+
+    @GetMapping("/me")
+    fun getMyDetails(): ResponseEntity<UserDTO> {
+        val loggedUser = this.getLoggedUser()
+        this.logger.info("GET logged user (#${loggedUser.id})")
+        return ResponseEntity(UserDTO(loggedUser), HttpStatus.OK)
     }
 
     @GetMapping("/{id}/details")
@@ -59,5 +66,14 @@ class UserController(private val userDAO: UserDAO) {
         val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
         this.userDAO.delete(user)
         return ResponseEntity(HttpStatus.NO_CONTENT)
+    }
+
+    @PatchMapping("/{id}/active/{active}")
+    fun enableUser(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<Void> {
+        this.logger.info("PATCH to set user active=$active")
+        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        user.isActive = active
+        this.userDAO.save(user)
+        return ResponseEntity(HttpStatus.OK)
     }
 }
