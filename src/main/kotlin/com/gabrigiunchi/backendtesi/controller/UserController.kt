@@ -26,26 +26,18 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
     }
 
     @GetMapping("/{id}")
-    fun getUserByid(@PathVariable id: Int): ResponseEntity<UserDTO> {
+    fun getUserByid(@PathVariable id: Int): ResponseEntity<User> {
         this.logger.info("GET user #$id")
         return this.userDAO.findById(id)
-                .map { user -> ResponseEntity(UserDTO(user), HttpStatus.OK) }
+                .map { ResponseEntity(it, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("user $id does not exist") }
     }
 
     @GetMapping("/me")
-    fun getMyDetails(): ResponseEntity<UserDTO> {
+    fun getMyDetails(): ResponseEntity<User> {
         val loggedUser = this.getLoggedUser()
         this.logger.info("GET logged user (#${loggedUser.id})")
-        return ResponseEntity(UserDTO(loggedUser), HttpStatus.OK)
-    }
-
-    @GetMapping("/{id}/details")
-    fun getUserDetails(@PathVariable id: Int): ResponseEntity<User> {
-        this.logger.info("GET user #$id")
-        return this.userDAO.findById(id)
-                .map { user -> ResponseEntity(user, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        return ResponseEntity(loggedUser, HttpStatus.OK)
     }
 
     @PostMapping

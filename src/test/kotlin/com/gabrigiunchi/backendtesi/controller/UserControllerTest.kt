@@ -70,28 +70,6 @@ class UserControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should get a the details of a user`() {
-        val user = this.userDAO.save(User("giggi", "ddnsakjn", "Gianni", "Riccio", "mail@mail.com"))
-        this.mockMvc.perform(get("${ApiUrls.USERS}/${user.id}/details")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(user.name)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.surname", Matchers.`is`(user.surname)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.active", Matchers.`is`(user.isActive)))
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
-    fun `Should not get the details of a user if it does not exist`() {
-        this.mockMvc.perform(get("${ApiUrls.USERS}/-1/details")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
     fun `Should create a user`() {
         val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
         val user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", roles.toMutableList())
