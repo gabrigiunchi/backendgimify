@@ -116,5 +116,5 @@ class DBInitializer {
         get() = DayOfWeek.values().map { Schedule(it, this.timeIntervals) }.toSet()
 
     private val timeIntervals: Set<TimeInterval>
-        get() = setOf(TimeInterval("08:00+00:00", "12:00+00:00"))
+        get() = setOf(TimeInterval("07:00+00:00", "20:00+00:00"))
 }
