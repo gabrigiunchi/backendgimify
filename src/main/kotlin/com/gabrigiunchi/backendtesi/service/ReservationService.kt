@@ -76,7 +76,7 @@ class ReservationService(
         )
         this.reservationLogDAO.save(ReservationLog(savedReservation))
 
-        if (this.mailEnabled) {
+        if (this.mailEnabled && user.notificationsEnabled) {
             this.sendConfirmationEmail(savedReservation)
         }
 
@@ -91,7 +91,7 @@ class ReservationService(
         val reservation = this.getReservationOfUser(user, reservationId)
         this.reservationDAO.delete(reservation)
 
-        if (this.mailEnabled) {
+        if (this.mailEnabled && user.notificationsEnabled) {
             this.sendCancellationConfirmation(reservation)
         }
 
