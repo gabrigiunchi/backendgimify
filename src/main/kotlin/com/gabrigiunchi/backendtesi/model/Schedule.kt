@@ -25,9 +25,7 @@ class Schedule(
     fun contains(date: Date): Boolean = this.isSameDay(date) && this.timeIntervals.any { it.contains(date) }
 
     fun contains(dateInterval: DateInterval): Boolean {
-        return dateInterval.isWithinSameDay() &&
-                this.isSameDay(dateInterval.start) &&
-                this.timeIntervals.any { it.contains(dateInterval.start) && it.contains(dateInterval.end) }
+        return this.isSameDay(dateInterval.start) && this.timeIntervals.any { it.contains(dateInterval) }
     }
 
     fun toMap(): Map<String, Any> {
