@@ -8,6 +8,7 @@ import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -46,6 +47,7 @@ class TimetableController(
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createTimetable(@Valid @RequestBody timetable: TimetableDTO): ResponseEntity<Timetable> {
         this.logger.info("CREATE timetable")
@@ -55,6 +57,7 @@ class TimetableController(
         return ResponseEntity(this.timetableDAO.save(Timetable(-1, timetable, gym)), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PutMapping("/{id}")
     fun updateTimetable(@PathVariable id: Int, @Valid @RequestBody timetableDTO: TimetableDTO): ResponseEntity<Timetable> {
         this.logger.info("PUT timetable $id")
@@ -69,6 +72,7 @@ class TimetableController(
         return ResponseEntity(this.timetableDAO.save(Timetable(id, timetableDTO, gym)), HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteTimetableById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE timetable #$id")
@@ -77,6 +81,7 @@ class TimetableController(
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/by_gym/{gymId}")
     fun deleteTimetableByGymId(@PathVariable gymId: Int): ResponseEntity<Void> {
         this.logger.info("DELETE timetable of gym #$gymId")

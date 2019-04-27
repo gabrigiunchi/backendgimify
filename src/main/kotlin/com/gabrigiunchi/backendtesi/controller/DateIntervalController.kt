@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -31,12 +32,14 @@ class DateIntervalController(private val dateIntervalDAO: DateIntervalDAO) {
                 .orElseThrow { ResourceNotFoundException("date interval $id does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createDateInterval(@Valid @RequestBody intervalDTO: DateIntervalDTO): ResponseEntity<DateInterval> {
         this.logger.info("POST date interval")
         return ResponseEntity(this.dateIntervalDAO.save(DateInterval(intervalDTO)), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteDateInterval(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE date interval #$id")

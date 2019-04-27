@@ -54,4 +54,18 @@ class AliveControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(false)))
     }
+
+    @Test
+    @WithMockUser(username = "gabrigiunchi", password = "aaaa", authorities = ["ADMINISTRATOR"])
+    fun `Should allow administrators to access secured endpoints`() {
+        this.mockMvc.perform(get("${ApiUrls.ALIVE}/secret"))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+    }
+
+    @Test
+    @WithMockUser(username = "baseuser", password = "bbbb", authorities = ["USER"])
+    fun `Should forbid regular users to access secured endpoints`() {
+        this.mockMvc.perform(get("${ApiUrls.ALIVE}/secret"))
+                .andExpect(MockMvcResultMatchers.status().isForbidden)
+    }
 }

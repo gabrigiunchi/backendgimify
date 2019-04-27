@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -64,18 +65,21 @@ class AssetController(
                 .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createAsset(@Valid @RequestBody asset: AssetDTOInput): ResponseEntity<Asset> {
         this.logger.info("CREATE asset")
         return ResponseEntity(this.assetService.createAsset(asset), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PutMapping("/{id}")
     fun updateAsset(@Valid @RequestBody asset: AssetDTOInput, @PathVariable id: Int): ResponseEntity<Asset> {
         this.logger.info("PUT asset #$id")
         return ResponseEntity(assetService.updateAsset(asset, id), HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteAsset(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE asset #$id")

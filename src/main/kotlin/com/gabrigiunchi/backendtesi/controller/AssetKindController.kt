@@ -8,6 +8,7 @@ import com.gabrigiunchi.backendtesi.model.AssetKind
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -32,6 +33,7 @@ class AssetKindController(
                 .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createAssetKind(@Valid @RequestBody assetKind: AssetKind): ResponseEntity<AssetKind> {
         this.logger.info("CREATE asset kind: ${assetKind.name}")
@@ -42,6 +44,7 @@ class AssetKindController(
         return ResponseEntity(this.assetKindDAO.save(assetKind), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PutMapping("/{id}")
     fun updateAssetkind(@Valid @RequestBody assetKind: AssetKind, @PathVariable id: Int): ResponseEntity<AssetKind> {
         this.logger.info("PUT asset kind: ${assetKind.name}")
@@ -50,6 +53,7 @@ class AssetKindController(
                 .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PatchMapping("/{id}/max_time/{time}")
     fun updateAssetKindMaxReservationTime(@PathVariable id: Int, @PathVariable time: Int): ResponseEntity<AssetKind> {
         this.logger.info("PATCH max reservation time of asset kind #$id")
@@ -66,6 +70,7 @@ class AssetKindController(
                 .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteAssetKind(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE asset kind #$id")

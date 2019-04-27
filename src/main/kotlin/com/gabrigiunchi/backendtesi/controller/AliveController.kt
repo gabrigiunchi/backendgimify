@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.User
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -25,6 +26,12 @@ class AliveController(userDAO: UserDAO) : BaseController(userDAO) {
     @GetMapping("/me/am_I_admin")
     fun amIdAmin(): ResponseEntity<Boolean> {
         return ResponseEntity(this.isAdmin(), HttpStatus.OK)
+    }
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    @GetMapping("/secret")
+    fun secret(): ResponseEntity<String> {
+        return ResponseEntity("This endpoint is for administrators only. If you are not this is a problem", HttpStatus.OK)
     }
 
 }

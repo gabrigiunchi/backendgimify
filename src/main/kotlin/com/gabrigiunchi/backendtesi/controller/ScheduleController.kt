@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -31,12 +32,14 @@ class ScheduleController(private val scheduleDAO: ScheduleDAO) {
                 HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createSchedule(@Valid @RequestBody scheduleDTO: ScheduleDTO): ResponseEntity<Schedule> {
         this.logger.info("POST schedule")
         return ResponseEntity(this.scheduleDAO.save(Schedule(scheduleDTO)), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteSchedule(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE schedule #$id")

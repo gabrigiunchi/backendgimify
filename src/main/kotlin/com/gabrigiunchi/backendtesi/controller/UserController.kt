@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -33,6 +34,7 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
                 .orElseThrow { ResourceNotFoundException("user $id does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createUser(@Valid @RequestBody user: User): ResponseEntity<UserDTO> {
         this.logger.info("POST a new user")
@@ -45,6 +47,7 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
         return ResponseEntity(UserDTO(this.userDAO.save(user)), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteUser(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE user #$id")
@@ -53,6 +56,7 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PatchMapping("/{id}/active/{active}")
     fun enableUser(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<Void> {
         this.logger.info("PATCH to set user #$id active=$active")
@@ -62,6 +66,7 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
         return ResponseEntity(HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PatchMapping("/{id}/notifications/active/{active}")
     fun enableUserNotifications(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<UserDTO> {
         this.logger.info("PATCH to set user #$id notifications=$active")

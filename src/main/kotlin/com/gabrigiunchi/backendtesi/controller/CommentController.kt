@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -72,6 +73,7 @@ class CommentController(
         return ResponseEntity(this.commentDAO.findByUserAndGym(user, gym).map { CommentDTOOutput(it) }, HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createComment(@Valid @RequestBody commentDTO: CommentDTOInput): ResponseEntity<CommentDTOOutput> {
         this.logger.info("POST comment")
@@ -82,6 +84,7 @@ class CommentController(
                 HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteCommentById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE comment $id")

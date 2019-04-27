@@ -126,7 +126,6 @@ class UserControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    @WithMockUser(username = "gabrigiunchi", password = "aaaa", authorities = ["USER"])
     fun `Should deactivate a user`() {
         this.userDAO.deleteAll()
         val user = this.mockUser

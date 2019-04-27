@@ -7,6 +7,7 @@ import com.gabrigiunchi.backendtesi.model.City
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -38,6 +39,7 @@ class CityController(private val cityDAO: CityDAO) {
                 .orElseThrow { ResourceNotFoundException("city $name does not exist") }
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createCity(@Valid @RequestBody city: City): ResponseEntity<City> {
         this.logger.info("CREATE city")
@@ -49,6 +51,7 @@ class CityController(private val cityDAO: CityDAO) {
         return ResponseEntity(this.cityDAO.save(city), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteCityById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE city #$id")

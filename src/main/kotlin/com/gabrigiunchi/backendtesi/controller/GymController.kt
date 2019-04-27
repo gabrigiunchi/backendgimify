@@ -9,6 +9,7 @@ import com.gabrigiunchi.backendtesi.service.GymService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -48,6 +49,7 @@ class GymController(private val gymDAO: GymDAO,
         return ResponseEntity(this.gymService.calculateRatingOfGym(id), HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun createGym(@Valid @RequestBody gym: Gym): ResponseEntity<Gym> {
         this.logger.info("CREATE gym")
@@ -63,6 +65,7 @@ class GymController(private val gymDAO: GymDAO,
         return ResponseEntity(this.gymDAO.save(gym), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PutMapping("/{id}")
     fun updateGym(@Valid @RequestBody gym: Gym, @PathVariable id: Int): ResponseEntity<Gym> {
         this.logger.info("PUT gym #${gym.id}")
@@ -74,6 +77,7 @@ class GymController(private val gymDAO: GymDAO,
         return ResponseEntity(this.gymDAO.save(gym), HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteGym(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE gym #$id")
