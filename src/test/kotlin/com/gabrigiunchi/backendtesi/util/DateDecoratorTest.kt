@@ -26,6 +26,12 @@ class DateDecoratorTest {
     }
 
     @Test
+    fun `Should format strings with the english locale`() {
+        val date = DateDecorator.of("2019-04-28T10:03:08+0000")
+        Assertions.assertThat(date.format("EEEE dd MMMM yyyy")).isEqualTo("Sunday 28 April 2019")
+    }
+
+    @Test
     fun `Should add minutes`() {
         val date = DateDecorator.of("2018-02-10T10:50:00+0100")
         val d2 = date.plusMinutes(15)

@@ -72,7 +72,7 @@ class DateDecorator(val date: Date) {
     }
 
     private fun format(pattern: String, timeZone: TimeZone): String {
-        val formatter = SimpleDateFormat(pattern)
+        val formatter = SimpleDateFormat(pattern, Locale.ENGLISH)
         formatter.timeZone = timeZone
         return formatter.format(this.date)
     }

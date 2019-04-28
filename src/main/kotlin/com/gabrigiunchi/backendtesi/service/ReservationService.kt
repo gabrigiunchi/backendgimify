@@ -206,6 +206,8 @@ class ReservationService(
     private fun sendConfirmationEmail(reservation: Reservation) {
         val user = reservation.user
         val duration = Duration.between(reservation.start.toInstant(), reservation.end.toInstant()).toMinutes()
+        val start = DateDecorator.of(reservation.start).format("dd MMMM yyyy HH:mm")
+        val end = DateDecorator.of(reservation.start).format("dd MMMM yyyy HH:mm")
 
         val content = StringBuilder()
                 .appendln("Hi ${user.name} ${user.surname}, here's the details of your reservation:")
@@ -216,7 +218,7 @@ class ReservationService(
                 .appendln()
                 .appendln("Asset: ${reservation.asset.name}")
                 .appendln()
-                .appendln("Date: ${reservation.start} - ${reservation.end}")
+                .appendln("Date: $start-$end")
                 .appendln()
                 .appendln("Duration: $duration minutes")
                 .toString()
@@ -227,6 +229,8 @@ class ReservationService(
     private fun sendCancellationConfirmation(reservation: Reservation) {
         val user = reservation.user
         val duration = Duration.between(reservation.start.toInstant(), reservation.end.toInstant()).toMinutes()
+        val start = DateDecorator.of(reservation.start).format("dd MMMM yyyy HH:mm")
+        val end = DateDecorator.of(reservation.start).format("dd MMMM yyyy HH:mm")
 
         val content = StringBuilder()
                 .appendln("Hi ${user.name} ${user.surname}, you just cancelled the reservation:")
@@ -237,7 +241,7 @@ class ReservationService(
                 .appendln()
                 .appendln("Asset: ${reservation.asset.name}")
                 .appendln()
-                .appendln("Date: ${reservation.start} - ${reservation.end}")
+                .appendln("Date: $start-$end")
                 .appendln()
                 .appendln("Duration: $duration minutes")
                 .toString()
