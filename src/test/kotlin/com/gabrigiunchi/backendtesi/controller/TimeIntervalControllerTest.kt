@@ -64,19 +64,19 @@ class TimeIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create an interval`() {
-        val intervalDTO = TimeIntervalDTO("10:00", "12:00", "UTC")
+        val intervalDTO = TimeIntervalDTO("10:00", "12:00", "Europe/Rome")
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIME_INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(intervalDTO)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.start", Matchers.`is`("10:00:00")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.end", Matchers.`is`("12:00:00")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`("UTC")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`("Europe/Rome")))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.timeIntervalDAO.count()).isEqualTo(1)
         val saved = this.timeIntervalDAO.findAll().first()
-        Assertions.assertThat(saved.zoneId).isEqualTo(ZoneId.of("UTC"))
+        Assertions.assertThat(saved.zoneId.toString()).isEqualTo(intervalDTO.zoneId)
     }
 
     @Test
