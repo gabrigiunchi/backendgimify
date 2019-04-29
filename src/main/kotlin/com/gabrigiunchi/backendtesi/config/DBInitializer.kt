@@ -83,10 +83,10 @@ class DBInitializer {
 
     fun initGyms() {
         this.gyms = this.gymDAO.saveAll(listOf(
-                Gym("gym1", "Via1", this.cities[0]),
-                Gym("gym2", "Via2", this.cities[0]),
-                Gym("gym3", "Via3", this.cities[1]),
-                Gym("gym4", "Via4", this.cities[2]))).toList()
+                Gym("gym1", "Via1", this.cities[0], this.zoneId),
+                Gym("gym2", "Via2", this.cities[0], this.zoneId),
+                Gym("gym3", "Via3", this.cities[1], this.zoneId),
+                Gym("gym4", "Via4", this.cities[2], this.zoneId))).toList()
 
         this.logger.info("Init gyms")
     }

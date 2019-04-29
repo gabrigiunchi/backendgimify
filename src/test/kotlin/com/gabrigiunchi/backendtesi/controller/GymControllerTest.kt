@@ -65,12 +65,13 @@ class GymControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get a gym by its id`() {
-        val gym = this.gymDAO.save(Gym("gym dsjad", "address", this.city))
+        val gym = this.gymDAO.save(Gym("gym dsjad", "address", this.city, "Europe/Paris"))
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(gym.name)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city.name", Matchers.`is`(gym.city.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(gym.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -126,7 +127,7 @@ class GymControllerTest : AbstractControllerTest() {
         val gym = Gym("gym dnjsnjdaj", "Via Pacchioni 43", city)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(gym.name)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city.name", Matchers.`is`(gym.city.name)))
@@ -140,7 +141,7 @@ class GymControllerTest : AbstractControllerTest() {
         gym.name = "newName"
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/${savedGym.id}")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(gym.name)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city.name", Matchers.`is`(gym.city.name)))
@@ -152,7 +153,7 @@ class GymControllerTest : AbstractControllerTest() {
         val gym = this.gymDAO.save(Gym("gymnnnn1", "address", this.city))
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/-1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
@@ -163,7 +164,7 @@ class GymControllerTest : AbstractControllerTest() {
         val gym = this.gymDAO.save(Gym("gym dsjad", "address", this.city))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isConflict)
                 .andDo(MockMvcResultHandlers.print())
     }
@@ -174,7 +175,7 @@ class GymControllerTest : AbstractControllerTest() {
         this.gymDAO.save(gym)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isConflict)
                 .andDo(MockMvcResultHandlers.print())
     }
@@ -185,7 +186,7 @@ class GymControllerTest : AbstractControllerTest() {
         val gym = Gym("A", "address", this.city)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(gym.toJson()))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city ${this.city.id} does not exist")))
                 .andDo(MockMvcResultHandlers.print())
