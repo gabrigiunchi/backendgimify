@@ -17,10 +17,10 @@ object MockEntities {
     )
 
     val mockTimeIntervals = listOf(
-            TimeInterval("10:00+00:00", "12:00+00:00"),
-            TimeInterval("12:00+00:00", "14:00+00:00"),
-            TimeInterval("14:00+00:00", "16:00+00:00"),
-            TimeInterval("16:00+00:00", "18:00+00:00")
+            TimeInterval("10:00", "12:00"),
+            TimeInterval("12:00", "14:00"),
+            TimeInterval("14:00", "16:00"),
+            TimeInterval("16:00", "18:00")
     )
 
     val mockHolidays = setOf(
@@ -37,5 +37,5 @@ object MockEntities {
 
     val mockCities = CityEnum.values().map { City(it) }
     val assetKinds = AssetKindEnum.values().map { AssetKind(it, 20) }
-    val wildcardSchedules = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01+00:00", "23:59+00:00"))) }.toSet()
+    val wildcardSchedules = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01", "23:59"))) }.toSet()
 }

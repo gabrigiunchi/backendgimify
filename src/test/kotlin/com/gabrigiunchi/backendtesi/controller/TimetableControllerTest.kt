@@ -140,7 +140,12 @@ class TimetableControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a timetable`() {
-        val timetableDTO = TimetableDTO(this.gyms[0].id, emptySet(), emptySet(), emptySet(), MockEntities.mockHolidays)
+        val timetableDTO = TimetableDTO(
+                gymId = this.gyms[0].id,
+                closingDays = emptySet(),
+                exceptionalOpenings = emptySet(),
+                openings = MockEntities.mockSchedules.take(2).toSet(),
+                recurringExceptions = MockEntities.mockHolidays)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(timetableDTO.toJson()))

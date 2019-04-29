@@ -620,7 +620,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return empty list when searching for available assets if the interval is beyond the threshold`() {
         this.timetableDAO.deleteAll()
-        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01+00:00", "23:59+00:00"))) }.toSet()
+        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01", "23:59"))) }.toSet()
         this.timetableDAO.save(Timetable(this.gym!!, openings))
         val asset = this.mockAsset(300)
         val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
@@ -637,7 +637,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return empty list when searching for available assets if the interval is beyond the threshold (city filter)`() {
         this.timetableDAO.deleteAll()
-        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01+00:00", "23:59+00:00"))) }.toSet()
+        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01", "23:59"))) }.toSet()
         this.timetableDAO.save(Timetable(this.gym!!, openings))
         val asset = this.mockAsset(300)
         val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
@@ -656,7 +656,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return empty list when searching for available assets if the interval is beyond the threshold (gym filter)`() {
         this.timetableDAO.deleteAll()
-        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01+00:00", "23:59+00:00"))) }.toSet()
+        val openings = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01", "23:59"))) }.toSet()
         this.timetableDAO.save(Timetable(this.gym!!, openings))
         val asset = this.mockAsset(300)
         val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)

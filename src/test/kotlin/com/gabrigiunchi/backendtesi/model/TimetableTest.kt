@@ -49,18 +49,18 @@ class TimetableTest : AbstractControllerTest() {
         val gym = this.mockGym()
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00")
                 )),
 
                 Schedule(DayOfWeek.WEDNESDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00")
                 )),
 
                 Schedule(DayOfWeek.FRIDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00")
                 ))
         )
         val closingDays = setOf(
@@ -94,8 +94,8 @@ class TimetableTest : AbstractControllerTest() {
         val gym = this.mockGym()
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00")
                 ))
         )
         val closingDays = setOf(
@@ -197,8 +197,8 @@ class TimetableTest : AbstractControllerTest() {
         val gym = this.mockGym()
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00")
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00")
                 ))
         )
         val closingDays = setOf(
@@ -287,18 +287,18 @@ class TimetableTest : AbstractControllerTest() {
     private fun createTimetable(): Timetable {
         val openings = setOf(
                 Schedule(DayOfWeek.MONDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00"))
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00"))
                 ),
 
                 Schedule(DayOfWeek.WEDNESDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00"))
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00"))
                 ),
 
                 Schedule(DayOfWeek.FRIDAY, setOf(
-                        TimeInterval("08:00+00:00", "12:00+00:00"),
-                        TimeInterval("13:00+00:00", "19:00+00:00"))
+                        TimeInterval("08:00", "12:00"),
+                        TimeInterval("13:00", "19:00"))
                 )
         )
         val closingDays = setOf(

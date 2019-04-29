@@ -15,6 +15,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.ZoneId
 
 class TimeIntervalControllerTest : AbstractControllerTest() {
 
@@ -41,11 +42,13 @@ class TimeIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get an interval by its id`() {
-        val interval = this.timeIntervalDAO.save(TimeInterval("10:00+00:00", "12:00+00:00"))
+        val interval = this.timeIntervalDAO.save(TimeInterval("10:00", "12:00"))
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIME_INTERVALS}/${interval.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.start", Matchers.`is`("10:00+00:00")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.start", Matchers.`is`("10:00:00")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.end", Matchers.`is`("12:00:00")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`("UTC")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -61,19 +64,24 @@ class TimeIntervalControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create an interval`() {
-        val intervalDTO = TimeIntervalDTO("10:00Z", "12:00Z")
+        val intervalDTO = TimeIntervalDTO("10:00", "12:00", "UTC")
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIME_INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(intervalDTO)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.start", Matchers.`is`("10:00Z")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.end", Matchers.`is`("12:00Z")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.start", Matchers.`is`("10:00:00")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.end", Matchers.`is`("12:00:00")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`("UTC")))
                 .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.timeIntervalDAO.count()).isEqualTo(1)
+        val saved = this.timeIntervalDAO.findAll().first()
+        Assertions.assertThat(saved.zoneId).isEqualTo(ZoneId.of("UTC"))
     }
 
     @Test
     fun `Should NOT create an interval if the start is after the end`() {
-        val intervalDTO = TimeIntervalDTO("15:00+00:00", "12:00+00:00")
+        val intervalDTO = TimeIntervalDTO("15:00", "12:00", "UTC")
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIME_INTERVALS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(intervalDTO)))

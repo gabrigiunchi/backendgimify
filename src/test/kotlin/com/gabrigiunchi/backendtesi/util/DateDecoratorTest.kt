@@ -3,6 +3,8 @@ package com.gabrigiunchi.backendtesi.util
 import org.assertj.core.api.Assertions
 import org.junit.Test
 import java.time.DayOfWeek
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class DateDecoratorTest {
@@ -204,5 +206,32 @@ class DateDecoratorTest {
         Assertions.assertThat(decorator1 == DateDecorator.now().plusDays(1)).isFalse()
         val decorator3: DateDecorator? = null
         Assertions.assertThat(decorator1 == decorator3).isFalse()
+    }
+
+    @Test
+    fun `Should convert into OffsetDateTime`() {
+        val date = DateDecorator.of("2019-04-29T10:00:00+0200")
+        val offsetDateTime = date.toOffsetDateTime()
+        Assertions.assertThat(offsetDateTime.dayOfMonth).isEqualTo(29)
+        Assertions.assertThat(offsetDateTime.monthValue).isEqualTo(4)
+        Assertions.assertThat(offsetDateTime.year).isEqualTo(2019)
+        Assertions.assertThat(offsetDateTime.format(DateTimeFormatter.ofPattern("HH:mm+0000"))).isEqualTo("08:00+0000")
+    }
+
+    @Test
+    fun `Should convert into LocalDate`() {
+        val date = DateDecorator.of("2019-04-29T10:00:00+0200")
+        val localDate = date.toLocalDate()
+        Assertions.assertThat(localDate.toString()).isEqualTo("2019-04-29")
+    }
+
+    @Test
+    fun `Should convert into LocalTime`() {
+        val date = DateDecorator.of("2019-04-29T10:00:00+0200")
+        val localTime = date.toLocalTime(ZoneId.of("Europe/Rome"))
+        Assertions.assertThat(localTime.toString()).isEqualTo("10:00")
+
+        val localTime2 = date.toLocalTime(ZoneId.of("UTC"))
+        Assertions.assertThat(localTime2.toString()).isEqualTo("08:00")
     }
 }

@@ -1,6 +1,10 @@
 package com.gabrigiunchi.backendtesi.util
 
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.util.*
 
 class DateDecorator(val date: Date) {
@@ -90,6 +94,14 @@ class DateDecorator(val date: Date) {
     fun format(): String {
         return this.format(DATE_TIME_FORMAT)
     }
+
+    fun toOffsetDateTime(zoneId: ZoneId = ZoneId.of("UTC")): OffsetDateTime {
+        return OffsetDateTime.ofInstant(this.date.toInstant(), zoneId)
+    }
+
+    fun toLocalDate(): LocalDate = LocalDate.parse(this.format("yyyy-MM-dd"))
+    fun toLocalTime(zoneId: ZoneId = ZoneId.of("UTC")): LocalTime =
+            LocalTime.ofInstant(this.date.toInstant(), zoneId)
 
     override fun toString(): String {
         return this.date.toString()

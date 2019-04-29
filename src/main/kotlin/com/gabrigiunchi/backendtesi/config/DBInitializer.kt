@@ -9,6 +9,7 @@ import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
 
@@ -37,6 +38,9 @@ class DBInitializer {
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
+
+    @Value("\${application.zoneId}")
+    private var zoneId: String = "UTC"
 
     private var cities = listOf<City>()
     private var gyms = listOf<Gym>()
@@ -116,5 +120,5 @@ class DBInitializer {
         get() = DayOfWeek.values().map { Schedule(it, this.timeIntervals) }.toSet()
 
     private val timeIntervals: Set<TimeInterval>
-        get() = setOf(TimeInterval("07:00+00:00", "20:00+00:00"))
+        get() = setOf(TimeInterval("07:00", "20:00", this.zoneId))
 }

@@ -2,9 +2,8 @@ package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.dto.input.TimeIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
-import java.time.OffsetTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -16,33 +15,54 @@ class TimeInterval(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
-        val start: String,
-        val end: String) {
+        val start: LocalTime,
+        val end: LocalTime,
+        val zoneId: ZoneId) {
 
     companion object {
-        private const val format = "HH:mm+00:00"
+        const val DEFAULT_ZONE_ID = "UTC"
     }
 
-    constructor(start: String, end: String) : this(-1, start, end)
-    constructor(timeIntervalDTO: TimeIntervalDTO) : this(-1, timeIntervalDTO.start, timeIntervalDTO.end)
+    constructor(start: String, end: String, zoneId: String = DEFAULT_ZONE_ID) :
+            this(-1, LocalTime.parse(start), LocalTime.parse(end), ZoneId.of(zoneId))
 
-    constructor(start: Date, end: Date) :
-            this(-1, DateDecorator.of(start).format(format), DateDecorator.of(end).format(format))
+    constructor(timeIntervalDTO: TimeIntervalDTO) :
+            this(timeIntervalDTO.start, timeIntervalDTO.end, timeIntervalDTO.zoneId)
+
+    constructor(start: Date, end: Date, zoneId: ZoneId = ZoneId.of(DEFAULT_ZONE_ID)) :
+            this(-1, DateDecorator.of(start).toLocalTime(zoneId),
+                    DateDecorator.of(end).toLocalTime(zoneId), zoneId)
 
     init {
-        if (this.startOffsetTime > this.endOffsetTime) {
+        if (this.start > this.end) {
             throw IllegalArgumentException("start is after the end")
         }
     }
 
-    fun contains(time: String): Boolean = OffsetTime.parse(time) in this.startOffsetTime..this.endOffsetTime
-    fun contains(date: Date): Boolean = this.contains(DateDecorator.of(date).format(format))
+    fun contains(date: Date): Boolean {
+        val s = DateDecorator.of(date)
+                .toLocalDate()
+                .atTime(this.start)
+                .atZone(this.zoneId)
+                .toOffsetDateTime()
+
+        val end = DateDecorator.of(date)
+                .toLocalDate()
+                .atTime(this.end)
+                .atZone(this.zoneId)
+                .toOffsetDateTime()
+
+        return DateDecorator.of(date).toOffsetDateTime(this.zoneId) in s..end
+    }
 
     fun contains(dateInterval: DateInterval) =
-            dateInterval.isWithinSameDay() && this.contains(dateInterval.start) && this.contains(dateInterval.end)
+            dateInterval.isWithinSameDay() &&
+                    this.contains(dateInterval.start) &&
+                    this.contains(dateInterval.end)
 
     fun overlaps(dateInterval: DateInterval): Boolean {
-        return !dateInterval.isWithinSameDay() || TimeInterval(dateInterval.start, dateInterval.end).overlaps(this)
+        return !dateInterval.isWithinSameDay() ||
+                TimeInterval(dateInterval.start, dateInterval.end, this.zoneId).overlaps(this)
     }
 
     fun overlaps(timeInterval: TimeInterval): Boolean {
@@ -53,15 +73,9 @@ class TimeInterval(
     fun toMap(): Map<String, String> {
         return mapOf(
                 Pair("id", this.id.toString()),
-                Pair("start", this.start.format(DateTimeFormatter.ofPattern(format))),
-                Pair("end", this.end.format(DateTimeFormatter.ofPattern(format)))
+                Pair("zoneId", this.zoneId.id),
+                Pair("start", this.start.toString()),
+                Pair("end", this.end.toString())
         )
     }
-
-    private val startOffsetTime: OffsetTime
-        get() = OffsetTime.parse(start).withOffsetSameLocal(ZoneOffset.UTC)
-
-    private val endOffsetTime: OffsetTime
-        get() = OffsetTime.parse(end).withOffsetSameLocal(ZoneOffset.UTC)
-
 }
