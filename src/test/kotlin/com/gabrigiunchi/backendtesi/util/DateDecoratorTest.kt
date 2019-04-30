@@ -159,6 +159,20 @@ class DateDecoratorTest {
     }
 
     @Test
+    fun `Should say if two dates are the same day considering timezone`() {
+        val d1 = DateDecorator.of("2019-01-01T00:00:00+0000")
+        val d2 = DateDecorator.of("2019-01-02T01:00:00+0200")
+        Assertions.assertThat(d1.isSameDay(d2)).isTrue()
+    }
+
+    @Test
+    fun `Should say if two dates are not the same day considering timezone`() {
+        val d1 = DateDecorator.of("2019-01-01T00:00:00+0000")
+        val d2 = DateDecorator.of("2019-01-01T00:00:00+0100")
+        Assertions.assertThat(d1.isSameDay(d2)).isFalse()
+    }
+
+    @Test
     fun `Should say if two dates are NOT the same day`() {
         Assertions.assertThat(
                 DateDecorator.createDate("2019-01-01").isSameDay(DateDecorator.createDate("2019-01-02").date)

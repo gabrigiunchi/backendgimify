@@ -68,7 +68,7 @@ class DateDecorator(val date: Date) {
     }
 
     fun isSameDay(dateDecorator: DateDecorator): Boolean {
-        return dateDecorator.day == this.day && dateDecorator.month == this.month && dateDecorator.year == this.year
+        return dateDecorator.toLocalDate() == this.toLocalDate()
     }
 
     fun isSameDay(date: Date): Boolean {
