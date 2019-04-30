@@ -7,6 +7,7 @@ import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
+import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -14,9 +15,9 @@ import org.springframework.stereotype.Service
 import java.time.DayOfWeek
 
 @Service
-class DBInitializer {
+class AppInitializer {
 
-    private val logger = LoggerFactory.getLogger(DBInitializer::class.java)
+    private val logger = LoggerFactory.getLogger(AppInitializer::class.java)
 
     @Autowired
     private lateinit var userDAO: UserDAO
@@ -42,6 +43,9 @@ class DBInitializer {
     @Value("\${application.zoneId}")
     private var zoneId: String = "UTC"
 
+    @Value("\${application.initDB}")
+    private var initDB = false
+
     private var cities = listOf<City>()
     private var gyms = listOf<Gym>()
     private var roles = listOf<UserRole>()
@@ -52,7 +56,22 @@ class DBInitializer {
             Pair(AssetKindEnum.PRESSA, 20),
             Pair(AssetKindEnum.TAPIS_ROULANT, 60))
 
-    fun initDB() {
+    fun initApp() {
+        this.initTimezone()
+
+        if (this.initDB) {
+            this.initDB()
+        } else {
+            this.initUsers()
+        }
+    }
+
+    private fun initTimezone() {
+        this.logger.info("Setting timezone to $zoneId")
+        DateDecorator.DEFAULT_TIMEZONE = this.zoneId
+    }
+
+    private fun initDB() {
         this.logger.info("Initializing DB")
         this.initCities()
         this.initUsers()
@@ -63,12 +82,12 @@ class DBInitializer {
         this.logger.info("DB initialized")
     }
 
-    fun initUserRole() {
+    private fun initUserRole() {
         this.roles = this.userRoleDAO.saveAll(UserRoleEnum.values().map { value -> UserRole(-1, value.toString()) }).toList()
         this.logger.info("Init user roles")
     }
 
-    fun initUsers() {
+    private fun initUsers() {
         this.initUserRole()
         this.userDAO.saveAll(listOf(
                 User("gabrigiunchi", SHA256PasswordEncoder().encode("aaaa"),
@@ -81,7 +100,7 @@ class DBInitializer {
         this.logger.info("Init users")
     }
 
-    fun initGyms() {
+    private fun initGyms() {
         this.gyms = this.gymDAO.saveAll(listOf(
                 Gym("gym1", "Via1", this.cities[0], this.zoneId),
                 Gym("gym2", "Via2", this.cities[0], this.zoneId),
@@ -91,12 +110,12 @@ class DBInitializer {
         this.logger.info("Init gyms")
     }
 
-    fun initAssetKinds() {
+    private fun initAssetKinds() {
         this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it] ?: 20) })
         this.logger.info("Init asset kinds")
     }
 
-    fun initAssets() {
+    private fun initAssets() {
         this.assetDAO.saveAll(listOf(
                 Asset("tr01", this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), gyms[0]),
                 Asset("c01", this.assetKindDAO.findByName(AssetKindEnum.CICLETTE.name).get(), gyms[0]),
@@ -106,12 +125,12 @@ class DBInitializer {
         this.logger.info("Init assets")
     }
 
-    fun initCities() {
+    private fun initCities() {
         this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it) }).toList()
         this.logger.info("Init cities")
     }
 
-    fun initTimetables() {
+    private fun initTimetables() {
         this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings, emptySet(), emptySet(), Constants.holidays)) }
         this.logger.info("Init timetables")
     }

@@ -1,8 +1,7 @@
 package com.gabrigiunchi.backendtesi
 
-import com.gabrigiunchi.backendtesi.config.DBInitializer
+import com.gabrigiunchi.backendtesi.config.AppInitializer
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -11,18 +10,10 @@ import org.springframework.boot.runApplication
 class BackendtesiApplication : CommandLineRunner {
 
     @Autowired
-    lateinit var dbInitializer: DBInitializer
-
-    @Value("\${application.initDB}")
-    private var initDB = false
-
+    lateinit var appInitializer: AppInitializer
 
     override fun run(vararg args: String?) {
-        if (this.initDB) {
-            this.dbInitializer.initDB()
-        } else {
-            this.dbInitializer.initUsers()
-        }
+        this.appInitializer.initApp()
     }
 }
 

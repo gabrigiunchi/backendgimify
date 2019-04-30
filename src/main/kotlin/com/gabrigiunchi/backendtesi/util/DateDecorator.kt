@@ -120,7 +120,8 @@ class DateDecorator(val date: Date) {
     }
 
     companion object {
-        const val DEFAULT_TIMEZONE = "UTC"
+        var DEFAULT_TIMEZONE = "UTC"
+
         const val DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ"
 
         fun of(date: String, pattern: String): DateDecorator {
