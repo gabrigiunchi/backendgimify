@@ -82,14 +82,14 @@ class DateDecorator(val date: Date) {
     }
 
     /**
-     * Format the date with the given pattern in UTC timezone
+     * Format the date with the given pattern in the default timezone
      */
     fun format(pattern: String): String {
         return this.format(pattern, TimeZone.getTimeZone(DEFAULT_TIMEZONE))
     }
 
     /**
-     * Format the date with the format yyyy-MM-dd'T'HH:mm:ssZ in the UTC timezone
+     * Format the date with the format yyyy-MM-dd'T'HH:mm:ssZ in the default timezone
      */
     fun format(): String {
         return this.format(DATE_TIME_FORMAT)
