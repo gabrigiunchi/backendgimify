@@ -75,7 +75,7 @@ class DateDecorator(val date: Date) {
         return this.isSameDay(of(date))
     }
 
-    private fun format(pattern: String, timeZone: TimeZone): String {
+    fun format(pattern: String, timeZone: TimeZone): String {
         val formatter = SimpleDateFormat(pattern, Locale.ENGLISH)
         formatter.timeZone = timeZone
         return formatter.format(this.date)
@@ -99,7 +99,9 @@ class DateDecorator(val date: Date) {
         return OffsetDateTime.ofInstant(this.date.toInstant(), zoneId)
     }
 
-    fun toLocalDate(): LocalDate = LocalDate.parse(this.format("yyyy-MM-dd"))
+    fun toLocalDate(zoneId: ZoneId = ZoneId.of("UTC")): LocalDate =
+            LocalDate.ofInstant(this.date.toInstant(), zoneId)
+
     fun toLocalTime(zoneId: ZoneId = ZoneId.of("UTC")): LocalTime =
             LocalTime.ofInstant(this.date.toInstant(), zoneId)
 
@@ -129,8 +131,17 @@ class DateDecorator(val date: Date) {
         fun of(date: String): DateDecorator = of(date, DATE_TIME_FORMAT)
         fun of(dateObject: Date): DateDecorator = DateDecorator(dateObject)
         fun now(): DateDecorator = DateDecorator(Calendar.getInstance().time)
-        fun startOfToday(): DateDecorator = createDate(now().format("yyyy-MM-dd"))
-        fun endOfToday(): DateDecorator = createDate(now().format("yyyy-MM-dd")).plusDays(1)
+        fun startOfToday(zoneId: ZoneId = ZoneId.of("UTC")): DateDecorator =
+                of(Date.from(LocalDate.now(zoneId)
+                        .atStartOfDay(zoneId)
+                        .toInstant()))
+
+        fun endOfToday(zoneId: ZoneId = ZoneId.of("UTC")): DateDecorator =
+                of(Date.from(LocalDate.now(zoneId)
+                        .plusDays(1)
+                        .atStartOfDay(zoneId)
+                        .toOffsetDateTime()
+                        .toInstant()))
 
         fun max(): DateDecorator {
             val calendar = Calendar.getInstance()

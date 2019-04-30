@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.util
 import org.assertj.core.api.Assertions
 import org.junit.Test
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -170,9 +171,21 @@ class DateDecoratorTest {
 
     @Test
     fun `Should return the start of the current date`() {
-        val today = DateDecorator.startOfToday()
-        Assertions.assertThat(today.format("yyyy-MM-dd")).isEqualTo(DateDecorator.now().format("yyyy-MM-dd"))
+        val zoneId = ZoneId.of("UTC")
+        val today = DateDecorator.startOfToday(zoneId)
+        val expectedDate = LocalDate.now(zoneId)
+        Assertions.assertThat(today.format("yyyy-MM-dd")).isEqualTo(expectedDate.toString())
         Assertions.assertThat(today.format("HH:mm:ss")).isEqualTo("00:00:00")
+    }
+
+    @Test
+    fun `Should return the start of the current date (using timezone)`() {
+        val zoneId = ZoneId.of("America/Los_Angeles")
+        val timezone = TimeZone.getTimeZone(zoneId)
+        val today = DateDecorator.startOfToday(zoneId)
+        val expectedDate = LocalDate.now(zoneId)
+        Assertions.assertThat(today.format("yyyy-MM-dd", timezone)).isEqualTo(expectedDate.toString())
+        Assertions.assertThat(today.format("HH:mm:ss", timezone)).isEqualTo("00:00:00")
     }
 
     @Test
@@ -180,6 +193,16 @@ class DateDecoratorTest {
         val today = DateDecorator.endOfToday()
         Assertions.assertThat(today.format("yyyy-MM-dd")).isEqualTo(DateDecorator.now().plusDays(1).format("yyyy-MM-dd"))
         Assertions.assertThat(today.format("HH:mm:ss")).isEqualTo("00:00:00")
+    }
+
+    @Test
+    fun `Should return the end of the current date (using timezone)`() {
+        val zoneId = ZoneId.of("America/Los_Angeles")
+        val timezone = TimeZone.getTimeZone(zoneId)
+        val today = DateDecorator.endOfToday(zoneId)
+        val expectedDate = LocalDate.now(zoneId).plusDays(1)
+        Assertions.assertThat(today.format("yyyy-MM-dd", timezone)).isEqualTo(expectedDate.toString())
+        Assertions.assertThat(today.format("HH:mm:ss", timezone)).isEqualTo("00:00:00")
     }
 
     @Test
