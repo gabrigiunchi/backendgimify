@@ -56,12 +56,12 @@ class TimeInterval(
     }
 
     fun contains(dateInterval: DateInterval) =
-            dateInterval.isWithinSameDay() &&
+            dateInterval.isWithinSameDay(this.zoneId) &&
                     this.contains(dateInterval.start) &&
                     this.contains(dateInterval.end)
 
     fun overlaps(dateInterval: DateInterval): Boolean {
-        return !dateInterval.isWithinSameDay() ||
+        return !dateInterval.isWithinSameDay(this.zoneId) ||
                 TimeInterval(dateInterval.start, dateInterval.end, this.zoneId).overlaps(this)
     }
 

@@ -9,7 +9,7 @@ import java.util.*
 
 class DateDecorator(val date: Date) {
 
-    private val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    private val calendar = Calendar.getInstance(TimeZone.getTimeZone(DEFAULT_TIMEZONE))
 
     init {
         calendar.time = this.date
@@ -67,12 +67,12 @@ class DateDecorator(val date: Date) {
         return this.plusDays(-days)
     }
 
-    fun isSameDay(dateDecorator: DateDecorator): Boolean {
-        return dateDecorator.toLocalDate() == this.toLocalDate()
+    fun isSameDay(dateDecorator: DateDecorator, zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): Boolean {
+        return dateDecorator.toLocalDate(zoneId) == this.toLocalDate(zoneId)
     }
 
-    fun isSameDay(date: Date): Boolean {
-        return this.isSameDay(of(date))
+    fun isSameDay(date: Date, zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): Boolean {
+        return this.isSameDay(of(date), zoneId)
     }
 
     fun format(pattern: String, timeZone: TimeZone): String {
@@ -85,7 +85,7 @@ class DateDecorator(val date: Date) {
      * Format the date with the given pattern in UTC timezone
      */
     fun format(pattern: String): String {
-        return this.format(pattern, TimeZone.getTimeZone("UTC"))
+        return this.format(pattern, TimeZone.getTimeZone(DEFAULT_TIMEZONE))
     }
 
     /**
@@ -95,11 +95,11 @@ class DateDecorator(val date: Date) {
         return this.format(DATE_TIME_FORMAT)
     }
 
-    fun toOffsetDateTime(zoneId: ZoneId = ZoneId.of("UTC")): OffsetDateTime {
+    fun toOffsetDateTime(zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): OffsetDateTime {
         return OffsetDateTime.ofInstant(this.date.toInstant(), zoneId)
     }
 
-    fun toLocalDate(zoneId: ZoneId = ZoneId.of("UTC")): LocalDate =
+    fun toLocalDate(zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): LocalDate =
             LocalDate.ofInstant(this.date.toInstant(), zoneId)
 
 
@@ -120,11 +120,12 @@ class DateDecorator(val date: Date) {
     }
 
     companion object {
+        const val DEFAULT_TIMEZONE = "UTC"
         const val DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ"
 
         fun of(date: String, pattern: String): DateDecorator {
             val timeFormatter = SimpleDateFormat(pattern)
-            timeFormatter.timeZone = TimeZone.getTimeZone("UTC")
+            timeFormatter.timeZone = TimeZone.getTimeZone(DEFAULT_TIMEZONE)
             return DateDecorator(timeFormatter.parse(date))
         }
 
@@ -132,13 +133,13 @@ class DateDecorator(val date: Date) {
         fun of(dateObject: Date): DateDecorator = DateDecorator(dateObject)
         fun now(): DateDecorator = DateDecorator(Calendar.getInstance().time)
 
-        fun startOfToday(zoneId: ZoneId = ZoneId.of("UTC")): DateDecorator {
+        fun startOfToday(zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): DateDecorator {
             return of(Date.from(LocalDate.now(zoneId)
                     .atStartOfDay(zoneId)
                     .toInstant()))
         }
 
-        fun endOfToday(zoneId: ZoneId = ZoneId.of("UTC")): DateDecorator {
+        fun endOfToday(zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): DateDecorator {
             return of(Date.from(LocalDate.now(zoneId)
                     .plusDays(1)
                     .atStartOfDay(zoneId)

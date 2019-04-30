@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.junit.Test
+import java.time.ZoneId
 
 class DateIntervalTest {
 
@@ -175,12 +176,21 @@ class DateIntervalTest {
     }
 
     @Test
+    fun `Should say if the interval is within the same day considering timezone`() {
+        val d1 = DateDecorator.of("2019-04-30T00:10:00+0200")
+        val d2 = DateDecorator.of("2019-04-30T10:00:00+0200")
+        val interval = DateInterval(d1.date, d2.date)
+        Assertions.assertThat(interval.isWithinSameDay(ZoneId.of("Europe/Rome"))).isTrue()
+        Assertions.assertThat(interval.isWithinSameDay(ZoneId.of("UTC"))).isFalse()
+    }
+
+    @Test
     fun `Should say if the interval is NOT within the same day`() {
         Assertions.assertThat(
                 DateInterval(
                         DateDecorator.of("2019-01-01T08:00:00+0000").date,
                         DateDecorator.of("2019-01-02T16:00:00+0000").date
-                ).isWithinSameDay()
+                ).isWithinSameDay(ZoneId.of("UTC"))
         ).isFalse()
     }
 

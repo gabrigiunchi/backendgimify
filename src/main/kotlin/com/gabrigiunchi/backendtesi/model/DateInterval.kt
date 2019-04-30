@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.dto.input.DateIntervalDTO
 import com.gabrigiunchi.backendtesi.util.DateDecorator
+import java.time.ZoneId
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -29,7 +30,8 @@ class DateInterval(
                 dateInterval.contains(this.end)
     }
 
-    fun isWithinSameDay(): Boolean = DateDecorator.of(this.start).isSameDay(this.end)
+    fun isWithinSameDay(zoneId: ZoneId = ZoneId.of("UTC")): Boolean =
+            DateDecorator.of(this.start).isSameDay(this.end, zoneId)
 
     init {
         if (this.start > this.end) {

@@ -160,9 +160,9 @@ class DateDecoratorTest {
 
     @Test
     fun `Should say if two dates are the same day considering timezone`() {
-        val d1 = DateDecorator.of("2019-01-01T00:00:00+0000")
-        val d2 = DateDecorator.of("2019-01-02T01:00:00+0200")
-        Assertions.assertThat(d1.isSameDay(d2)).isTrue()
+        val d1 = DateDecorator.of("2019-04-29T00:50:00+0200")
+        val d2 = DateDecorator.of("2019-04-29T10:00:00+0200")
+        Assertions.assertThat(d1.isSameDay(d2, ZoneId.of("Europe/Rome"))).isTrue()
     }
 
     @Test
@@ -257,8 +257,8 @@ class DateDecoratorTest {
 
     @Test
     fun `Should convert into LocalDate`() {
-        val date = DateDecorator.of("2019-04-29T10:00:00+0200")
-        val localDate = date.toLocalDate()
+        val date = DateDecorator.of("2019-04-29T00:50:00+0200")
+        val localDate = date.toLocalDate(ZoneId.of("Europe/Rome"))
         Assertions.assertThat(localDate.toString()).isEqualTo("2019-04-29")
     }
 
