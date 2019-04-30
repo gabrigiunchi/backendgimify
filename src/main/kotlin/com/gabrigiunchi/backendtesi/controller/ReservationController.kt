@@ -10,6 +10,7 @@ import com.gabrigiunchi.backendtesi.model.dto.output.ReservationDTOOutput
 import com.gabrigiunchi.backendtesi.service.ReservationService
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import java.time.ZoneId
 import java.util.*
 import javax.validation.Valid
 
@@ -30,6 +32,9 @@ class ReservationController(
         val userDAO: UserDAO) : BaseController(userDAO) {
 
     private val logger = LoggerFactory.getLogger(ReservationController::class.java)
+
+    @Value("\${application.zoneId}")
+    private var zoneId: String = "UTC"
 
     @GetMapping("/page/{page}/size/{size}")
     fun getAllReservations(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {
@@ -74,8 +79,8 @@ class ReservationController(
                     ResponseEntity(
                             this.reservationDAO.findByAssetAndEndBetween(
                                     it,
-                                    DateDecorator.startOfToday().date,
-                                    DateDecorator.endOfToday().date
+                                    DateDecorator.startOfToday(ZoneId.of(zoneId)).date,
+                                    DateDecorator.endOfToday(ZoneId.of(zoneId)).date
                             ).map { reservation -> ReservationDTOOutput(reservation) },
                             HttpStatus.OK)
                 }
