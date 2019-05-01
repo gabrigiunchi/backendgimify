@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
+import com.gabrigiunchi.backendtesi.model.dto.output.AssetDTOOutput
 import com.gabrigiunchi.backendtesi.service.AssetService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -28,9 +29,9 @@ class AssetController(
     private val logger = LoggerFactory.getLogger(AssetController::class.java)
 
     @GetMapping("/page/{page}/size/{size}")
-    fun getAssets(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Asset>> {
+    fun getAssets(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<AssetDTOOutput>> {
         this.logger.info("GET all assets, page=$page size=$size")
-        return ResponseEntity(this.assetDAO.findAll(this.pageRequest(page, size)), HttpStatus.OK)
+        return ResponseEntity(this.assetDAO.findAll(this.pageRequest(page, size)).map { AssetDTOOutput(it) }, HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
@@ -42,26 +43,26 @@ class AssetController(
     }
 
     @GetMapping("/by_gym/{gymId}/page/{page}/size/{size}")
-    fun getAssetsByGym(@PathVariable gymId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Asset>> {
+    fun getAssetsByGym(@PathVariable gymId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<AssetDTOOutput>> {
         this.logger.info("GET all assets in gym $gymId, page=$page size=$size")
         return this.gymDAO.findById(gymId)
-                .map { ResponseEntity(this.assetDAO.findByGym(it, this.pageRequest(page, size)), HttpStatus.OK) }
+                .map { ResponseEntity(this.assetDAO.findByGym(it, this.pageRequest(page, size)).map { AssetDTOOutput(it) }, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
     @GetMapping("/by_gym/{gymId}/by_kind/{kindId}")
-    fun getAssetsByGymAndKind(@PathVariable gymId: Int, @PathVariable kindId: Int): ResponseEntity<Collection<Asset>> {
+    fun getAssetsByGymAndKind(@PathVariable gymId: Int, @PathVariable kindId: Int): ResponseEntity<Collection<AssetDTOOutput>> {
         this.logger.info("GET all assets in gym $gymId of kind $kindId")
         val kind = this.assetKindDAO.findById(kindId).orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
         val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
-        return ResponseEntity(this.assetDAO.findByGymAndKind(gym, kind), HttpStatus.OK)
+        return ResponseEntity(this.assetDAO.findByGymAndKind(gym, kind).map { AssetDTOOutput(it) }, HttpStatus.OK)
     }
 
     @GetMapping("/by_kind/{kindId}/page/{page}/size/{size}")
-    fun getAssetsByKind(@PathVariable kindId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Asset>> {
+    fun getAssetsByKind(@PathVariable kindId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<AssetDTOOutput>> {
         this.logger.info("GET all assets of kind $kindId")
         return this.assetKindDAO.findById(kindId)
-                .map { ResponseEntity(this.assetDAO.findByKind(it, this.pageRequest(page, size)), HttpStatus.OK) }
+                .map { ResponseEntity(this.assetDAO.findByKind(it, this.pageRequest(page, size)).map { AssetDTOOutput(it) }, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
     }
 

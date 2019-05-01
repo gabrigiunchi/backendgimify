@@ -57,6 +57,9 @@ class AssetControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(4)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].name", Matchers.`is`("a1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].kind.id", Matchers.`is`(kind.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].gymId", Matchers.`is`(gym.id)))
+
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[1].name", Matchers.`is`("a2")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[2].name", Matchers.`is`("a3")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[3].name", Matchers.`is`("a4")))
@@ -72,6 +75,9 @@ class AssetControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(asset.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(asset.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.kind.id", Matchers.`is`(asset.kind.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.gym.id", Matchers.`is`(asset.gym.id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

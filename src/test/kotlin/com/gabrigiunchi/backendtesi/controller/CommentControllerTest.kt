@@ -77,7 +77,7 @@ class CommentControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.`is`(target.message)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.rating", Matchers.`is`(target.rating)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(target.user.id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.gym.id", Matchers.`is`(target.gym.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.gymId", Matchers.`is`(target.gym.id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -238,7 +238,7 @@ class CommentControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.`is`(commentDTO.message)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.rating", Matchers.`is`(commentDTO.rating)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(commentDTO.userId)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.gym.id", Matchers.`is`(commentDTO.gymId)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.gymId", Matchers.`is`(commentDTO.gymId)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -357,7 +357,7 @@ class CommentControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.`is`(target.message)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.rating", Matchers.`is`(target.rating)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(target.user.id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.gym.id", Matchers.`is`(target.gym.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.gymId", Matchers.`is`(target.gym.id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -430,7 +430,7 @@ class CommentControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.`is`(commentDTO.message)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.rating", Matchers.`is`(commentDTO.rating)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(commentDTO.userId)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.gym.id", Matchers.`is`(commentDTO.gymId)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.gymId", Matchers.`is`(commentDTO.gymId)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
