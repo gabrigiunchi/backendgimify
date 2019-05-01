@@ -35,7 +35,7 @@ class AssetController(
     }
 
     @GetMapping("/{id}")
-    fun getAssetByInd(@PathVariable id: Int): ResponseEntity<Asset> {
+    fun getAssetById(@PathVariable id: Int): ResponseEntity<Asset> {
         this.logger.info("GET asset #$id")
         return this.assetDAO.findById(id)
                 .map { ResponseEntity(it, HttpStatus.OK) }
@@ -46,7 +46,11 @@ class AssetController(
     fun getAssetsByGym(@PathVariable gymId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<AssetDTOOutput>> {
         this.logger.info("GET all assets in gym $gymId, page=$page size=$size")
         return this.gymDAO.findById(gymId)
-                .map { ResponseEntity(this.assetDAO.findByGym(it, this.pageRequest(page, size)).map { AssetDTOOutput(it) }, HttpStatus.OK) }
+                .map {
+                    ResponseEntity(
+                            this.assetDAO.findByGym(it, this.pageRequest(page, size)).map { asset -> AssetDTOOutput(asset) },
+                            HttpStatus.OK)
+                }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
