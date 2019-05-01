@@ -1,10 +1,7 @@
 package com.gabrigiunchi.backendtesi.util
 
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.*
 import java.util.*
 
 class DateDecorator(val date: Date) {
@@ -73,6 +70,14 @@ class DateDecorator(val date: Date) {
 
     fun isSameDay(date: Date, zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): Boolean {
         return this.isSameDay(of(date), zoneId)
+    }
+
+    fun isSameDayOfWeek(date: Date, zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): Boolean {
+        return DateDecorator.of(date).toLocalDate(zoneId).dayOfWeek == this.toLocalDate(zoneId).dayOfWeek
+    }
+
+    fun isDayOfWeek(dayOfWeek: DayOfWeek, zoneId: ZoneId = ZoneId.of(DEFAULT_TIMEZONE)): Boolean {
+        return DateDecorator.of(date).toLocalDate(zoneId).dayOfWeek == dayOfWeek
     }
 
     fun format(pattern: String, timeZone: TimeZone): String {

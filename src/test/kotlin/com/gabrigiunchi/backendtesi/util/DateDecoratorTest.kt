@@ -1,10 +1,10 @@
 package com.gabrigiunchi.backendtesi.util
 
+import com.gabrigiunchi.backendtesi.MockEntities
 import org.assertj.core.api.Assertions
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -162,7 +162,7 @@ class DateDecoratorTest {
     fun `Should say if two dates are the same day considering timezone`() {
         val d1 = DateDecorator.of("2019-04-29T00:50:00+0200")
         val d2 = DateDecorator.of("2019-04-29T10:00:00+0200")
-        Assertions.assertThat(d1.isSameDay(d2, ZoneId.of("Europe/Rome"))).isTrue()
+        Assertions.assertThat(d1.isSameDay(d2, MockEntities.ROME)).isTrue()
     }
 
     @Test
@@ -184,17 +184,67 @@ class DateDecoratorTest {
     }
 
     @Test
+    fun `Should say if two dates are the same day of week`() {
+        val zone = MockEntities.ROME
+        val d1 = DateDecorator.of("2019-05-01T00:10:00+0200")
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-01T10:00:00+0200").date, zone)).isTrue()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-04-30T10:00:00+0000").date)).isTrue()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-08T10:00:00+0200").date, zone)).isTrue()
+
+    }
+
+    @Test
+    fun `Should say if two dates are not the same day of week`() {
+        val d1 = DateDecorator.of("2019-05-01T10:00:00+0200")
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-04-27T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-04-28T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-04-29T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-04-30T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-02T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-03T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-04T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-05T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-06T10:00:00+0200").date)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-07T10:00:00+0200").date)).isFalse()
+    }
+
+    @Test
+    fun `Should say if two dates are not the same day of week considering timezone`() {
+        val zone = MockEntities.ROME
+        val d1 = DateDecorator.of("2019-05-01T00:10:00+0200")
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-02T10:00:00+0200").date, zone)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-02T10:00:00+0200").date, zone)).isFalse()
+        Assertions.assertThat(d1.isSameDayOfWeek(DateDecorator.of("2019-05-02T10:00:00+0200").date)).isFalse()
+    }
+
+    @Test
+    fun `Should say if a date is a given day of week`() {
+        val zone = MockEntities.ROME
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.TUESDAY)).isTrue()
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.WEDNESDAY, zone)).isTrue()
+    }
+
+    @Test
+    fun `Should say if a date is not a given day of week`() {
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.MONDAY)).isFalse()
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.WEDNESDAY)).isFalse()
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.THURSDAY)).isFalse()
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.FRIDAY)).isFalse()
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.SATURDAY)).isFalse()
+        Assertions.assertThat(DateDecorator.of("2019-05-01T00:10:00+0200").isDayOfWeek(DayOfWeek.SUNDAY)).isFalse()
+    }
+
+    @Test
     fun `Should return the start of the current date`() {
-        val zoneId = ZoneId.of("UTC")
-        val today = DateDecorator.startOfToday(zoneId)
-        val expectedDate = LocalDate.now(zoneId)
+        val today = DateDecorator.startOfToday()
+        val expectedDate = LocalDate.now(MockEntities.UTC)
         Assertions.assertThat(today.format("yyyy-MM-dd")).isEqualTo(expectedDate.toString())
         Assertions.assertThat(today.format("HH:mm:ss")).isEqualTo("00:00:00")
     }
 
     @Test
     fun `Should return the start of the current date (using timezone)`() {
-        val zoneId = ZoneId.of("America/Los_Angeles")
+        val zoneId = MockEntities.LOS_ANGELES
         val timezone = TimeZone.getTimeZone(zoneId)
         val today = DateDecorator.startOfToday(zoneId)
         val expectedDate = LocalDate.now(zoneId)
@@ -211,7 +261,7 @@ class DateDecoratorTest {
 
     @Test
     fun `Should return the end of the current date (using timezone)`() {
-        val zoneId = ZoneId.of("America/Los_Angeles")
+        val zoneId = MockEntities.LOS_ANGELES
         val timezone = TimeZone.getTimeZone(zoneId)
         val today = DateDecorator.endOfToday(zoneId)
         val expectedDate = LocalDate.now(zoneId).plusDays(1)
@@ -258,17 +308,17 @@ class DateDecoratorTest {
     @Test
     fun `Should convert into LocalDate`() {
         val date = DateDecorator.of("2019-04-29T00:50:00+0200")
-        val localDate = date.toLocalDate(ZoneId.of("Europe/Rome"))
-        Assertions.assertThat(localDate.toString()).isEqualTo("2019-04-29")
+        Assertions.assertThat(date.toLocalDate(MockEntities.ROME).toString()).isEqualTo("2019-04-29")
+        Assertions.assertThat(date.toLocalDate().toString()).isEqualTo("2019-04-28")
     }
 
     @Test
     fun `Should convert into LocalTime`() {
         val date = DateDecorator.of("2019-04-29T10:00:00+0200")
-        val localTime = date.toLocalTime(ZoneId.of("Europe/Rome"))
+        val localTime = date.toLocalTime(MockEntities.ROME)
         Assertions.assertThat(localTime.toString()).isEqualTo("10:00")
 
-        val localTime2 = date.toLocalTime(ZoneId.of("UTC"))
+        val localTime2 = date.toLocalTime(MockEntities.UTC)
         Assertions.assertThat(localTime2.toString()).isEqualTo("08:00")
     }
 }

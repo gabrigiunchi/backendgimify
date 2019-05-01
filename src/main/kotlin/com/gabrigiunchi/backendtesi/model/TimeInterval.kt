@@ -39,21 +39,7 @@ class TimeInterval(
         }
     }
 
-    fun contains(date: Date): Boolean {
-        val s = DateDecorator.of(date)
-                .toLocalDate()
-                .atTime(this.start)
-                .atZone(this.zoneId)
-                .toOffsetDateTime()
-
-        val end = DateDecorator.of(date)
-                .toLocalDate()
-                .atTime(this.end)
-                .atZone(this.zoneId)
-                .toOffsetDateTime()
-
-        return DateDecorator.of(date).toOffsetDateTime(this.zoneId) in s..end
-    }
+    fun contains(date: Date): Boolean = DateDecorator.of(date).toLocalTime(this.zoneId) in this.start..this.end
 
     fun contains(dateInterval: DateInterval) =
             dateInterval.isWithinSameDay(this.zoneId) &&

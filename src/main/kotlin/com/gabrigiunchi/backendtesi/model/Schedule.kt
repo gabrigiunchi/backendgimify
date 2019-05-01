@@ -20,12 +20,14 @@ class Schedule(
     constructor(scheduleDTO: ScheduleDTO) : this(-1, scheduleDTO.dayOfWeek, scheduleDTO.timeIntervals)
     constructor(dayOfWeek: DayOfWeek, timeIntervals: Set<TimeInterval>) : this(-1, dayOfWeek, timeIntervals)
 
-    private fun isSameDay(date: Date): Boolean = DateDecorator.of(date).dayOfWeek == this.dayOfWeek.value
+    private fun isSameDayOfWeek(date: Date): Boolean {
+        return DateDecorator.of(date).isDayOfWeek(this.dayOfWeek)
+    }
 
-    fun contains(date: Date): Boolean = this.isSameDay(date) && this.timeIntervals.any { it.contains(date) }
+    fun contains(date: Date): Boolean = this.isSameDayOfWeek(date) && this.timeIntervals.any { it.contains(date) }
 
     fun contains(dateInterval: DateInterval): Boolean {
-        return this.isSameDay(dateInterval.start) && this.timeIntervals.any { it.contains(dateInterval) }
+        return this.isSameDayOfWeek(dateInterval.start) && this.timeIntervals.any { it.contains(dateInterval) }
     }
 
     fun toMap(): Map<String, Any> {

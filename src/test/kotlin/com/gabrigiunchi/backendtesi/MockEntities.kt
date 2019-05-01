@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
 import java.time.MonthDay
+import java.time.ZoneId
 
 object MockEntities {
 
@@ -38,4 +39,8 @@ object MockEntities {
     val mockCities = CityEnum.values().map { City(it) }
     val assetKinds = AssetKindEnum.values().map { AssetKind(it, 20) }
     val wildcardSchedules = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01", "23:59"))) }.toSet()
+
+    val ROME: ZoneId = ZoneId.of("Europe/Rome")
+    val UTC: ZoneId = ZoneId.of("UTC")
+    val LOS_ANGELES: ZoneId = ZoneId.of("America/Los_Angeles")
 }
