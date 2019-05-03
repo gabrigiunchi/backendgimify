@@ -148,7 +148,7 @@ class TimetableControllerTest : AbstractControllerTest() {
                 recurringExceptions = MockEntities.mockHolidays)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(timetableDTO.toJson()))
+                .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andDo(MockMvcResultHandlers.print())
 
@@ -162,7 +162,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         val timetableDTO = TimetableDTO(gymId, emptySet(), emptySet(), emptySet(), MockEntities.mockHolidays)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(timetableDTO.toJson()))
+                .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$[0].message", Matchers.`is`("gym $gymId does not exist")))
@@ -186,7 +186,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         Assertions.assertThat(timetable.id).isNotEqualTo(-1)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.TIMETABLES}/${timetable.id}")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(timetableDTO.toJson()))
+                .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetableDTO.openings.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.exceptionalOpenings.length()", Matchers.`is`(timetableDTO.exceptionalOpenings.size)))
@@ -217,7 +217,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         Assertions.assertThat(timetable.id).isNotEqualTo(-1)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.TIMETABLES}/-1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(timetableDTO.toJson()))
+                .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$[0].message", Matchers.`is`("timetable -1 does not exist")))
@@ -239,7 +239,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         Assertions.assertThat(timetable.id).isNotEqualTo(-1)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.TIMETABLES}/${timetable.id}")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(timetableDTO.toJson()))
+                .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         "$[0].message", Matchers.`is`("gym -1 does not exist")))

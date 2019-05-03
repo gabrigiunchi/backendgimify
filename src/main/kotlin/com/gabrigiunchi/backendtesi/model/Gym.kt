@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.ZoneId
@@ -26,13 +25,4 @@ class Gym(
 
     constructor(name: String, address: String, city: City, zoneId: String) :
             this(-1, name, address, city, ZoneId.of(zoneId))
-
-    fun toJson(): String {
-        return ObjectMapper().writeValueAsString(mapOf(
-                Pair("id", this.id.toString()),
-                Pair("name", this.name),
-                Pair("address", this.address),
-                Pair("city", this.city),
-                Pair("zoneId", this.zoneId.toString())))
-    }
 }

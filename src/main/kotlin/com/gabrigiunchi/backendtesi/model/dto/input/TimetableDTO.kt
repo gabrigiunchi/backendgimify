@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.model.dto.input
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.DateInterval
 import com.gabrigiunchi.backendtesi.model.Schedule
 import java.time.MonthDay
@@ -10,13 +9,4 @@ class TimetableDTO(
         val openings: Set<Schedule>,
         val closingDays: Set<DateInterval>,
         val exceptionalOpenings: Set<DateInterval>,
-        val recurringExceptions: Set<MonthDay>) {
-    fun toJson(): String {
-        return ObjectMapper().writeValueAsString(mapOf(
-                Pair("gymId", this.gymId.toString()),
-                Pair("closingDays", this.closingDays),
-                Pair("exceptionalOpenings", this.exceptionalOpenings),
-                Pair("openings", this.openings.map { it.toMap() }),
-                Pair("recurringExceptions", this.recurringExceptions.map { it.toString() })))
-    }
-}
+        val recurringExceptions: Set<MonthDay>)
