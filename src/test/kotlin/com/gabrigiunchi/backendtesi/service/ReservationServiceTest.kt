@@ -729,6 +729,75 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.deleteReservationOfUser(user1, savedReservation.id)
     }
 
+    /******************************* CHECK SPECIFIC ASSET AVAILABILITY *******************************/
+
+    @Test
+    fun `Should return false if the start is after the end or the start is in the past or if the start is beyond the threshold`() {
+        this.timetableDAO.deleteAll()
+        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules))
+        Assertions.assertThat(
+                this.reservationService.isAssetAvailable(
+                        this.mockAsset().id,
+                        DateDecorator.of("2050-04-04T11:20:00+0000").date,
+                        DateDecorator.of("2050-04-04T11:10:00+0000").date
+                )
+        ).isFalse()
+
+        Assertions.assertThat(
+                this.reservationService.isAssetAvailable(
+                        this.mockAsset().id,
+                        DateDecorator.of("2017-04-04T11:00:00+0000").date,
+                        DateDecorator.of("2017-04-04T11:10:00+0000").date
+                )
+        ).isFalse()
+
+
+        val start = DateDecorator.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val end = start.plusMinutes(5)
+        Assertions.assertThat(
+                this.reservationService.isAssetAvailable(
+                        this.mockAsset().id,
+                        start.date,
+                        end.date
+                )
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should return false if the gym is closed`() {
+        Assertions.assertThat(
+                this.reservationService.isAssetAvailable(
+                        this.mockAsset().id,
+                        DateDecorator.of("2050-04-09T11:00:00+0000").date,
+                        DateDecorator.of("2050-04-09T11:10:00+0000").date
+                )
+        ).isFalse()
+    }
+
+    @Test
+    fun `Should return false if there is another reservation at that time`() {
+        val start = DateDecorator.of("2050-04-04T11:10:00+0000")
+        val end = DateDecorator.of("2050-04-04T11:20:00+0000")
+        val asset = this.mockAsset()
+        this.reservationDAO.save(Reservation(asset, this.user!!, start.date, end.date))
+        Assertions.assertThat(this.reservationService.isAssetAvailable(asset.id, start.minusMinutes(1).date, end.date)).isFalse()
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should throw an exception if the asset does not exist when checking its availability`() {
+        this.reservationService.isAssetAvailable(-1,
+                DateDecorator.now().plusDays(1).date,
+                DateDecorator.now().plusDays(1).plusMinutes(1).date)
+    }
+
+    @Test
+    fun `Should return true if the asset is available`() {
+        val start = DateDecorator.of("2050-04-04T11:00:00+0000")
+        val end = DateDecorator.of("2050-04-04T11:10:00+0000")
+        val asset = this.mockAsset()
+        Assertions.assertThat(this.reservationService.isAssetAvailable(asset.id, start.minusMinutes(1).date, end.date)).isTrue()
+    }
+
     /**************************************** UTILS ***********************************************************/
 
     private fun mockTimetable(): Timetable {

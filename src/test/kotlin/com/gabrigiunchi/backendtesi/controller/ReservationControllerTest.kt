@@ -56,6 +56,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.gymDAO.deleteAll()
         this.assetDAO.deleteAll()
         this.reservationLogDAO.deleteAll()
+        this.timetableDAO.deleteAll()
     }
 
     @Test
@@ -724,6 +725,63 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
+
+    /************************* CHECK SPECIFIC ASSET AVAILABILITY ************************************************/
+
+    @Test
+    fun `Should return 404 if the asset does not exist when checking it availability`() {
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/asset/-1/from/${from.format()}/to/${to.format()}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should check the availability of an asset and return true if everything's ok`() {
+        val gym = this.mockGym()
+        this.timetableDAO.save(Timetable(gym, MockEntities.wildcardSchedules))
+        val asset = this.mockAsset(gym)
+        val from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        val to = from.plusMinutes(10)
+        val url = "${ApiUrls.RESERVATIONS}/available/asset/${asset.id}/from/${from.format()}/to/${to.format()}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(true)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should check the availability of an asset and return false if it is not`() {
+        val gym = this.mockGym()
+        this.timetableDAO.save(Timetable(gym, MockEntities.wildcardSchedules))
+        val asset = this.mockAsset(gym)
+        var from = DateDecorator.of("2050-04-04T10:00:00+0000")
+        var to = from.minusMinutes(10)
+        var url = "${ApiUrls.RESERVATIONS}/available/asset/${asset.id}/from/${from.format()}/to/${to.format()}"
+
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(false)))
+                .andDo(MockMvcResultHandlers.print())
+
+        from = DateDecorator.of("2005-04-04T10:20:00+0000")
+        to = from.plusMinutes(10)
+        url = "${ApiUrls.RESERVATIONS}/available/asset/${asset.id}/from/${from.format()}/to/${to.format()}"
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(false)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
 
     /************************************** UTILS *******************************************************************/
 

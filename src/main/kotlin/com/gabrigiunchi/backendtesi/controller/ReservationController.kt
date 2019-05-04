@@ -116,6 +116,15 @@ class ReservationController(
         return ResponseEntity(this.reservationService.getAvailableAssetsInCity(kindId, cityId, from, to), HttpStatus.OK)
     }
 
+    @GetMapping("/available/asset/{assetId}/from/{from}/to/{to}")
+    fun isAssetAvailable(@PathVariable assetId: Int,
+                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
+                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date): ResponseEntity<Boolean> {
+
+        this.logger.info("GET availability of asset $assetId in interval: from $from to $to")
+        return ResponseEntity(this.reservationService.isAssetAvailable(assetId, from, to), HttpStatus.OK)
+    }
+
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
     fun addReservation(@Valid @RequestBody reservationDTO: ReservationDTOInput): ResponseEntity<ReservationDTOOutput> {

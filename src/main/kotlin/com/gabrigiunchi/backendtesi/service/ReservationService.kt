@@ -145,6 +145,19 @@ class ReservationService(
                 .filter { isAssetAvailable(it, start, end) }
     }
 
+    fun isAssetAvailable(assetId: Int, start: Date, end: Date): Boolean {
+        if (start >= end || start < Date() || this.isBeyondTheThreshold(start)) {
+            return false
+        }
+        return this.assetDAO.findById(assetId)
+                .map {
+                    this.isReservationDurationValid(it, start, end) &&
+                            this.isGymOpen(it.gym, start, end) &&
+                            this.isAssetAvailable(it, start, end)
+                }
+                .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
+    }
+
     private fun checkInterval(start: Date, end: Date) {
         if (start >= end) {
             throw IllegalArgumentException("start is after the end")
