@@ -408,18 +408,20 @@ class ReservationControllerTest : AbstractControllerTest() {
         )
 
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(assets[0], user1, DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
-                Reservation(assets[1], user1, DateDecorator.of("2019-01-01T10:00:00+0000").date, DateDecorator.of("2019-01-01T12:00:00+0000").date),
+                Reservation(assets[0], user1, DateDecorator.of("2017-01-01T10:00:00+0000").date, DateDecorator.of("2018-01-01T12:00:00+0000").date),
+                Reservation(assets[1], user1, DateDecorator.of("2018-01-01T10:00:00+0000").date, DateDecorator.of("2019-01-01T12:00:00+0000").date),
+                Reservation(assets[0], user1, DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
+                Reservation(assets[3], user1, DateDecorator.of("2020-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date),
                 Reservation(assets[0], user2, DateDecorator.of("2019-02-01T10:00:00+0000").date, DateDecorator.of("2019-02-01T12:00:00+0000").date),
                 Reservation(assets[3], user2, DateDecorator.of("2019-03-01T10:00:00+0000").date, DateDecorator.of("2019-03-01T12:00:00+0000").date)
         )).toList()
 
-        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me")
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/page/0/size/2")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(reservations[0].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(reservations[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`(reservations[3].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`(reservations[2].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

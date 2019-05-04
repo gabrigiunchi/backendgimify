@@ -138,12 +138,14 @@ class ReservationController(
 
     /********************************* MY RESERVATIONS *****************************************************/
 
-    @GetMapping("/me")
-    fun getAllReservationsOfLoggedUser(): ResponseEntity<List<ReservationDTOOutput>> {
+    @GetMapping("/me/page/{page}/size/{size}")
+    fun getAllReservationsOfLoggedUser(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all reservations of user #${user.id}")
         return ResponseEntity(
-                this.reservationDAO.findByUser(user).map { ReservationDTOOutput(it) },
+                this.reservationDAO
+                        .findByUser(user, PageRequest.of(page, size, Sort.by("start").descending()))
+                        .map { ReservationDTOOutput(it) },
                 HttpStatus.OK)
     }
 

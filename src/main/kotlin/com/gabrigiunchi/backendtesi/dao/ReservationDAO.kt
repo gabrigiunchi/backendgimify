@@ -15,6 +15,6 @@ interface ReservationDAO : PagingAndSortingRepository<Reservation, Int> {
     fun findByUserAndEndAfter(user: User, date: Date): Collection<Reservation>
     fun findByAssetAndEndAfter(asset: Asset, date: Date): Collection<Reservation>
     fun findByEndAfter(date: Date): Collection<Reservation>
-    fun findByUser(user: User): Collection<Reservation>
+    fun findByUser(user: User, pageable: Pageable): Page<Reservation>
     fun findByAsset(asset: Asset): Collection<Reservation>
 }
