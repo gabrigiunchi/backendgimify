@@ -8,6 +8,7 @@ import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
+import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -33,6 +34,9 @@ class AppInitializer {
     private lateinit var assetKindDAO: AssetKindDAO
 
     @Autowired
+    private lateinit var commentDAO: CommentDAO
+
+    @Autowired
     private lateinit var gymDAO: GymDAO
 
     @Autowired
@@ -40,6 +44,9 @@ class AppInitializer {
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
+
+    @Autowired
+    private lateinit var userFactory: UserFactory
 
     @Value("\${application.zoneId}")
     private var zoneId: String = "UTC"
@@ -50,6 +57,13 @@ class AppInitializer {
     private var cities = listOf<City>()
     private var gyms = listOf<Gym>()
     private var roles = listOf<UserRole>()
+    private var randomUsers = listOf<User>()
+    private val randomComments = listOf(
+            listOf("OK", "The experience was overall good", 3),
+            listOf("Awful", "Too crowded, the personnel was not nice", 1),
+            listOf("Incredible", "Nothing to say, keep up the good work!", 5),
+            listOf("Very nice gym", "I always go to this gym and could not think of anything nicer", 5)
+    )
 
     private val maxReservationTimes = mapOf(
             Pair(AssetKindEnum.CICLETTE, 60),
@@ -80,6 +94,7 @@ class AppInitializer {
         this.initAssetKinds()
         this.initAssets()
         this.initTimetables()
+        this.initComments()
         this.logger.info("DB initialized")
     }
 
@@ -97,6 +112,11 @@ class AppInitializer {
                 User("baseuser", SHA256PasswordEncoder().encode("bbbb"), "User",
                         "Anonimo", "prova@gmail.com", mutableListOf(roles[1])))
         )
+        this.randomUsers = this.userDAO.saveAll(
+                (0..20).map {
+                    this.userFactory.createRegularUser(this.randomUsername(), "password", "Name", "Surname")
+                }
+        ).toList()
 
         this.logger.info("Init users")
     }
@@ -143,9 +163,22 @@ class AppInitializer {
         this.logger.info("Init timetables")
     }
 
+    private fun initComments() {
+        this.randomUsers.forEach { user ->
+            val comments = this.gyms.map { gym ->
+                val random = this.randomComments[Random().nextInt(this.randomComments.size)]
+                Comment(user, gym, random[0] as String, random[1] as String, random[2] as Int)
+            }
+            this.commentDAO.saveAll(comments)
+        }
+        this.logger.info("Init comments")
+    }
+
     private val openings: Set<Schedule>
         get() = DayOfWeek.values().map { Schedule(it, this.timeIntervals) }.toSet()
 
     private val timeIntervals: Set<TimeInterval>
         get() = setOf(TimeInterval("09:00", "21:00", this.zoneId))
+
+    private fun randomUsername(): String = "user${Random().nextInt(100000)}"
 }
