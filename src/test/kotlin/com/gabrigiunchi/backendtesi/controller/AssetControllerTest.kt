@@ -59,6 +59,7 @@ class AssetControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].name", Matchers.`is`("a1")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].kind.id", Matchers.`is`(kind.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].gymId", Matchers.`is`(gym.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].gymName", Matchers.`is`(gym.name)))
 
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[1].name", Matchers.`is`("a2")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[2].name", Matchers.`is`("a3")))
