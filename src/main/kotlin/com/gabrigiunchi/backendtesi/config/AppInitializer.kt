@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
+import java.util.*
 
 @Service
 class AppInitializer {
@@ -116,12 +117,19 @@ class AppInitializer {
     }
 
     private fun initAssets() {
-        this.assetDAO.saveAll(listOf(
-                Asset("tr01", this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), gyms[0]),
-                Asset("c01", this.assetKindDAO.findByName(AssetKindEnum.CICLETTE.name).get(), gyms[0]),
-                Asset("p01", this.assetKindDAO.findByName(AssetKindEnum.PANCA.name).get(), gyms[1]),
-                Asset("tr01", this.assetKindDAO.findByName(AssetKindEnum.TAPIS_ROULANT.name).get(), gyms[2])
-        ))
+        val kinds = this.assetKindDAO.findAll()
+        val random = Random()
+        val assets: List<Asset> = kinds
+                .flatMap { kind ->
+                    this.gyms.flatMap { gym ->
+                        (1..4).map {
+                            val name = "${kind.name.substring(2)}${gym.name.reversed().substring(2)}$it${random.nextInt(100)}"
+                            Asset(name, kind, gym)
+                        }
+                    }
+                }
+
+        this.assetDAO.saveAll(assets)
         this.logger.info("Init assets")
     }
 
