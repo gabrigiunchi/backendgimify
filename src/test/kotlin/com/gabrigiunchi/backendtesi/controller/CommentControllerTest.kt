@@ -275,6 +275,7 @@ class CommentControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("rating must be between 1 and 5")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -287,6 +288,22 @@ class CommentControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("rating must be between 1 and 5")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not create a comment if the message is more than 140 characters`() {
+        val user = this.mockUser()
+        val gym = this.mockGym()
+        val message = "a".repeat(141)
+        Assertions.assertThat(message.length).isEqualTo(141)
+        val commentDTO = CommentDTOInput(user.id, gym.id, "wow this is a title", message, 3)
+        this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(commentDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("message must be at most 140 characters")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

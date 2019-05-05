@@ -34,5 +34,9 @@ class Comment(
         if (this.rating < 1 || this.rating > 5) {
             throw IllegalArgumentException("rating must be between 1 and 5")
         }
+
+        if (this.message.length > 140) {
+            throw IllegalArgumentException("message must be at most 140 characters")
+        }
     }
 }
