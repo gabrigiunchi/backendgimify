@@ -22,7 +22,6 @@ open class ImageService(
     }
 
     fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> {
-        val a = this.objectStorageService.createClient().listObjects(this.bucketName, prefix)
         return this.objectStorageService.createClient()
                 .listObjects(this.bucketName, prefix)
                 .objectSummaries
