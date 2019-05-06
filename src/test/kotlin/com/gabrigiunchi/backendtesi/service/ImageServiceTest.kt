@@ -102,6 +102,20 @@ class ImageServiceTest {
         this.imageService.deleteImage(name)
     }
 
+    @Test
+    fun `Should delete an object`() {
+        val name = "njdajsnd.aaa"
+        val content = "ndjansa"
+        this.createMockImage(name, content)
+        `when`(this.amazonS3.doesObjectExist(this.bucketName, name))
+                .thenReturn(this.mockObjectStorage.contains(name))
+
+        `when`(this.amazonS3.deleteObject(this.bucketName, name))
+                .then { this.mockObjectStorage.delete(name) }
+        this.imageService.deleteImage(name)
+        Assertions.assertThat(this.mockObjectStorage.contains(name)).isFalse()
+    }
+
     private fun createMockImage(name: String, content: String) {
         val image = MockMultipartFile(name, content.toByteArray())
         val metadata = ObjectMetadata()

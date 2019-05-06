@@ -1,5 +1,6 @@
 package com.gabrigiunchi.backendtesi
 
+import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.ImageMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.PutObjectResult
 import com.ibm.cloud.objectstorage.services.s3.model.S3Object
@@ -23,7 +24,19 @@ class MockObjectStorage {
         return PutObjectResult()
     }
 
+    fun delete(image: String) {
+        if (!this.contains(image)) {
+            throw ResourceNotFoundException(image)
+        }
+
+        this.objects.remove(image)
+    }
+
     fun getImage(name: String): S3Object {
+        if (!this.contains(name)) {
+            throw ResourceNotFoundException(name)
+        }
+
         val pair = this.objects[name]!!
         val image = pair.second
         val metadata = pair.first

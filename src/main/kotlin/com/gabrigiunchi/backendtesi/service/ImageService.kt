@@ -5,7 +5,7 @@ import com.gabrigiunchi.backendtesi.model.ImageMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import org.springframework.web.multipart.MultipartFile
 
-class ImageService(
+open class ImageService(
         private val objectStorageService: ObjectStorageService,
         private val bucketName: String
 ) {

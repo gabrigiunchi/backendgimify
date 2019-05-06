@@ -66,7 +66,10 @@ class AssetController(
     fun getAssetsByKind(@PathVariable kindId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<AssetDTOOutput>> {
         this.logger.info("GET all assets of kind $kindId")
         return this.assetKindDAO.findById(kindId)
-                .map { ResponseEntity(this.assetDAO.findByKind(it, this.pageRequest(page, size)).map { AssetDTOOutput(it) }, HttpStatus.OK) }
+                .map { kind ->
+                    ResponseEntity(
+                            this.assetDAO.findByKind(kind, this.pageRequest(page, size)).map { asset -> AssetDTOOutput(asset) },
+                            HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
     }
 
