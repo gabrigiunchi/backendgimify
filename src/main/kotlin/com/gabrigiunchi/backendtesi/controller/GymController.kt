@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.ImageMetadata
 import com.gabrigiunchi.backendtesi.service.GymService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -47,6 +48,12 @@ class GymController(private val gymDAO: GymDAO,
     fun getRatingOfGym(@PathVariable id: Int): ResponseEntity<Double> {
         this.logger.info("GET rating of gym $id")
         return ResponseEntity(this.gymService.calculateRatingOfGym(id), HttpStatus.OK)
+    }
+
+    @GetMapping("/{id}/photos")
+    fun getPhotosOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
+        this.logger.info("GET photos of gym $id")
+        return ResponseEntity(this.gymService.getPhotosOfGym(id), HttpStatus.OK)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

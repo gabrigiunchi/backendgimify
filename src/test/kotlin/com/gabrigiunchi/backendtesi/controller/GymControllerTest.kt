@@ -254,6 +254,29 @@ class GymControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
     }
 
+    /************************** PHOTOS ***************************************************/
+
+    @Test
+    fun `Should get the photos of a gym by its id`() {
+        val gym = this.gymDAO.save(Gym("gym dsjad", "address", this.city, "Europe/Paris"))
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/photos")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(0)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get the photos of a gym if it does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/-1/photos")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    /******************************** UTILS ****************************************************/
+
     private fun mockUser(): User {
         return this.userDAO.save(this.userFactory.createRegularUser("adsa", "jns", "jnj", "njnj"))
     }

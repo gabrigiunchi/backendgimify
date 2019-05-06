@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.service
 import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.ImageMetadata
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -21,6 +22,13 @@ class GymService(
                     val sum = ratings.sum()
                     if (ratings.isEmpty()) -1.0 else sum / ratings.size.toDouble()
                 }
+                .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+    }
+
+    // TODO: fix
+    fun getPhotosOfGym(gymId: Int): List<ImageMetadata> {
+        return this.gymDAO.findById(gymId)
+                .map { emptyList<ImageMetadata>() }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 }
