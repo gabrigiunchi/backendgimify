@@ -13,7 +13,6 @@ import com.gabrigiunchi.backendtesi.model.GymImage
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import org.assertj.core.api.Assertions
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
@@ -85,7 +84,7 @@ GymImageServiceTest : AbstractControllerTest() {
         val name = "photo1"
         val gym = this.mockGym()
         val image = this.createMockImage(name, "dnansda")
-        this.imageService.setImage(gym.id, image)
+        this.imageService.setImage(gym.id, image, name)
         val saved = this.gymImageDAO.findByGym(gym)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         Assertions.assertThat(saved.size).isEqualTo(1)
@@ -96,23 +95,23 @@ GymImageServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when adding the photo of a gym if the gym does not exist`() {
-        this.imageService.setImage(-1, this.createMockImage("name", "content"))
+        this.imageService.setImage(-1, this.createMockImage("name", "content"), "photo1")
     }
 
     @Test(expected = ResourceAlreadyExistsException::class)
     fun `Should not be possible to add two photos with the same name`() {
         val gym = this.mockGym()
         val name = "name"
-        this.imageService.setImage(gym.id, this.createMockImage(name, "content"))
+        this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
-        this.imageService.setImage(gym.id, this.createMockImage(name, "content"))
+        this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
     }
 
     @Test
     fun `Should delete an image`() {
         val gym = this.mockGym()
         val name = "name"
-        val saved = this.imageService.setImage(gym.id, this.createMockImage(name, "content"))
+        val saved = this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
         Assertions.assertThat(this.gymImageDAO.count()).isEqualTo(1)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         this.imageService.deleteImage(saved.id)
