@@ -59,7 +59,9 @@ class AppInitializer {
     private var roles = listOf<UserRole>()
     private var randomUsers = listOf<User>()
     private val randomComments = listOf(
+            listOf("The best gym in the city!", "Clean, lots of assets and very nice people. You must stop by", 5),
             listOf("OK", "The experience was overall good", 3),
+            listOf("Good gym", "I like going to this gym because it is always empty, you can train without annoying noises", 4),
             listOf("Awful", "Too crowded, the personnel was not nice", 1),
             listOf("Incredible", "Nothing to say, keep up the good work!", 5),
             listOf("Very nice gym", "I always go to this gym and could not think of anything nicer", 5)
