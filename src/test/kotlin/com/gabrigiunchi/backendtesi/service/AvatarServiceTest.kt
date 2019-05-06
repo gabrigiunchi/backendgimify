@@ -7,7 +7,9 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
+import com.ibm.cloud.objectstorage.services.s3.model.ObjectListing
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
+import com.ibm.cloud.objectstorage.services.s3.model.S3ObjectSummary
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -117,10 +119,22 @@ class AvatarServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should get the preset avatars metadata`() {
-        (1..4).map { this.createMockImage("preset$it", "jdnsajdas") }.forEach { this.avatarService.upload(it, it.name) }
+        val prefix = "preset"
+        (1..4).map { this.createMockImage("$prefix$it", "jdnsajdas") }.forEach { this.avatarService.upload(it, it.name) }
+        val objectListing = ObjectListing()
+        objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata()
+                .filter { it.id.startsWith(prefix) }
+                .map { metadata ->
+                    val summary = S3ObjectSummary()
+                    summary.key = metadata.id
+                    summary.lastModified = Date(metadata.lastModified)
+                    summary
+                })
+
+        Mockito.`when`(this.amazonS3.listObjects(this.bucketName, prefix)).thenReturn(objectListing)
         val result = this.avatarService.presetAvatars
         Assertions.assertThat(result.size).isEqualTo(4)
-        Assertions.assertThat(result.all { it.id.startsWith("preset") })
+        Assertions.assertThat(result.all { it.id.startsWith(prefix) })
     }
 
     @Test
