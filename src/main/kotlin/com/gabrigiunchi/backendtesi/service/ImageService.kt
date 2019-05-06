@@ -9,9 +9,21 @@ open class ImageService(
         private val objectStorageService: ObjectStorageService,
         private val bucketName: String
 ) {
+
+    fun contains(image: String): Boolean {
+        return this.objectStorageService.createClient().doesObjectExist(this.bucketName, image)
+    }
+
     fun getAllMetadata(): List<ImageMetadata> {
         return this.objectStorageService.createClient()
                 .listObjects(this.bucketName)
+                .objectSummaries
+                .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
+    }
+
+    fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> {
+        return this.objectStorageService.createClient()
+                .listObjects(this.bucketName, prefix)
                 .objectSummaries
                 .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
     }
@@ -27,7 +39,7 @@ open class ImageService(
         return ImageMetadata(image.key, image.objectMetadata.lastModified.time)
     }
 
-    fun getImageByName(id: String): ByteArray {
+    fun download(id: String): ByteArray {
         val client = this.objectStorageService.createClient()
 
         if (!client.doesObjectExist(this.bucketName, id)) {
@@ -39,11 +51,12 @@ open class ImageService(
                 .readAllBytes()
     }
 
-    fun upload(image: MultipartFile, name: String) {
+    fun upload(image: MultipartFile, name: String): ImageMetadata {
         val client = this.objectStorageService.createClient()
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
-        client.putObject(this.bucketName, name, image.inputStream, metadata)
+        val putResult = client.putObject(this.bucketName, name, image.inputStream, metadata)
+        return ImageMetadata(name, putResult.metadata.lastModified.time)
     }
 
     open fun deleteImage(id: String) {

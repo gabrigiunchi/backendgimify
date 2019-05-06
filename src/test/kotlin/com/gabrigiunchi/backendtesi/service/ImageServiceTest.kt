@@ -84,14 +84,14 @@ class ImageServiceTest {
         val name = "njdajsnd.aaa"
         val content = "ndjansa"
         this.createMockImage(name, content)
-        val result = this.imageService.getImageByName(name)
+        val result = this.imageService.download(name)
         Assertions.assertThat(result.size).isGreaterThan(0)
         Assertions.assertThat(result).isEqualTo(content.toByteArray())
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when requesting an image if it does not exist`() {
-        this.imageService.getImageByName("nonexistingimage.fake")
+        this.imageService.download("nonexistingimage.fake")
     }
 
     @Test(expected = ResourceNotFoundException::class)

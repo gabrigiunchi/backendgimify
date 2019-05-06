@@ -35,9 +35,9 @@ class GymImageService(
         }
         return this.gymDAO.findById(gymId)
                 .map {
-                    this.upload(image, name)
-                    val saved = this.gymImageDAO.save(GymImage(it, name))
-                    ImageMetadata(saved.name, saved.lastModified)
+                    val metadata = this.upload(image, name)
+                    this.gymImageDAO.save(GymImage(it, name))
+                    metadata
                 }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
