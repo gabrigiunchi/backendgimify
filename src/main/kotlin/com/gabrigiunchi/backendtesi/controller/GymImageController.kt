@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/gyms")
@@ -16,15 +15,21 @@ class GymImageController(private val gymImageService: GymImageService) {
     private val logger = LoggerFactory.getLogger(GymImageController::class.java)
 
     @GetMapping("/{id}/photos")
-    fun getPhotosOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
+    fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
         this.logger.info("GET photos of gym $id")
         return ResponseEntity(this.gymImageService.getPhotosOfGym(id), HttpStatus.OK)
     }
 
-    @RequestMapping(value = ["/{id}/photos/{name}"], method = [RequestMethod.POST, RequestMethod.PUT])
+    @GetMapping("/photos/{imageId}")
+    fun getPhotoOfGym(@PathVariable imageId: String): ResponseEntity<ByteArray> {
+        this.logger.info("GET photo $imageId")
+        return ResponseEntity(this.gymImageService.download(imageId), HttpStatus.OK)
+    }
+
+    @RequestMapping("/{id}/photos/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
     fun addPhoto(@PathVariable id: Int,
                  @PathVariable name: String,
-                 @Valid @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
+                 @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
         this.logger.info("POST photo of gym $id")
         return ResponseEntity(this.gymImageService.setImage(id, image, name), HttpStatus.CREATED)
     }
