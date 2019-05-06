@@ -308,6 +308,21 @@ class CommentControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should not create a comment if the title is more than 40 characters`() {
+        val user = this.mockUser()
+        val gym = this.mockGym()
+        val title = "a".repeat(41)
+        Assertions.assertThat(title.length).isEqualTo(41)
+        val commentDTO = CommentDTOInput(user.id, gym.id, title, "message", 3)
+        this.mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.COMMENTS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(commentDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("title must be at most 40 characters")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should delete a comment by id`() {
         val user = this.mockUser()
         val gym = this.mockGym()

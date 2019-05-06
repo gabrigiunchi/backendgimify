@@ -143,7 +143,7 @@ class AppInitializer {
                 .flatMap { kind ->
                     this.gyms.flatMap { gym ->
                         (1..4).map {
-                            val name = "${kind.name.substring(0, 2)}${gym.name.reversed().substring(2)}$it${random.nextInt(100)}"
+                            val name = "${kind.name.substring(0, 2)}${gym.name.reversed().substring(0, 2)}$it${random.nextInt(100)}"
                             Asset(name, kind, gym)
                         }
                     }

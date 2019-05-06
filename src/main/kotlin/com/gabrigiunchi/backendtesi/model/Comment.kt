@@ -38,5 +38,9 @@ class Comment(
         if (this.message.length > 140) {
             throw IllegalArgumentException("message must be at most 140 characters")
         }
+
+        if (this.title.length > 40) {
+            throw java.lang.IllegalArgumentException("title must be at most 40 characters")
+        }
     }
 }
