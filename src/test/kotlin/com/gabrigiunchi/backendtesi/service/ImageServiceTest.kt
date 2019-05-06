@@ -107,11 +107,7 @@ class ImageServiceTest {
         val name = "njdajsnd.aaa"
         val content = "ndjansa"
         this.createMockImage(name, content)
-        `when`(this.amazonS3.doesObjectExist(this.bucketName, name))
-                .thenReturn(this.mockObjectStorage.contains(name))
-
-        `when`(this.amazonS3.deleteObject(this.bucketName, name))
-                .then { this.mockObjectStorage.delete(name) }
+        Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         this.imageService.deleteImage(name)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isFalse()
     }
@@ -131,6 +127,9 @@ class ImageServiceTest {
 
         `when`(this.amazonS3.getObject(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.getImage(name))
+
+        `when`(this.amazonS3.deleteObject(this.bucketName, name))
+                .then { this.mockObjectStorage.delete(name) }
 
     }
 }

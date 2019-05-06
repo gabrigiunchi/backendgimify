@@ -69,7 +69,8 @@ class AssetController(
                 .map { kind ->
                     ResponseEntity(
                             this.assetDAO.findByKind(kind, this.pageRequest(page, size)).map { asset -> AssetDTOOutput(asset) },
-                            HttpStatus.OK) }
+                            HttpStatus.OK)
+                }
                 .orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
     }
 

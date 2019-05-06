@@ -46,7 +46,7 @@ open class ImageService(
         client.putObject(this.bucketName, name, image.inputStream, metadata)
     }
 
-    fun deleteImage(id: String) {
+    open fun deleteImage(id: String) {
         val client = this.objectStorageService.createClient()
 
         if (!client.doesObjectExist(this.bucketName, id)) {
