@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/v1/avatars")
 class AvatarController(
-        val userDAO: UserDAO,
+        userDAO: UserDAO,
         private val avatarService: AvatarService) : BaseController(userDAO) {
 
     private val logger = LoggerFactory.getLogger(AvatarController::class.java)
@@ -61,6 +61,13 @@ class AvatarController(
         val user = this.getLoggedUser()
         this.logger.info("GET avatar for logged user (#${user.id})")
         return ResponseEntity(this.avatarService.getAvatarOfUser(user.id), HttpStatus.OK)
+    }
+
+    @GetMapping("/me/metadata")
+    fun getMyAvatarMetadata(): ResponseEntity<ImageMetadata> {
+        val user = this.getLoggedUser()
+        this.logger.info("GET avatar metadata for logged user (#${user.id})")
+        return ResponseEntity(this.avatarService.getAvatarMetadataOfUser(user.id), HttpStatus.OK)
     }
 
     @RequestMapping("/me", method = [RequestMethod.POST, RequestMethod.PUT])

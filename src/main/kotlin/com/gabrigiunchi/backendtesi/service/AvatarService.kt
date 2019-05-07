@@ -25,7 +25,11 @@ class AvatarService(private val userDAO: UserDAO,
 
     fun getAvatarMetadataOfUser(userId: Int): ImageMetadata {
         return this.userDAO.findById(userId)
-                .map { this.getImageMetadata(this.imageNameOfUser(userId)) }
+                .map {
+                    val userAvatarId = this.imageNameOfUser(userId)
+                    val avatar = if (this.contains(userAvatarId)) userAvatarId else DEFAULT_AVATAR_METADATA.id
+                    this.getImageMetadata(avatar)
+                }
                 .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
     }
 
@@ -42,13 +46,7 @@ class AvatarService(private val userDAO: UserDAO,
     }
 
     fun getAvatarOfUser(userId: Int): ByteArray {
-        return this.userDAO.findById(userId)
-                .map {
-                    val image = this.imageNameOfUser(userId)
-                    if (this.contains(image)) this.download(image)
-                    else this.download(DEFAULT_AVATAR_METADATA.id)
-                }
-                .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
+        return this.download(this.getAvatarMetadataOfUser(userId).id)
     }
 
     fun setDefaultAvatar(image: MultipartFile) = super.upload(image, DEFAULT_AVATAR_METADATA.id)
