@@ -101,11 +101,12 @@ class AppInitializer {
     }
 
     private fun initUserRole() {
-        this.roles = this.userRoleDAO.saveAll(UserRoleEnum.values().map { value -> UserRole(-1, value.toString()) }).toList()
         this.logger.info("Init user roles")
+        this.roles = this.userRoleDAO.saveAll(UserRoleEnum.values().map { value -> UserRole(-1, value.toString()) }).toList()
     }
 
     private fun initUsers() {
+        this.logger.info("Init users")
         this.initUserRole()
         this.userDAO.saveAll(listOf(
                 User("gabrigiunchi", SHA256PasswordEncoder().encode("aaaa"),
@@ -119,26 +120,24 @@ class AppInitializer {
                     this.userFactory.createRegularUser(this.randomUsername(), "password", "Name", "Surname")
                 }
         ).toList()
-
-        this.logger.info("Init users")
     }
 
     private fun initGyms() {
+        this.logger.info("Init gyms")
         this.gyms = this.gymDAO.saveAll(listOf(
                 Gym("gym1", "Via1", this.cities[0], this.zoneId),
                 Gym("gym2", "Via2", this.cities[0], this.zoneId),
                 Gym("gym3", "Via3", this.cities[1], this.zoneId),
                 Gym("gym4", "Via4", this.cities[2], this.zoneId))).toList()
-
-        this.logger.info("Init gyms")
     }
 
     private fun initAssetKinds() {
-        this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it] ?: 20) })
         this.logger.info("Init asset kinds")
+        this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it] ?: 20) })
     }
 
     private fun initAssets() {
+        this.logger.info("Init assets")
         val kinds = this.assetKindDAO.findAll()
         val random = Random()
         val assets: List<Asset> = kinds
@@ -152,20 +151,20 @@ class AppInitializer {
                 }
 
         this.assetDAO.saveAll(assets)
-        this.logger.info("Init assets")
     }
 
     private fun initCities() {
-        this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it) }).toList()
         this.logger.info("Init cities")
+        this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it) }).toList()
     }
 
     private fun initTimetables() {
-        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings, emptySet(), emptySet(), Constants.holidays)) }
         this.logger.info("Init timetables")
+        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings, emptySet(), emptySet(), Constants.holidays)) }
     }
 
     private fun initComments() {
+        this.logger.info("Init comments")
         this.randomUsers.forEach { user ->
             val comments = this.gyms.map { gym ->
                 val random = this.randomComments[Random().nextInt(this.randomComments.size)]
@@ -173,7 +172,6 @@ class AppInitializer {
             }
             this.commentDAO.saveAll(comments)
         }
-        this.logger.info("Init comments")
     }
 
     private val openings: Set<Schedule>

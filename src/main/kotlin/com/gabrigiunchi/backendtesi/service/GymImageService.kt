@@ -30,11 +30,17 @@ class GymImageService(
     }
 
     fun setImage(gymId: Int, image: MultipartFile, name: String): ImageMetadata {
-        if (this.gymImageDAO.findByName(name).isPresent) {
-            throw ResourceAlreadyExistsException("image ${image.name} already exists")
-        }
         return this.gymDAO.findById(gymId)
                 .map {
+                    this.gymImageDAO.findByName(name)
+                            .ifPresent { i ->
+                                if (i.gym.id == gymId) {
+                                    this.gymImageDAO.delete(i)
+                                } else {
+                                    throw ResourceAlreadyExistsException("image ${image.name} already exists for another gym")
+                                }
+                            }
+
                     val metadata = this.upload(image, name)
                     this.gymImageDAO.save(GymImage(it, name))
                     metadata

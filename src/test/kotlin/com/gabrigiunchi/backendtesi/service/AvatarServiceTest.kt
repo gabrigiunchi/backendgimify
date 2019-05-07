@@ -7,7 +7,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
-import com.ibm.cloud.objectstorage.services.s3.model.ObjectListing
+import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.S3ObjectSummary
 import org.assertj.core.api.Assertions
@@ -121,7 +121,7 @@ class AvatarServiceTest : AbstractControllerTest() {
     fun `Should get the preset avatars metadata`() {
         val prefix = "preset"
         (1..4).map { this.createMockImage("$prefix$it", "jdnsajdas") }.forEach { this.avatarService.upload(it, it.name) }
-        val objectListing = ObjectListing()
+        val objectListing = ListObjectsV2Result()
         objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata()
                 .filter { it.id.startsWith(prefix) }
                 .map { metadata ->
@@ -131,7 +131,7 @@ class AvatarServiceTest : AbstractControllerTest() {
                     summary
                 })
 
-        Mockito.`when`(this.amazonS3.listObjects(this.bucketName, prefix)).thenReturn(objectListing)
+        Mockito.`when`(this.amazonS3.listObjectsV2(this.bucketName, prefix)).thenReturn(objectListing)
         val result = this.avatarService.presetAvatars
         Assertions.assertThat(result.size).isEqualTo(4)
         Assertions.assertThat(result.all { it.id.startsWith(prefix) })
@@ -149,11 +149,14 @@ class AvatarServiceTest : AbstractControllerTest() {
         val image = MockMultipartFile(name, content.toByteArray())
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
+        metadata.lastModified = Date()
+
+        val putObjectResult = this.mockObjectStorage.add(image, name)
 
         Mockito.`when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(this.mockObjectStorage.add(image, name))
+                .thenReturn(putObjectResult)
 
-        this.avatarService.upload(image, name)
+        Mockito.`when`(this.amazonS3.getObjectMetadata(this.bucketName, name)).thenReturn(metadata)
 
         Mockito.`when`(this.amazonS3.doesObjectExist(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.contains(name))
@@ -164,6 +167,7 @@ class AvatarServiceTest : AbstractControllerTest() {
         Mockito.`when`(this.amazonS3.deleteObject(this.bucketName, name))
                 .then { this.mockObjectStorage.delete(name) }
 
+        this.avatarService.upload(image, name)
         return image
     }
 

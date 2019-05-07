@@ -11,6 +11,9 @@ import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.GymImage
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
+import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
+import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
+import com.ibm.cloud.objectstorage.services.s3.model.S3ObjectSummary
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -26,6 +29,7 @@ import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.util.*
 
 class GymImageControllerTest : AbstractControllerTest() {
 
@@ -60,6 +64,53 @@ class GymImageControllerTest : AbstractControllerTest() {
         this.amazonS3 = this.context.getBean(AmazonS3::class)
         this.objectStorageService = this.context.getBean(ObjectStorageService::class)
         Mockito.`when`(this.objectStorageService.createClient()).thenReturn(this.amazonS3)
+    }
+
+    @Test
+    fun `Should get all images metadata`() {
+        (1..2).map { this.mockImage("$it.png", "jdnsajdas") }
+        val objectListing = ListObjectsV2Result()
+        objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata()
+                .map { metadata ->
+                    val summary = S3ObjectSummary()
+                    summary.key = metadata.id
+                    summary.lastModified = Date(metadata.lastModified)
+                    summary
+                })
+
+        Assertions.assertThat(this.mockObjectStorage.getAllMetadata().size).isEqualTo(2)
+        Mockito.`when`(this.amazonS3.listObjectsV2(this.bucketName)).thenReturn(objectListing)
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`("1.png")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`("2.png")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get the metadata of an image`() {
+        val name = "a.png"
+        this.mockImage(name, "dsada")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/$name/metadata")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(name)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get a photo`() {
+        val name = "a.png"
+        val content = "fdsda"
+        this.mockImage(name, content)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/$name")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(content)))
+                .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
@@ -129,9 +180,16 @@ class GymImageControllerTest : AbstractControllerTest() {
 
     private fun mockImage(name: String, content: String): MockMultipartFile {
         val image = MockMultipartFile("image", name, "text/plain", content.toByteArray())
+        val metadata = ObjectMetadata()
+        metadata.contentLength = image.size
+        metadata.lastModified = Date()
+
+        val putObjectResult = this.mockObjectStorage.add(image, name)
 
         Mockito.`when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(this.mockObjectStorage.add(image, name))
+                .thenReturn(putObjectResult)
+
+        Mockito.`when`(this.amazonS3.getObjectMetadata(this.bucketName, name)).thenReturn(metadata)
 
         Mockito.`when`(this.amazonS3.doesObjectExist(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.contains(name))

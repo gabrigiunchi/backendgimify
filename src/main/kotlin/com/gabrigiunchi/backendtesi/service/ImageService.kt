@@ -16,14 +16,14 @@ open class ImageService(
 
     fun getAllMetadata(): List<ImageMetadata> {
         return this.objectStorageService.createClient()
-                .listObjects(this.bucketName)
+                .listObjectsV2(this.bucketName)
                 .objectSummaries
                 .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
     }
 
     fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> {
         return this.objectStorageService.createClient()
-                .listObjects(this.bucketName, prefix)
+                .listObjectsV2(this.bucketName, prefix)
                 .objectSummaries
                 .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
     }
@@ -35,8 +35,8 @@ open class ImageService(
             throw ResourceNotFoundException("image $id does not exist")
         }
 
-        val image = client.getObject(this.bucketName, id)
-        return ImageMetadata(image.key, image.objectMetadata.lastModified.time)
+        val metadata = client.getObjectMetadata(this.bucketName, id)
+        return ImageMetadata(id, metadata.lastModified.time)
     }
 
     fun download(id: String): ByteArray {
@@ -55,8 +55,8 @@ open class ImageService(
         val client = this.objectStorageService.createClient()
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
-        val putResult = client.putObject(this.bucketName, name, image.inputStream, metadata)
-        return ImageMetadata(name, putResult.metadata.lastModified.time)
+        client.putObject(this.bucketName, name, image.inputStream, metadata).metadata
+        return ImageMetadata(name, this.getImageMetadata(name).lastModified)
     }
 
     open fun deleteImage(id: String) {

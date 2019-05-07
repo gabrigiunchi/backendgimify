@@ -4,7 +4,7 @@ package com.gabrigiunchi.backendtesi.service
 import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
-import com.ibm.cloud.objectstorage.services.s3.model.ObjectListing
+import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.S3ObjectSummary
 import org.assertj.core.api.Assertions
@@ -38,7 +38,7 @@ class ImageServiceTest {
     fun `Should return all images metadata`() {
         val name = "name1"
         this.createMockImage(name, "jndkjanskjdnsa")
-        val objectListing = ObjectListing()
+        val objectListing = ListObjectsV2Result()
         objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata().map { metadata ->
             val summary = S3ObjectSummary()
             summary.key = metadata.id
@@ -46,12 +46,11 @@ class ImageServiceTest {
             summary
         })
 
-        `when`(this.amazonS3.listObjects(this.bucketName)).thenReturn(objectListing)
+        `when`(this.amazonS3.listObjectsV2(this.bucketName)).thenReturn(objectListing)
         val result = this.imageService.getAllMetadata()
         Assertions.assertThat(result.size).isEqualTo(1)
         Assertions.assertThat(result[0].id).isEqualTo(name)
     }
-
 
     @Test
     fun `Should upload an image`() {
@@ -116,11 +115,14 @@ class ImageServiceTest {
         val image = MockMultipartFile(name, content.toByteArray())
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
+        metadata.lastModified = Date()
+
+        val putObjectResult = this.mockObjectStorage.add(image, name)
 
         `when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(this.mockObjectStorage.add(image, name))
+                .thenReturn(putObjectResult)
 
-        this.imageService.upload(image, name)
+        `when`(this.amazonS3.getObjectMetadata(this.bucketName, name)).thenReturn(metadata)
 
         `when`(this.amazonS3.doesObjectExist(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.contains(name))
@@ -131,5 +133,6 @@ class ImageServiceTest {
         `when`(this.amazonS3.deleteObject(this.bucketName, name))
                 .then { this.mockObjectStorage.delete(name) }
 
+        this.imageService.upload(image, name)
     }
 }

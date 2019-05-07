@@ -23,7 +23,7 @@ class AvatarService(private val userDAO: UserDAO,
 
     fun getAvatarMetadataOfUser(userId: Int): ImageMetadata {
         return this.userDAO.findById(userId)
-                .map { super.getImageMetadata(this.imageNameOfUser(userId)) }
+                .map { this.getImageMetadata(this.imageNameOfUser(userId)) }
                 .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
     }
 

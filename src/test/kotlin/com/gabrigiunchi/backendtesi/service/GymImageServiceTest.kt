@@ -98,13 +98,24 @@ GymImageServiceTest : AbstractControllerTest() {
         this.imageService.setImage(-1, this.createMockImage("name", "content"), "photo1")
     }
 
-    @Test(expected = ResourceAlreadyExistsException::class)
-    fun `Should not be possible to add two photos with the same name`() {
+    @Test
+    fun `Should override the photo of a gym`() {
         val gym = this.mockGym()
         val name = "name"
         this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
-        Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
+        Assertions.assertThat(this.imageService.contains(name)).isTrue()
         this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
+        Assertions.assertThat(this.imageService.contains(name)).isTrue()
+    }
+
+    @Test(expected = ResourceAlreadyExistsException::class)
+    fun `Should not be possible to add two photos with the same name for different gyms`() {
+        val gym1 = this.mockGym()
+        val gym2 = this.gymDAO.save(Gym("gym2", "address2", gym1.city))
+        val name = "name"
+        this.imageService.setImage(gym1.id, this.createMockImage(name, "content"), name)
+        Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
+        this.imageService.setImage(gym2.id, this.createMockImage(name, "content"), name)
     }
 
     @Test
@@ -128,11 +139,14 @@ GymImageServiceTest : AbstractControllerTest() {
         val image = MockMultipartFile(name, content.toByteArray())
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
+        metadata.lastModified = Date()
+
+        val putObjectResult = this.mockObjectStorage.add(image, name)
 
         Mockito.`when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(this.mockObjectStorage.add(image, name))
+                .thenReturn(putObjectResult)
 
-        this.imageService.upload(image, name)
+        Mockito.`when`(this.amazonS3.getObjectMetadata(this.bucketName, name)).thenReturn(metadata)
 
         Mockito.`when`(this.amazonS3.doesObjectExist(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.contains(name))
@@ -143,6 +157,7 @@ GymImageServiceTest : AbstractControllerTest() {
         Mockito.`when`(this.amazonS3.deleteObject(this.bucketName, name))
                 .then { this.mockObjectStorage.delete(name) }
 
+        this.imageService.upload(image, name)
         return image
     }
 

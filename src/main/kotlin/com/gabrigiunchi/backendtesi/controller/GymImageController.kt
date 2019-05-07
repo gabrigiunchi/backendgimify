@@ -14,6 +14,12 @@ class GymImageController(private val gymImageService: GymImageService) {
 
     private val logger = LoggerFactory.getLogger(GymImageController::class.java)
 
+    @GetMapping("/photos")
+    fun getAllMetadata(): ResponseEntity<Collection<ImageMetadata>> {
+        this.logger.info("GET all images")
+        return ResponseEntity(this.gymImageService.getAllMetadata(), HttpStatus.OK)
+    }
+
     @GetMapping("/{id}/photos")
     fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
         this.logger.info("GET photos of gym $id")
@@ -21,9 +27,15 @@ class GymImageController(private val gymImageService: GymImageService) {
     }
 
     @GetMapping("/photos/{imageId}")
-    fun getPhotoOfGym(@PathVariable imageId: String): ResponseEntity<ByteArray> {
+    fun getPhoto(@PathVariable imageId: String): ResponseEntity<ByteArray> {
         this.logger.info("GET image $imageId")
         return ResponseEntity(this.gymImageService.download(imageId), HttpStatus.OK)
+    }
+
+    @GetMapping("/photos/{imageId}/metadata")
+    fun getMetadataOfPhoto(@PathVariable imageId: String): ResponseEntity<ImageMetadata> {
+        this.logger.info("GET metadata of image $imageId")
+        return ResponseEntity(this.gymImageService.getImageMetadata(imageId), HttpStatus.OK)
     }
 
     @RequestMapping("/{id}/photos/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
