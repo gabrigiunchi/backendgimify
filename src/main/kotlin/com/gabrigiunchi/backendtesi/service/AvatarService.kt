@@ -4,8 +4,10 @@ import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.ImageMetadata
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
+@Service
 class AvatarService(private val userDAO: UserDAO,
                     objectStorageService: ObjectStorageService,
 

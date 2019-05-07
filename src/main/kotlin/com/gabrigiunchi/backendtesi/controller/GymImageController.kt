@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.service.GymImageService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -14,6 +15,7 @@ class GymImageController(private val gymImageService: GymImageService) {
 
     private val logger = LoggerFactory.getLogger(GymImageController::class.java)
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/photos")
     fun getAllMetadata(): ResponseEntity<Collection<ImageMetadata>> {
         this.logger.info("GET all images")
@@ -38,6 +40,7 @@ class GymImageController(private val gymImageService: GymImageService) {
         return ResponseEntity(this.gymImageService.getImageMetadata(imageId), HttpStatus.OK)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @RequestMapping("/{id}/photos/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
     fun addPhoto(@PathVariable id: Int,
                  @PathVariable name: String,
@@ -46,6 +49,7 @@ class GymImageController(private val gymImageService: GymImageService) {
         return ResponseEntity(this.gymImageService.setImage(id, image, name), HttpStatus.CREATED)
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/photos/{image}")
     fun deletePhoto(@PathVariable image: String): ResponseEntity<Void> {
         this.logger.info("DELETE photo $image")
