@@ -27,8 +27,8 @@ class AvatarService(private val userDAO: UserDAO,
         return this.userDAO.findById(userId)
                 .map {
                     val userAvatarId = this.imageNameOfUser(userId)
-                    val avatar = if (this.contains(userAvatarId)) userAvatarId else DEFAULT_AVATAR_METADATA.id
-                    this.getImageMetadata(avatar)
+                    if (this.contains(userAvatarId)) this.getImageMetadata(userAvatarId)
+                    else DEFAULT_AVATAR_METADATA
                 }
                 .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
     }

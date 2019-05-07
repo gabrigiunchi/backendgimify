@@ -173,6 +173,7 @@ class AvatarControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(avatar.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.lastModified", Matchers.`is`(avatar.lastModified.toInt())))
                 .andDo(MockMvcResultHandlers.print())
     }
 
