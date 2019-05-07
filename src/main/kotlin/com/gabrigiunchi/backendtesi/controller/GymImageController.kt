@@ -22,7 +22,7 @@ class GymImageController(private val gymImageService: GymImageService) {
 
     @GetMapping("/photos/{imageId}")
     fun getPhotoOfGym(@PathVariable imageId: String): ResponseEntity<ByteArray> {
-        this.logger.info("GET photo $imageId")
+        this.logger.info("GET image $imageId")
         return ResponseEntity(this.gymImageService.download(imageId), HttpStatus.OK)
     }
 
