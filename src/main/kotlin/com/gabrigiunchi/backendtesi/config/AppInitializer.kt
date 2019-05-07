@@ -117,7 +117,7 @@ class AppInitializer {
         )
         this.randomUsers = this.userDAO.saveAll(
                 (0..20).map {
-                    this.userFactory.createRegularUser(this.randomUsername(), "password", "Name", "Surname")
+                    this.userFactory.createRegularUser("user$it", "password", "Name", "Surname")
                 }
         ).toList()
     }
@@ -179,6 +179,4 @@ class AppInitializer {
 
     private val timeIntervals: Set<TimeInterval>
         get() = setOf(TimeInterval("09:00", "21:00", this.zoneId))
-
-    private fun randomUsername(): String = "user${Random().nextInt(100000)}"
 }
