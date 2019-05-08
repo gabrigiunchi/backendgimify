@@ -84,6 +84,32 @@ class AvatarControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should get the avatar of a user`() {
+        this.userDAO.deleteAll()
+        val users = this.userDAO.saveAll((1..3)
+                .map { this.userFactory.createRegularUser("user$it", "aaaa", "", "") })
+                .toList()
+
+        users.forEach { this.mockImage("user${it.id}", "content${it.id}") }
+        val target = users[0]
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/of_user/${target.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`("content${target.id}")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get the avatar of a user if the user does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/of_user/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should get all presets avatars metadata`() {
         val prefix = "preset"
         (1..2).map { this.mockImage("$it.png", "jdnsajdas") }

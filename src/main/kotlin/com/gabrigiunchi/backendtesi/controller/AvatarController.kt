@@ -31,6 +31,12 @@ class AvatarController(
         return ResponseEntity(this.avatarService.download(id), HttpStatus.OK)
     }
 
+    @GetMapping("/of_user/{userId}")
+    fun getAvatarOfuser(@PathVariable userId: Int): ResponseEntity<ByteArray> {
+        this.logger.info("GET avatar of user $userId")
+        return ResponseEntity(this.avatarService.getAvatarOfUser(userId), HttpStatus.OK)
+    }
+
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @RequestMapping("/{id}", method = [RequestMethod.POST, RequestMethod.PUT])
     fun setAvatar(@PathVariable id: String, @RequestBody avatar: MultipartFile): ResponseEntity<ImageMetadata> {
