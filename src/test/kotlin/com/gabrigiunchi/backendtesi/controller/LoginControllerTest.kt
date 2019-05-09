@@ -37,10 +37,15 @@ class LoginControllerTest : AbstractControllerTest() {
     @Test
     fun `Should log in a user with valid username and password`() {
         val password = "aaaa"
-        val user = this.userFactory.createRegularUser("gabrigiunchi", SHA256PasswordEncoder().encode(password),
-                "Gabriele", "Giunchi")
+        val user = this.userDAO.save(
+                this.userFactory.createRegularUser(
+                        "gabrigiunchi",
+                        SHA256PasswordEncoder().encode(password),
+                        "Gabriele",
+                        "Giunchi"
+                )
+        )
         val credentials = ValidateUserDTO(user.username, password)
-        this.userDAO.save(user)
 
         Assertions.assertThat(this.userDAO.findByUsername(user.username).isPresent).isTrue()
         Assertions.assertThat(this.userDAO.findByUsername(user.username).get().password).isEqualTo(user.password)
@@ -49,7 +54,12 @@ class LoginControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(credentials)))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(user.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.name", Matchers.`is`(user.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.surname", Matchers.`is`(user.surname)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.username", Matchers.`is`(user.username)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.email", Matchers.`is`(user.email)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.notificationsEnabled", Matchers.`is`(user.notificationsEnabled)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.token", Matchers.notNullValue()))
                 .andDo(MockMvcResultHandlers.print())
     }
