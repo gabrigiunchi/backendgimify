@@ -180,7 +180,7 @@ class AppInitializer {
 
     private fun initImages() {
         this.logger.info("Init gym images")
-        this.gyms.forEach { gym -> this.gymImageDAO.saveAll(((1..4).map { GymImage(gym, "gym1_$it") })) }
+        this.gyms.forEach { gym -> this.gymImageDAO.saveAll(((1..4).map { GymImage(gym, "gym1_$it.jpg") })) }
     }
 
     private val openings: Set<Schedule>
