@@ -46,6 +46,9 @@ class AppInitializer {
     private lateinit var timetableDAO: TimetableDAO
 
     @Autowired
+    private lateinit var gymImageDAO: GymImageDAO
+
+    @Autowired
     private lateinit var userFactory: UserFactory
 
     @Value("\${application.zoneId}")
@@ -97,6 +100,7 @@ class AppInitializer {
         this.initAssets()
         this.initTimetables()
         this.initComments()
+        this.initImages()
         this.logger.info("DB initialized")
     }
 
@@ -172,6 +176,11 @@ class AppInitializer {
             }
             this.commentDAO.saveAll(comments)
         }
+    }
+
+    private fun initImages() {
+        this.logger.info("Init gym images")
+        this.gyms.forEach { gym -> this.gymImageDAO.saveAll(((1..4).map { GymImage(gym, "gym1_$it") })) }
     }
 
     private val openings: Set<Schedule>
