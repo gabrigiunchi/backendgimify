@@ -120,7 +120,7 @@ class AppInitializer {
                         "Anonimo", "prova@gmail.com", mutableListOf(roles[1])))
         )
         this.randomUsers = this.userDAO.saveAll(
-                (0..20).map {
+                (1..15).map {
                     this.userFactory.createRegularUser("user$it", "password", "Name", "Surname")
                 }
         ).toList()
