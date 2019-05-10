@@ -31,10 +31,10 @@ class AvatarController(
         return ResponseEntity(this.avatarService.download(id), HttpStatus.OK)
     }
 
-    @GetMapping("/of_user/{userId}")
-    fun getAvatarOfuser(@PathVariable userId: Int): ResponseEntity<ByteArray> {
-        this.logger.info("GET avatar of user $userId")
-        return ResponseEntity(this.avatarService.getAvatarOfUser(userId), HttpStatus.OK)
+    @GetMapping("/of_user/{username}")
+    fun getAvatarOfuser(@PathVariable username: String): ResponseEntity<ByteArray> {
+        this.logger.info("GET avatar of user $username")
+        return ResponseEntity(this.avatarService.getAvatarOfUser(username), HttpStatus.OK)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -66,28 +66,28 @@ class AvatarController(
     fun getMyAvatar(): ResponseEntity<ByteArray> {
         val user = this.getLoggedUser()
         this.logger.info("GET avatar for logged user (#${user.id})")
-        return ResponseEntity(this.avatarService.getAvatarOfUser(user.id), HttpStatus.OK)
+        return ResponseEntity(this.avatarService.getAvatarOfUser(user.username), HttpStatus.OK)
     }
 
     @GetMapping("/me/metadata")
     fun getMyAvatarMetadata(): ResponseEntity<ImageMetadata> {
         val user = this.getLoggedUser()
         this.logger.info("GET avatar metadata for logged user (#${user.id})")
-        return ResponseEntity(this.avatarService.getAvatarMetadataOfUser(user.id), HttpStatus.OK)
+        return ResponseEntity(this.avatarService.getAvatarMetadataOfUser(user.username), HttpStatus.OK)
     }
 
     @RequestMapping("/me", method = [RequestMethod.POST, RequestMethod.PUT])
     fun changeMyAvatar(@RequestBody avatar: MultipartFile): ResponseEntity<ImageMetadata> {
         val user = this.getLoggedUser()
         this.logger.info("PUT avatar for logged user (#${user.id})")
-        return ResponseEntity(this.avatarService.setAvatarOfUser(user.id, avatar), HttpStatus.CREATED)
+        return ResponseEntity(this.avatarService.setAvatarOfUser(user.username, avatar), HttpStatus.CREATED)
     }
 
     @DeleteMapping("/me")
     fun deleteMyAvatar(): ResponseEntity<Void> {
         val user = this.getLoggedUser()
         this.logger.info("DELETE avatar for logged user (#${user.id})")
-        this.avatarService.deleteAvatarOfUser(user.id)
+        this.avatarService.deleteAvatarOfUser(user.username)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

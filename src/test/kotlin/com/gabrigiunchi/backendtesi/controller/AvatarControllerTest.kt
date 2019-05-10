@@ -90,10 +90,10 @@ class AvatarControllerTest : AbstractControllerTest() {
                 .map { this.userFactory.createRegularUser("user$it", "aaaa", "", "") })
                 .toList()
 
-        users.forEach { this.mockImage("user${it.id}", "content${it.id}") }
+        users.forEach { this.mockImage(it.username, "content${it.id}") }
         val target = users[0]
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/of_user/${target.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/of_user/${target.username}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`("content${target.id}")))
@@ -205,17 +205,17 @@ class AvatarControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should change my avatar`() {
-        val name = "user${mockUser.id}"
+        val name = mockUser.username
         this.mockImage(name, "jdnasjda")
         mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/me")
                 .file(this.mockImage(name, "content")))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.startsWith("user")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(name)))
     }
 
     @Test
     fun `Should delete my avatar`() {
-        val name = "user${mockUser.id}"
+        val name = mockUser.username
         this.mockImage(name, "dsjdas")
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.AVATARS}/me"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)

@@ -50,63 +50,63 @@ class AvatarServiceTest : AbstractControllerTest() {
     fun `Should get the avatar metadata of a user`() {
         val now = Date().time
         val user = this.mockUser()
-        val imageId = "user${user.id}"
+        val imageId = user.username
         val content = "content"
         this.createMockImage(imageId, content)
-        val result = this.avatarService.getAvatarMetadataOfUser(user.id)
+        val result = this.avatarService.getAvatarMetadataOfUser(user.username)
         Assertions.assertThat(result.id).isEqualTo(imageId)
         Assertions.assertThat(result.lastModified).isGreaterThanOrEqualTo(now)
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not get the avatar metadata of a user if the user does not exist`() {
-        this.avatarService.getAvatarMetadataOfUser(-1)
+        this.avatarService.getAvatarMetadataOfUser("ddasjdada")
     }
 
     @Test
     fun `Should return the avatar of a user`() {
         val user = this.mockUser()
         val content = "content"
-        this.createMockImage("user${user.id}", content)
-        val result = this.avatarService.getAvatarOfUser(user.id)
+        this.createMockImage(user.username, content)
+        val result = this.avatarService.getAvatarOfUser(user.username)
         Assertions.assertThat(result).isEqualTo(content.toByteArray())
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when requesting the avatar of a user if the user does not exist`() {
-        this.avatarService.getAvatarOfUser(-1)
+        this.avatarService.getAvatarOfUser("djasnjdnajd")
     }
 
     @Test
     fun `Should upload an avatar for a user`() {
         val now = Date().time
         val user = this.mockUser()
-        val imageId = "user${user.id}"
+        val imageId = user.username
         val content = "djnsajda"
         val image = this.createMockImage(imageId, content)
-        val result = this.avatarService.setAvatarOfUser(user.id, image)
+        val result = this.avatarService.setAvatarOfUser(user.username, image)
         Assertions.assertThat(result.id).isEqualTo(imageId)
         Assertions.assertThat(result.lastModified).isGreaterThanOrEqualTo(now)
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when setting the avatar of a user if the user does not exist`() {
-        this.avatarService.setAvatarOfUser(-1, this.createMockImage("name", "content"))
+        this.avatarService.setAvatarOfUser("jndsajnda", this.createMockImage("name", "content"))
     }
 
     @Test
     fun `Should delete an avatar of a user`() {
         val user = this.mockUser()
-        val imageId = "user${user.id}"
-        this.avatarService.setAvatarOfUser(user.id, this.createMockImage(imageId, "dsadas"))
+        val imageId = user.username
+        this.avatarService.setAvatarOfUser(user.username, this.createMockImage(imageId, "dsadas"))
         Assertions.assertThat(this.mockObjectStorage.contains(imageId)).isTrue()
-        this.avatarService.deleteAvatarOfUser(user.id)
+        this.avatarService.deleteAvatarOfUser(user.username)
         Assertions.assertThat(this.mockObjectStorage.contains(imageId)).isFalse()
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not delete an avatar of a user if the user does not exist`() {
-        this.avatarService.deleteAvatarOfUser(-1)
+        this.avatarService.deleteAvatarOfUser("jndnsa")
     }
 
     @Test
