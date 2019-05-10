@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.ReservationDAO
+import com.gabrigiunchi.backendtesi.dao.ReservationLogDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
@@ -28,6 +29,7 @@ import javax.validation.Valid
 class ReservationController(
         private val reservationService: ReservationService,
         private val assetDAO: AssetDAO,
+        private val reservationLogDAO: ReservationLogDAO,
         private val reservationDAO: ReservationDAO,
         val userDAO: UserDAO) : BaseController(userDAO) {
 
@@ -146,6 +148,13 @@ class ReservationController(
     }
 
     /********************************* MY RESERVATIONS *****************************************************/
+
+    @GetMapping("/me/count")
+    fun countMyReservations(): ResponseEntity<Int> {
+        val user = this.getLoggedUser()
+        this.logger.info("GET number of reservations made by logged user (#${user.id})")
+        return ResponseEntity(this.reservationLogDAO.findByUser(user).count(), HttpStatus.OK)
+    }
 
     @GetMapping("/me/page/{page}/size/{size}")
     fun getAllReservationsOfLoggedUser(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {

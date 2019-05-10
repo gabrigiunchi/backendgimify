@@ -376,6 +376,20 @@ class CommentControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should return the number comments I made`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser("gabrigiunchi")
+        val gym = this.mockGym()
+        this.commentDAO.saveAll((1..4).map { Comment(user, gym, "title", "message", 1) })
+
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/count")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(4)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should get my comment by id`() {
         val user = this.mockUser()
         val gym = this.mockGym()

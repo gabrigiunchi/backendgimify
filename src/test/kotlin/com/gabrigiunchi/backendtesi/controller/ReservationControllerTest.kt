@@ -19,6 +19,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.util.*
 
 class ReservationControllerTest : AbstractControllerTest() {
 
@@ -423,6 +424,19 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`(reservations[3].id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`(reservations[2].id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return the number reservations I made`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser("gabrigiunchi")
+        this.reservationLogDAO.saveAll((1..4).map { ReservationLog(-1, user, -1, Date()) })
+
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/count")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(4)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

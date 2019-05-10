@@ -104,6 +104,13 @@ class CommentController(
                 HttpStatus.OK)
     }
 
+    @GetMapping("/me/count")
+    fun countMyComments(): ResponseEntity<Long> {
+        val user = this.getLoggedUser()
+        this.logger.info("GET number of comments made by logged user (#${user.id})")
+        return ResponseEntity(this.commentDAO.findByUser(user, this.pageRequest(0, 1)).totalElements, HttpStatus.OK)
+    }
+
     @GetMapping("/me/{id}")
     fun getMyCommentById(@PathVariable id: Int): ResponseEntity<CommentDTOOutput> {
         return this.commentDAO.findByIdAndUser(id, this.getLoggedUser())
