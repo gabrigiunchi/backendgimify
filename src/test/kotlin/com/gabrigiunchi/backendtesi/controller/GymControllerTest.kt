@@ -72,6 +72,8 @@ class GymControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(gym.name)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city.name", Matchers.`is`(gym.city.name)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(gym.zoneId.toString())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.latitude", Matchers.`is`(gym.latitude)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.longitude", Matchers.`is`(gym.longitude)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -124,7 +126,7 @@ class GymControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a gym`() {
-        val gym = Gym("gym dnjsnjdaj", "Via Pacchioni 43", city)
+        val gym = Gym("gym dnjsnjdaj", "Via Pacchioni 43", city, "Europe/London", 45.0, 10.0)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(gym)))
