@@ -15,6 +15,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.ZoneId
 
 class CityControllerTest : AbstractControllerTest() {
 
@@ -44,6 +45,7 @@ class CityControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(city.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(city.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -55,6 +57,7 @@ class CityControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(city.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(city.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -79,12 +82,13 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a city`() {
-        val city = City(CityEnum.MILANO)
+        val city = City(CityEnum.BERGAMO, ZoneId.of("Europe/London"))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(city)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(city.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.cityDAO.count()).isEqualTo(1)

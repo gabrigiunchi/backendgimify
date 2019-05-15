@@ -129,10 +129,10 @@ class AppInitializer {
     private fun initGyms() {
         this.logger.info("Init gyms")
         this.gyms = this.gymDAO.saveAll(listOf(
-                Gym("gym1", "Via1", this.cities[0], this.zoneId, 45.463319, 9.227475),
-                Gym("gym2", "Via2", this.cities[0], this.zoneId, 45.495971, 9.139692),
-                Gym("gym3", "Via3", this.cities[1], this.zoneId, 45.057798, 7.682223),
-                Gym("gym4", "Via4", this.cities[2], this.zoneId, 44.498969, 11.332425))).toList()
+                Gym("gym1", "Via1", this.cities[0], 45.463319, 9.227475),
+                Gym("gym2", "Via2", this.cities[0], 45.495971, 9.139692),
+                Gym("gym3", "Via3", this.cities[1], 45.057798, 7.682223),
+                Gym("gym4", "Via4", this.cities[2], 44.498969, 11.332425))).toList()
     }
 
     private fun initAssetKinds() {
@@ -159,7 +159,7 @@ class AppInitializer {
 
     private fun initCities() {
         this.logger.info("Init cities")
-        this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it) }).toList()
+        this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it, this.zoneId) }).toList()
     }
 
     private fun initTimetables() {

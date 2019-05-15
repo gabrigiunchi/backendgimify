@@ -36,7 +36,7 @@ object MockEntities {
             Schedule(DayOfWeek.TUESDAY, setOf(this.mockTimeIntervals[2], this.mockTimeIntervals[3]))
     )
 
-    val mockCities = CityEnum.values().map { City(it) }
+    val mockCities = CityEnum.values().map { City(it, "UTC") }
     val assetKinds = AssetKindEnum.values().map { AssetKind(it, 20) }
     val wildcardSchedules = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01", "23:59"))) }.toSet()
 

@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
@@ -58,9 +59,26 @@ abstract class AbstractControllerTest {
                 Pair("id", gym.id.toString()),
                 Pair("name", gym.name),
                 Pair("address", gym.address),
-                Pair("city", gym.city),
-                Pair("zoneId", gym.zoneId.toString())))
+                Pair("city", this.toMap(gym.city))))
     }
+
+
+    @Throws(IOException::class)
+    protected fun json(city: City): String {
+        return ObjectMapper().writeValueAsString(mapOf(
+                Pair("id", city.id.toString()),
+                Pair("name", city.name),
+                Pair("zoneId", city.zoneId.toString())))
+    }
+
+
+    fun toMap(city: City): Map<String, String> {
+        return mapOf(
+                Pair("id", city.id.toString()),
+                Pair("zoneId", city.zoneId.toString()),
+                Pair("name", city.name))
+    }
+
 
     @Autowired
     internal fun setConverters(converters: Array<HttpMessageConverter<Any>>) {
