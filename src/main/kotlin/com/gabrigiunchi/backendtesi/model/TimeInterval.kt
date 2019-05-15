@@ -16,22 +16,17 @@ class TimeInterval(
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
         val start: LocalTime,
-        val end: LocalTime,
-        val zoneId: ZoneId) {
+        val end: LocalTime) {
 
-    companion object {
-        const val DEFAULT_ZONE_ID = "UTC"
-    }
-
-    constructor(start: String, end: String, zoneId: String = DEFAULT_ZONE_ID) :
-            this(-1, LocalTime.parse(start), LocalTime.parse(end), ZoneId.of(zoneId))
+    constructor(start: String, end: String) :
+            this(-1, LocalTime.parse(start), LocalTime.parse(end))
 
     constructor(timeIntervalDTO: TimeIntervalDTO) :
-            this(timeIntervalDTO.start, timeIntervalDTO.end, timeIntervalDTO.zoneId)
+            this(timeIntervalDTO.start, timeIntervalDTO.end)
 
-    constructor(start: Date, end: Date, zoneId: ZoneId = ZoneId.of(DEFAULT_ZONE_ID)) :
+    constructor(start: Date, end: Date, zoneId: ZoneId) :
             this(-1, DateDecorator.of(start).toLocalTime(zoneId),
-                    DateDecorator.of(end).toLocalTime(zoneId), zoneId)
+                    DateDecorator.of(end).toLocalTime(zoneId))
 
     init {
         if (this.start > this.end) {
@@ -39,16 +34,17 @@ class TimeInterval(
         }
     }
 
-    fun contains(date: Date): Boolean = DateDecorator.of(date).toLocalTime(this.zoneId) in this.start..this.end
+    fun contains(date: Date, zoneId: ZoneId): Boolean =
+            DateDecorator.of(date).toLocalTime(zoneId) in this.start..this.end
 
-    fun contains(dateInterval: DateInterval) =
-            dateInterval.isWithinSameDay(this.zoneId) &&
-                    this.contains(dateInterval.start) &&
-                    this.contains(dateInterval.end)
+    fun contains(dateInterval: DateInterval, zoneId: ZoneId) =
+            dateInterval.isWithinSameDay(zoneId) &&
+                    this.contains(dateInterval.start, zoneId) &&
+                    this.contains(dateInterval.end, zoneId)
 
-    fun overlaps(dateInterval: DateInterval): Boolean {
-        return !dateInterval.isWithinSameDay(this.zoneId) ||
-                TimeInterval(dateInterval.start, dateInterval.end, this.zoneId).overlaps(this)
+    fun overlaps(dateInterval: DateInterval, zoneId: ZoneId): Boolean {
+        return !dateInterval.isWithinSameDay(zoneId) ||
+                TimeInterval(dateInterval.start, dateInterval.end, zoneId).overlaps(this)
     }
 
     fun overlaps(timeInterval: TimeInterval): Boolean {
@@ -59,7 +55,6 @@ class TimeInterval(
     fun toMap(): Map<String, String> {
         return mapOf(
                 Pair("id", this.id.toString()),
-                Pair("zoneId", this.zoneId.id),
                 Pair("start", this.start.toString()),
                 Pair("end", this.end.toString())
         )

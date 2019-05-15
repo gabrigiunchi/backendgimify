@@ -54,14 +54,14 @@ class Timetable(
     fun contains(date: Date): Boolean {
         return this.closingDays.none { it.contains(date) } &&
                 !this.exceptionsContain(date) &&
-                (this.exceptionalOpenings.any { it.contains(date) } || this.openings.any { it.contains(date) })
+                (this.exceptionalOpenings.any { it.contains(date) } || this.openings.any { it.contains(date, this.gym.city.zoneId) })
     }
 
     fun contains(dateInterval: DateInterval): Boolean {
         return this.closingDays.none { it.overlaps(dateInterval) } &&
                 !this.exceptionsContain(dateInterval.start) &&
                 !this.exceptionsContain(dateInterval.end) &&
-                (this.exceptionalOpenings.any { it.contains(dateInterval) } || this.openings.any { it.contains(dateInterval) })
+                (this.exceptionalOpenings.any { it.contains(dateInterval) } || this.openings.any { it.contains(dateInterval, this.gym.city.zoneId) })
     }
 
     fun exceptionsContain(date: Date): Boolean {

@@ -10,6 +10,7 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.DayOfWeek
+import java.time.ZoneId
 
 class ScheduleTest : AbstractControllerTest() {
     @Autowired
@@ -47,74 +48,86 @@ class ScheduleTest : AbstractControllerTest() {
     fun `Should say if it contains a date`() {
         val date = DateDecorator.of("2019-04-20T10:00:00+0000").date
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(TimeInterval("08:00", "16:00")))
-        Assertions.assertThat(schedule.contains(date)).isTrue()
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if it contains a date (edge case for start)`() {
         val date = DateDecorator.of("2019-04-20T08:00:00+0000").date
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(TimeInterval("08:00", "16:00")))
-        Assertions.assertThat(schedule.contains(date)).isTrue()
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if it contains a date (edge case for end)`() {
         val date = DateDecorator.of("2019-04-20T16:00:00+0000").date
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(TimeInterval("08:00", "16:00")))
-        Assertions.assertThat(schedule.contains(date)).isTrue()
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if it contains a date (edge case with timezone)`() {
         val date = DateDecorator.of("2019-04-20T10:00:00+0200").date
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(TimeInterval("08:00", "16:00")))
-        Assertions.assertThat(schedule.contains(date)).isTrue()
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if it contains a date (edge case with more intervals)`() {
+        val zoneId = ZoneId.of("UTC")
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(
                 TimeInterval("08:00", "10:00"),
                 TimeInterval("12:00", "14:00"),
                 TimeInterval("16:00", "18:00")
         ))
 
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T09:00:00+0000").date)).isTrue()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T13:00:00+0000").date)).isTrue()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T16:00:00+0000").date)).isTrue()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T17:00:00+0000").date)).isTrue()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T09:00:00+0000").date, zoneId)).isTrue()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T13:00:00+0000").date, zoneId)).isTrue()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T16:00:00+0000").date, zoneId)).isTrue()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T17:00:00+0000").date, zoneId)).isTrue()
     }
 
     @Test
     fun `Should say if does not contain a date`() {
         val date = DateDecorator.of("2019-04-20T07:00:00+0000").date
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(TimeInterval("08:00", "16:00")))
-        Assertions.assertThat(schedule.contains(date)).isFalse()
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("UTC"))).isFalse()
+    }
+
+    @Test
+    fun `Should say if does not contain a date (timezone case)`() {
+        val date = DateDecorator.of("2019-05-18T08:00:00+0000").date
+        val schedule = Schedule(DayOfWeek.SATURDAY, setOf(TimeInterval("08:00", "16:00")))
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("America/New_York"))).isFalse()
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("UTC"))).isTrue()
+        Assertions.assertThat(schedule.contains(date, ZoneId.of("Europe/Rome"))).isTrue()
     }
 
     @Test
     fun `Should say if does not contain a date (edge case with multiple intervals`() {
+        val zoneId = ZoneId.of("UTC")
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(
                 TimeInterval("08:00", "10:00"),
                 TimeInterval("12:00", "14:00"),
                 TimeInterval("16:00", "18:00")
         ))
 
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T07:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T11:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T15:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T19:00:00+0000").date)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T07:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T11:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T15:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-20T19:00:00+0000").date, zoneId)).isFalse()
     }
 
     @Test
     fun `Should say if does not contain a date if the day of the week is different`() {
+        val zoneId = ZoneId.of("UTC")
         val schedule = Schedule(DayOfWeek.SATURDAY, setOf(TimeInterval("00:01", "23:59")))
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-15T01:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-16T01:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-17T01:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-18T01:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-19T01:00:00+0000").date)).isFalse()
-        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-21T01:00:00+0000").date)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-15T01:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-16T01:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-17T01:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-18T01:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-19T01:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(schedule.contains(DateDecorator.of("2019-04-21T01:00:00+0000").date, zoneId)).isFalse()
     }
 
     /************************************ CONTAINS A DATE INTERVAL *********************************************************/
@@ -125,7 +138,8 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T12:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -135,7 +149,8 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T08:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -145,7 +160,8 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T12:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T16:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T16:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -155,18 +171,17 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T08:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T16:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T16:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
     @Test
     fun `Should say if contains a date interval (edge case with timezone)`() {
         val schedule = Schedule(DayOfWeek.SUNDAY, setOf(TimeInterval("08:00", "16:00")))
-        Assertions.assertThat(schedule.contains(
-                DateInterval(
-                        DateDecorator.of("2019-04-21T10:00:00+0200").date,
-                        DateDecorator.of("2019-04-21T18:00:00+0200").date))
-        ).isTrue()
+        val dateInterval = DateInterval(DateDecorator.of("2019-04-21T10:00:00+0200").date, DateDecorator.of("2019-04-21T18:00:00+0200").date)
+        Assertions.assertThat(schedule.contains(dateInterval, ZoneId.of("UTC"))).isTrue()
+        Assertions.assertThat(schedule.contains(dateInterval, ZoneId.of("Europe/Rome"))).isFalse()
     }
 
     @Test
@@ -175,7 +190,8 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T07:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 
@@ -185,7 +201,8 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T12:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T18:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T18:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 
@@ -195,13 +212,15 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T05:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T07:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T07:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
 
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T18:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T19:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T19:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 
@@ -215,7 +234,8 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T09:00:00+0000").date,
-                        DateDecorator.of("2019-04-22T015:00:00+0000").date))
+                        DateDecorator.of("2019-04-22T015:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 
@@ -225,7 +245,8 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T10:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T12:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T12:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 
@@ -239,13 +260,15 @@ class ScheduleTest : AbstractControllerTest() {
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T09:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T015:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T015:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
 
         Assertions.assertThat(schedule.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T012:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T015:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T015:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 }

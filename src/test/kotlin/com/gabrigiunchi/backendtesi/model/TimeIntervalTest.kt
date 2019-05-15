@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.junit.Test
+import java.time.ZoneId
 
 class TimeIntervalTest {
 
@@ -10,7 +11,7 @@ class TimeIntervalTest {
     fun `Should create from two date objects`() {
         val start = DateDecorator.of("2010-01-01T11:00:00+0100").date
         val end = DateDecorator.of("2010-01-01T12:00:00+0000").date
-        val timeInterval = TimeInterval(start, end)
+        val timeInterval = TimeInterval(start, end, ZoneId.of("UTC"))
         Assertions.assertThat(timeInterval.start).isEqualTo("10:00")
         Assertions.assertThat(timeInterval.end).isEqualTo("12:00")
     }
@@ -22,53 +23,57 @@ class TimeIntervalTest {
 
     @Test
     fun `Should say if a time intervals contains a date`() {
+        val zoneId = ZoneId.of("UTC")
         val timeInterval = TimeInterval("10:00", "16:00")
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T10:00:00+0000").date)).isTrue()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T14:00:00+0000").date)).isTrue()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:00+0000").date)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T10:00:00+0000").date, zoneId)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T14:00:00+0000").date, zoneId)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:00+0000").date, zoneId)).isTrue()
     }
 
     @Test
     fun `Should say if a time intervals does not contain a date`() {
+        val zoneId = ZoneId.of("UTC")
         val timeInterval = TimeInterval("10:00", "16:00")
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T08:00:00+0000").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T09:00:00+0000").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T09:59:01+0000").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T09:59:59+0000").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:01+0000").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T17:00:00+0000").date)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T08:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T09:00:00+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T09:59:01+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T09:59:59+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:01+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T17:00:00+0000").date, zoneId)).isFalse()
     }
 
     @Test
     fun `Should say if a time intervals contains a date considering timeZone`() {
-        val timeInterval = TimeInterval("10:00", "16:00", "Europe/Rome")
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T10:00:00+0200").date)).isTrue()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T12:00:00+0200").date)).isTrue()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T16:00:00+0200").date)).isTrue()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T08:00:00+0000").date)).isTrue()
+        val zoneId = ZoneId.of("Europe/Rome")
+        val timeInterval = TimeInterval("10:00", "16:00")
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T10:00:00+0200").date, zoneId)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T12:00:00+0200").date, zoneId)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T16:00:00+0200").date, zoneId)).isTrue()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T08:00:00+0000").date, zoneId)).isTrue()
     }
 
     @Test
     fun `Should say if a time intervals does not contain a date considering timeZone`() {
-        val timeInterval = TimeInterval("10:00", "16:00", "Europe/Rome")
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T09:59:59+0200").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:1+0200").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T07:59:59+0000").date)).isFalse()
-        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T14:00:01+0000").date)).isFalse()
+        val zoneId = ZoneId.of("Europe/Rome")
+        val timeInterval = TimeInterval("10:00", "16:00")
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2019-04-29T09:59:59+0200").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T16:00:1+0200").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T07:59:59+0000").date, zoneId)).isFalse()
+        Assertions.assertThat(timeInterval.contains(DateDecorator.of("2018-10-10T14:00:01+0000").date, zoneId)).isFalse()
     }
 
     @Test
     fun `Should say if a time intervals contains a date if date == intervalStart`() {
         val date = DateDecorator.of("2018-10-10T10:00:00+0000").date
         val timeInterval = TimeInterval("10:00", "16:00")
-        Assertions.assertThat(timeInterval.contains(date)).isTrue()
+        Assertions.assertThat(timeInterval.contains(date, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if a time intervals contains a date if date == intervalEnd`() {
         val date = DateDecorator.of("2018-10-10T16:00:00+0000").date
-        val timeInterval = TimeInterval("10:00", "16:00", "UTC")
-        Assertions.assertThat(timeInterval.contains(date)).isTrue()
+        val timeInterval = TimeInterval("10:00", "16:00")
+        Assertions.assertThat(timeInterval.contains(date, ZoneId.of("UTC"))).isTrue()
     }
 
     /************************************ CONTAINS A DATE INTERVAL *********************************************************/
@@ -79,7 +84,7 @@ class TimeIntervalTest {
                 DateDecorator.of("2019-01-01T14:00:00+0000").date)
         val timeInterval = TimeInterval("10:00", "16:00")
 
-        Assertions.assertThat(timeInterval.contains(dateInterval)).isTrue()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
@@ -88,34 +93,36 @@ class TimeIntervalTest {
                 DateDecorator.of("2019-01-01T12:00:00+0000").date)
         val timeInterval = TimeInterval("10:00", "16:00")
 
-        Assertions.assertThat(timeInterval.contains(dateInterval)).isTrue()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if contains a date interval (edge case with end time)`() {
         val dateInterval = DateInterval(DateDecorator.of("2019-01-01T12:00:00+0000").date,
                 DateDecorator.of("2019-01-01T16:00:00+0000").date)
-        val timeInterval = TimeInterval("10:00", "16:00", "UTC")
+        val timeInterval = TimeInterval("10:00", "16:00")
 
-        Assertions.assertThat(timeInterval.contains(dateInterval)).isTrue()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if contains a date interval (edge case with start time and end time)`() {
         val dateInterval = DateInterval(DateDecorator.of("2019-01-01T10:00:00+0000").date,
                 DateDecorator.of("2019-01-01T16:00:00+0000").date)
-        val timeInterval = TimeInterval("10:00", "16:00", "UTC")
+        val timeInterval = TimeInterval("10:00", "16:00")
 
-        Assertions.assertThat(timeInterval.contains(dateInterval)).isTrue()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("UTC"))).isTrue()
     }
 
     @Test
     fun `Should say if contains a date interval (edge case with timezone)`() {
         val dateInterval = DateInterval(DateDecorator.of("2019-01-01T11:00:00+0100").date,
                 DateDecorator.of("2019-01-01T17:00:00+0100").date)
-        val timeInterval = TimeInterval("10:00", "16:00", "UTC")
+        val timeInterval = TimeInterval("10:00", "16:00")
 
-        Assertions.assertThat(timeInterval.contains(dateInterval)).isTrue()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("UTC"))).isTrue()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("Europe/Rome"))).isFalse()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("America/New_York"))).isFalse()
     }
 
     @Test
@@ -124,7 +131,7 @@ class TimeIntervalTest {
                 DateDecorator.of("2019-01-01T15:00:00+0000").date)
         val timeInterval = TimeInterval("10:00", "16:00")
 
-        Assertions.assertThat(timeInterval.contains(dateInterval)).isFalse()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("UTC"))).isFalse()
     }
 
     @Test
@@ -133,7 +140,7 @@ class TimeIntervalTest {
                 DateDecorator.of("2019-01-01T17:00:00+0000").date)
         val timeInterval = TimeInterval("10:00", "16:00")
 
-        Assertions.assertThat(timeInterval.contains(dateInterval)).isFalse()
+        Assertions.assertThat(timeInterval.contains(dateInterval, ZoneId.of("UTC"))).isFalse()
     }
 
     @Test
@@ -143,13 +150,15 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.contains(
                 DateInterval(
                         DateDecorator.of("2019-01-01T18:00:00+0000").date,
-                        DateDecorator.of("2019-01-01T19:00:00+0000").date))
+                        DateDecorator.of("2019-01-01T19:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
 
         Assertions.assertThat(timeInterval.contains(
                 DateInterval(
                         DateDecorator.of("2019-01-01T07:00:00+0000").date,
-                        DateDecorator.of("2019-01-01T08:00:00+0000").date))
+                        DateDecorator.of("2019-01-01T08:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 
@@ -160,7 +169,8 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.contains(
                 DateInterval(
                         DateDecorator.of("2019-04-21T11:00:00+0000").date,
-                        DateDecorator.of("2019-04-22T14:00:00+0000").date))
+                        DateDecorator.of("2019-04-22T14:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 
@@ -222,7 +232,8 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.overlaps(
                 DateInterval(
                         DateDecorator.of("2019-04-21T11:00:00+0000").date,
-                        DateDecorator.of("2019-04-22T14:00:00+0000").date))
+                        DateDecorator.of("2019-04-22T14:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -232,7 +243,8 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.overlaps(
                 DateInterval(
                         DateDecorator.of("2019-04-21T11:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T18:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T18:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -242,7 +254,8 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.overlaps(
                 DateInterval(
                         DateDecorator.of("2019-04-21T08:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -252,7 +265,8 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.overlaps(
                 DateInterval(
                         DateDecorator.of("2019-04-21T12:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T14:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T14:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -262,7 +276,8 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.overlaps(
                 DateInterval(
                         DateDecorator.of("2019-04-21T08:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T22:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T22:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isTrue()
     }
 
@@ -272,13 +287,15 @@ class TimeIntervalTest {
         Assertions.assertThat(timeInterval.overlaps(
                 DateInterval(
                         DateDecorator.of("2019-04-21T19:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T22:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T22:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
 
         Assertions.assertThat(timeInterval.overlaps(
                 DateInterval(
                         DateDecorator.of("2019-04-21T05:00:00+0000").date,
-                        DateDecorator.of("2019-04-21T06:00:00+0000").date))
+                        DateDecorator.of("2019-04-21T06:00:00+0000").date),
+                ZoneId.of("UTC"))
         ).isFalse()
     }
 }
