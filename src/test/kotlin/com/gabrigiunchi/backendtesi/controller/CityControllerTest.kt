@@ -81,12 +81,12 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a city`() {
-        val city = City(CityEnum.MIAMI)
+        val city = City(CityEnum.LOS_ANGELES)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(city)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(city.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`("Los Angeles")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
 
