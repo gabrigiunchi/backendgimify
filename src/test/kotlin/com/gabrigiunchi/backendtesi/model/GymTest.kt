@@ -25,7 +25,7 @@ class GymTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete a city and all the gyms related to it`() {
-        val city = this.cityDAO.save(City(CityEnum.BERGAMO))
+        val city = this.cityDAO.save(City(CityEnum.MIAMI))
         this.gymDAO.saveAll(listOf(
                 Gym("gym1", "via1", city),
                 Gym("gym2", "via2", city),

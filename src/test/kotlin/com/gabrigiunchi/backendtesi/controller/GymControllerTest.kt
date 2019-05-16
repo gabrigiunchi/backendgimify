@@ -39,7 +39,7 @@ class GymControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var commentDAO: CommentDAO
 
-    private var city = City(CityEnum.MILANO)
+    private var city = City(CityEnum.NEW_YORK)
 
     @Before
     fun clearDB() {

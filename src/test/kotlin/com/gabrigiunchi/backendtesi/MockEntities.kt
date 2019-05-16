@@ -2,7 +2,6 @@ package com.gabrigiunchi.backendtesi
 
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
-import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.time.DayOfWeek
 import java.time.MonthDay
@@ -36,11 +35,21 @@ object MockEntities {
             Schedule(DayOfWeek.TUESDAY, setOf(this.mockTimeIntervals[2], this.mockTimeIntervals[3]))
     )
 
-    val mockCities = CityEnum.values().map { City(it, "UTC") }
+    val mockCities = MockCityEnum.values().map { City(-1, it.name, ZoneId.of(it.zoneId)) }
     val assetKinds = AssetKindEnum.values().map { AssetKind(it, 20) }
     val wildcardSchedules = DayOfWeek.values().map { Schedule(it, setOf(TimeInterval("00:01", "23:59"))) }.toSet()
 
     val ROME: ZoneId = ZoneId.of("Europe/Rome")
     val UTC: ZoneId = ZoneId.of("UTC")
     val LOS_ANGELES: ZoneId = ZoneId.of("America/Los_Angeles")
+
+    enum class MockCityEnum(val zoneId: String) {
+        MILANO("UTC"),
+        TORINO("UTC"),
+        BOLOGNA("UTC"),
+        TRIESTE("UTC"),
+        BERGAMO("UTC"),
+        FORLI("UTC"),
+        RIMINI("UTC")
+    }
 }

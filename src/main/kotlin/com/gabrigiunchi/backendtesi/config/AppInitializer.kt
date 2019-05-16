@@ -159,7 +159,7 @@ class AppInitializer {
 
     private fun initCities() {
         this.logger.info("Init cities")
-        this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it, this.zoneId) }).toList()
+        this.cities = this.cityDAO.saveAll(CityEnum.values().map { City(it) }).toList()
     }
 
     private fun initTimetables() {

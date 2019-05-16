@@ -58,7 +58,7 @@ class AssetTest : AbstractControllerTest() {
     }
 
     private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(City(CityEnum.MIAMI))))
     }
 
 }

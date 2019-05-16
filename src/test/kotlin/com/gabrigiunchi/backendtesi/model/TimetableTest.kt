@@ -5,7 +5,6 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import org.assertj.core.api.Assertions
 import org.junit.Before
@@ -316,6 +315,6 @@ class TimetableTest : AbstractControllerTest() {
     }
 
     private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(MockEntities.mockCities[0])))
     }
 }

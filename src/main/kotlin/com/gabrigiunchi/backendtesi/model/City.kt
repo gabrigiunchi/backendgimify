@@ -15,7 +15,5 @@ class City(
         val name: String,
         val zoneId: ZoneId
 ) {
-    constructor(city: CityEnum) : this(-1, city.name, ZoneId.of("UTC"))
-    constructor(city: CityEnum, zoneId: ZoneId) : this(-1, city.name, zoneId)
-    constructor(city: CityEnum, zoneId: String) : this(-1, city.name, ZoneId.of(zoneId))
+    constructor(city: CityEnum) : this(-1, city.name, ZoneId.of(city.zoneId))
 }

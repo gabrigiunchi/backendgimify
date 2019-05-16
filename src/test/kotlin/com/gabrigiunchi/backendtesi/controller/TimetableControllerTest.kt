@@ -44,7 +44,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         this.timetableDAO.deleteAll()
         this.gymDAO.deleteAll()
 
-        val city = this.cityDAO.save(City(CityEnum.BERGAMO))
+        val city = this.cityDAO.save(City(CityEnum.MIAMI))
         this.gyms = this.gymDAO.saveAll(listOf(
                 Gym("gym1", "via1", city),
                 Gym("gym2", "via2", city),

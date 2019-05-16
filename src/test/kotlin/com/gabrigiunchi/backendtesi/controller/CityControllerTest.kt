@@ -15,7 +15,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.time.ZoneId
 
 class CityControllerTest : AbstractControllerTest() {
 
@@ -82,7 +81,7 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a city`() {
-        val city = City(CityEnum.BERGAMO, ZoneId.of("Europe/London"))
+        val city = City(CityEnum.MIAMI)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(city)))
@@ -108,7 +107,7 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a city if its name already exist`() {
-        val city = City(CityEnum.MILANO)
+        val city = City(CityEnum.NEW_YORK)
         val savedCity = this.cityDAO.save(city)
 
         Assertions.assertThat(city.id).isNotEqualTo(savedCity.id)

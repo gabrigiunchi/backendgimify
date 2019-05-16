@@ -217,7 +217,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a reservation`() {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -243,7 +243,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a reservation if interval is in the past`() {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.MIAMI))))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -262,7 +262,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a reservation if the gym is closed`() {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.MIAMI))))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -282,7 +282,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not create a reservation if there is another one at the same time`() {
         this.userDAO.deleteAll()
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
         val user = this.mockUser()
@@ -306,7 +306,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not be able to make 3 reservations per day`() {
         this.userDAO.deleteAll()
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
         val user = this.mockUser()
@@ -539,7 +539,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should create a reservation with the 'me' REST API`() {
         this.userDAO.deleteAll()
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
@@ -800,7 +800,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     /************************************** UTILS *******************************************************************/
 
     private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(MockEntities.mockCities[0])))
     }
 
     private fun mockUser(username: String = "gabrigiunchi"): User {

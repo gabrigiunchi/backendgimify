@@ -426,7 +426,8 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the available assets of a given kind in a given interval in a given gym`() {
-        val anotherGym = this.gymDAO.save(Gym("gym2", "adddress2", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val anotherGym = this.gymDAO.save(
+                Gym("gym2", "adddress2", this.cityDAO.save(MockEntities.mockCities[0])))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
@@ -444,9 +445,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the available assets of a given kind in a given interval in a given city`() {
-        val cities = this.cityDAO.saveAll(
-                listOf(City(CityEnum.MILANO), City(CityEnum.BERGAMO), City(CityEnum.BOLOGNA))
-        ).toList()
+        val cities = this.cityDAO.saveAll(MockEntities.mockCities.take(3)).toList()
         val gyms = this.gymDAO.saveAll(listOf(
                 Gym("gym1", "address1", cities[0]),
                 Gym("gym2", "address1", cities[1]),
@@ -491,7 +490,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return empty list when searching the free assets if the gym is closed`() {
-        val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.cityDAO.save(City(CityEnum.MIAMI))))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
@@ -508,7 +507,8 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the available asset in a given interval considering also conflicts with other reservations`() {
-        val anotherGym = this.gymDAO.save(Gym("gym2", "adddress2", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val anotherGym = this.gymDAO.save(
+                Gym("gym2", "adddress2", this.cityDAO.save(MockEntities.mockCities[0])))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         val assets = this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
@@ -810,6 +810,6 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(MockEntities.mockCities[0])))
     }
 }

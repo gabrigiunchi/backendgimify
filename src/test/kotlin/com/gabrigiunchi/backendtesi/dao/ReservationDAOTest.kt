@@ -114,7 +114,7 @@ class ReservationDAOTest : AbstractControllerTest() {
     }
 
     private fun mockAsset(name: String): Asset {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.BERGAMO))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.MIAMI))))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
         return this.assetDAO.save(Asset(name, kind, gym))
     }
