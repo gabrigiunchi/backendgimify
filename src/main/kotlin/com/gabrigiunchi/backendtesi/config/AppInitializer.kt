@@ -143,7 +143,8 @@ class AppInitializer {
                 Gym("Xpose Gym", "3398-3300 Brothers Pl SE", this.cities[3], 38.842048, -77.004393),
                 Gym("Muscle Up", "600 NE 38th St", this.cities[4], 25.812459, -80.186485),
                 Gym("Actively Fit", "7271 S Exchange Ave", this.cities[5], 41.762757, -87.563190),
-                Gym("The Fitness Institute", "1695 Beach St", this.cities[6], 37.804645, -122.436430)
+                Gym("The Fitness Institute", "1695 Beach St", this.cities[6], 37.804645, -122.436430),
+                Gym("Giunchi Fit", "Via Pacchioni 43", this.cities[7], 44.231921, 12.062291)
         )).toList()
     }
 

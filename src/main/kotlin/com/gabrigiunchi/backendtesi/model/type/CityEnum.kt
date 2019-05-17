@@ -7,5 +7,6 @@ enum class CityEnum(val fullName: String, val zoneId: String) {
     WASHINGTON_DC("Washington DC", "America/New_York"),
     MIAMI("Miami", "America/New_York"),
     CHICAGO("Chicago", "America/Chicago"),
-    SAN_FRANCISCO("San Francisco", "America/Los_Angeles")
+    SAN_FRANCISCO("San Francisco", "America/Los_Angeles"),
+    FORLI("Forlì", "Europe/Rome")
 }

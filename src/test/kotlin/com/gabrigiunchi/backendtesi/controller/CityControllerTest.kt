@@ -32,7 +32,7 @@ class CityControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(CityEnum.values().size)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(MockEntities.mockCities.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
