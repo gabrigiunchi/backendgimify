@@ -1,10 +1,12 @@
 package com.gabrigiunchi.backendtesi.model.type
 
-enum class AssetKindEnum {
+enum class AssetKindEnum(val fullName: String) {
 
-    TAPIS_ROULANT,
-    PRESSA,
-    PANCA,
-    CICLETTE,
+    TREADMILLS("Treadmills"),
+    BENCH("Bench"),
+    CRUNCH_BENCH("Crunch bench"),
+    CICLE("Cicle"),
+    RACK("Rack"),
+
 
 }

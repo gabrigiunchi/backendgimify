@@ -360,7 +360,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return the available assets of a given kind in a given interval`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val assets = this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -373,7 +373,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return empty list when searching the free assets if the interval is too big`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -385,7 +385,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return empty list when searching the free assets if the interval is in the past`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -397,7 +397,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return empty list when searching the free assets if the interval is in the past (city filter)`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -412,7 +412,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return empty list when searching the free assets if the interval is in the past (gym filter)`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -429,7 +429,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val anotherGym = this.gymDAO.save(
                 Gym("gym2", "adddress2", this.cityDAO.save(MockEntities.mockCities[0])))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -456,9 +456,9 @@ class ReservationServiceTest : AbstractControllerTest() {
 
         val kinds = this.assetKindDAO.saveAll(
                 listOf(
-                        AssetKind(AssetKindEnum.CICLETTE, 20),
-                        AssetKind(AssetKindEnum.TAPIS_ROULANT, 20),
-                        AssetKind(AssetKindEnum.PRESSA, 20)
+                        AssetKind(AssetKindEnum.CICLE, 20),
+                        AssetKind(AssetKindEnum.TREADMILLS, 20),
+                        AssetKind(AssetKindEnum.BENCH, 20)
                 )
         ).toList()
 
@@ -492,7 +492,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Should return empty list when searching the free assets if the gym is closed`() {
         val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.cityDAO.save(City(CityEnum.MIAMI))))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -510,7 +510,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val anotherGym = this.gymDAO.save(
                 Gym("gym2", "adddress2", this.cityDAO.save(MockEntities.mockCities[0])))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val assets = this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
@@ -542,7 +542,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when searching the free assets if the kind does not exist`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
         this.reservationService.getAvailableAssetsInGym(
@@ -554,7 +554,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when searching the free assets if the gym does not exist`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
         this.reservationService.getAvailableAssetsInGym(
@@ -566,7 +566,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throws an exception when searching the free assets if the city does not exist`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, this.gym!!) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
         this.reservationService.getAvailableAssetsInCity(
@@ -578,41 +578,41 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the start is after the end when searching for free assets`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.reservationService.getAvailableAssets(kind.id, DateDecorator.now().date, DateDecorator.now().minusMinutes(1).date)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the after is equal to the end when searching for free assets`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val now = DateDecorator.now().date
         this.reservationService.getAvailableAssets(kind.id, now, now)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the start is after the end when searching for free assets (gym filter)`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.reservationService.getAvailableAssetsInGym(kind.id, this.gym!!.id,
                 DateDecorator.now().date, DateDecorator.now().minusMinutes(1).date)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the start is after the end when searching for free assets (city filter)`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.reservationService.getAvailableAssetsInCity(kind.id, this.gym!!.city.id,
                 DateDecorator.now().date, DateDecorator.now().minusMinutes(1).date)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the after is equal to the end when searching for free assets (gym filter)`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val now = DateDecorator.now().date
         this.reservationService.getAvailableAssetsInGym(kind.id, this.gym!!.id, now, now)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the after is equal to the end when searching for free assets (city filter)`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val now = DateDecorator.now().date
         this.reservationService.getAvailableAssetsInCity(kind.id, this.gym!!.city.id, now, now)
     }
@@ -805,7 +805,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     private fun mockAsset(maxReservationTime: Int = 20): Asset {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, maxReservationTime))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, maxReservationTime))
         return this.assetDAO.save(Asset("ciclett1", kind, this.gym!!))
     }
 

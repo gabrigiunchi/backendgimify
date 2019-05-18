@@ -16,5 +16,5 @@ class AssetKind(
 ) {
     constructor(name: String, maxReservationTime: Int) : this(-1, name, maxReservationTime)
     constructor(kind: AssetKindEnum, maxReservationTime: Int) : this(-1, kind, maxReservationTime)
-    constructor(id: Int, kind: AssetKindEnum, maxReservationTime: Int) : this(id, kind.name, maxReservationTime)
+    constructor(id: Int, kind: AssetKindEnum, maxReservationTime: Int) : this(id, kind.fullName, maxReservationTime)
 }

@@ -623,7 +623,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.reservationDAO.deleteAll()
         val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val assets = this.assetDAO.saveAll((1..4).map { Asset("ciclette$it", kind, gym) }).toList()
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
@@ -649,7 +649,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("another gym", "address2", gym.city))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLETTE, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val assets = this.assetDAO.saveAll((0..3).map { Asset("ciclette$it", kind, if (it % 2 == 0) gym else anotherGym) }).toList()
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
@@ -714,7 +714,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 if the gym does not exist when searching for available assets and filtering by gym`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.PRESSA, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.BENCH, 20))
         val from = DateDecorator.of("2050-04-04T10:00:00+0000")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}/gym/-1"
@@ -728,7 +728,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 if the city does not exist when searching for available assets and filtering by city`() {
-        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.PRESSA, 20))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.BENCH, 20))
         val from = DateDecorator.of("2050-04-04T10:00:00+0000")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/${from.format()}/to/${to.format()}/city/-1"

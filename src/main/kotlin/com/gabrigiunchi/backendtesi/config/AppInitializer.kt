@@ -71,10 +71,10 @@ class AppInitializer {
     )
 
     private val maxReservationTimes = mapOf(
-            Pair(AssetKindEnum.CICLETTE, 60),
-            Pair(AssetKindEnum.PANCA, 20),
-            Pair(AssetKindEnum.PRESSA, 20),
-            Pair(AssetKindEnum.TAPIS_ROULANT, 60))
+            Pair(AssetKindEnum.CICLE, 60),
+            Pair(AssetKindEnum.CRUNCH_BENCH, 20),
+            Pair(AssetKindEnum.BENCH, 20),
+            Pair(AssetKindEnum.TREADMILLS, 60))
 
     fun initApp() {
         this.initTimezone()
@@ -162,7 +162,7 @@ class AppInitializer {
                     this.gyms.flatMap { gym ->
                         (1..4).map {
                             val name = "${kind.name.substring(0, 2)}${gym.name.reversed().substring(0, 2)}$it${random.nextInt(100)}"
-                            Asset(name, kind, gym)
+                            Asset(name.toLowerCase(), kind, gym)
                         }
                     }
                 }
