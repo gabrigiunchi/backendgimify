@@ -2,7 +2,6 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.config.security.JwtTokenProvider
-import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.UserRole
@@ -38,12 +37,7 @@ class LoginControllerTest : AbstractControllerTest() {
     fun `Should log in a user with valid username and password`() {
         val password = "aaaa"
         val user = this.userDAO.save(
-                this.userFactory.createRegularUser(
-                        "gabrigiunchi",
-                        SHA256PasswordEncoder().encode(password),
-                        "Gabriele",
-                        "Giunchi"
-                )
+                this.userFactory.createRegularUser("gabrigiunchi", password, "Gabriele", "Giunchi")
         )
         val credentials = ValidateUserDTO(user.username, password)
 
@@ -81,9 +75,7 @@ class LoginControllerTest : AbstractControllerTest() {
     @Test
     fun `Should NOT log in a user with invalid password`() {
         val password = "aaaa"
-        val user = this.userFactory.createRegularUser("djkasnjdna", SHA256PasswordEncoder().encode(password),
-                "dasdsa", "dsdadsa")
-
+        val user = this.userFactory.createRegularUser("djkasnjdna", password, "dasdsa", "dsdadsa")
         this.userDAO.save(user)
         val credentials = ValidateUserDTO(user.username, "mmkldamaldmak")
 
@@ -97,12 +89,7 @@ class LoginControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if a token is valid`() {
-        val user = this.userFactory.createRegularUser(
-                "gabrigiunchi",
-                SHA256PasswordEncoder().encode("aaaa"),
-                "Gabriele",
-                "Giunchi"
-        )
+        val user = this.userFactory.createRegularUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi")
         this.userDAO.save(user)
         val token = this.tokenProvider.createToken(user.username, user.roles.map(UserRole::name))
 

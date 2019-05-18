@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.config
 
-import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
 import com.gabrigiunchi.backendtesi.constants.Constants
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
@@ -67,7 +66,12 @@ class AppInitializer {
             listOf("Good gym", "I like going to this gym because it is always empty, you can train without annoying noises", 4),
             listOf("Awful", "Too crowded, the personnel was not nice", 1),
             listOf("Incredible", "Nothing to say, keep up the good work!", 5),
-            listOf("Very nice gym", "I always go to this gym and could not think of anything nicer", 5)
+            listOf("Very nice gym", "I always go to this gym and could not think of anything nicer", 5),
+            listOf("Incompetent trainer", "The trainer was distracted and thinking about his business instead of caring for us", 1),
+            listOf("Disgusting", "The locker rooms smell and aren't cleaned properly. Not coming back", 1),
+            listOf("Very nice staff", "The trainers are so nice and well prepared! They always give good advice and it's so uplifting to come here. Keep up the good work!", 5),
+            listOf("Perfect", "The cutting edge equipments and the expertise of the trainers make this gym one of the best I've ever seen. Simply another level", 5),
+            listOf("Very good for aerobics", "This beautiful gym features the latest exercising equipments and offers spinning classes and aerobics classes", 4)
     )
 
     private val maxReservationTimes = mapOf(
@@ -113,11 +117,9 @@ class AppInitializer {
         this.logger.info("Init users")
         this.initUserRole()
         this.userDAO.saveAll(listOf(
-                User("gabrigiunchi", SHA256PasswordEncoder().encode("aaaa"),
-                        "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com", mutableListOf(roles[0])),
-
-                User("baseuser", SHA256PasswordEncoder().encode("bbbb"), "User",
-                        "Anonimo", "prova@gmail.com", mutableListOf(roles[1])))
+                this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com"),
+                this.userFactory.createAdminUser("tonan", "pinguino", "Antonella", "Tondi", "giutondi@alice.it"),
+                this.userFactory.createRegularUser("baseuser", "bbbb", "User", "Anonimo", "prova@gmail.com"))
         )
         this.randomUsers = this.userDAO.saveAll(
                 (1..15).map {

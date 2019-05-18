@@ -1,5 +1,6 @@
 package com.gabrigiunchi.backendtesi.util
 
+import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
 import com.gabrigiunchi.backendtesi.dao.UserRoleDAO
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
@@ -10,12 +11,12 @@ class UserFactory(private val userRoleDAO: UserRoleDAO) {
 
     fun createAdminUser(username: String, password: String, name: String, surname: String, email: String = "prova@server.com"): User {
         val roles = this.userRoleDAO.findByName(UserRoleEnum.ADMINISTRATOR.toString())
-        return User(username, password, name, surname, email, roles.toMutableList())
+        return User(username, SHA256PasswordEncoder().encode(password), name, surname, email, roles.toMutableList())
     }
 
     fun createRegularUser(username: String, password: String, name: String, surname: String, email: String = "prova@server.com"): User {
         val roles = this.userRoleDAO.findByName(UserRoleEnum.USER.toString())
-        return User(username, password, name, surname, email, roles.toMutableList())
+        return User(username, SHA256PasswordEncoder().encode(password), name, surname, email, roles.toMutableList())
     }
 
 }
