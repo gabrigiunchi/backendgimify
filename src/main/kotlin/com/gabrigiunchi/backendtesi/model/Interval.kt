@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.model
 
-import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -16,7 +15,7 @@ open class Interval(
         val end: LocalDateTime
 ) {
 
-    constructor(start: LocalDateTime, end: LocalDateTime): this(-1, start, end)
+    constructor(start: LocalDateTime, end: LocalDateTime) : this(-1, start, end)
     constructor(start: String, end: String) : this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end))
 
     init {

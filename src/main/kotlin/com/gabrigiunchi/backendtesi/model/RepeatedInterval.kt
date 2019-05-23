@@ -2,7 +2,6 @@ package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import java.time.*
-import java.time.temporal.TemporalAdjusters
 import javax.persistence.Entity
 
 @Entity

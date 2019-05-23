@@ -21,7 +21,10 @@ class Timetable(
         val closingDays: Set<RepeatedInterval>
 ) {
 
-    constructor(gym: Gym): this(-1, gym, emptySet(), emptySet())
+    constructor(gym: Gym) : this(-1, gym, emptySet(), emptySet())
+
+    constructor(gym: Gym, openings: Set<RepeatedInterval>) :
+            this(-1, gym, openings, emptySet())
 
     constructor(gym: Gym, openings: Set<RepeatedInterval>, closingDays: Set<RepeatedInterval>) :
             this(-1, gym, openings, closingDays)

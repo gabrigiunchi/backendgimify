@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.model
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.time.LocalDateTime
-import java.util.*
 import javax.persistence.*
 
 @Entity

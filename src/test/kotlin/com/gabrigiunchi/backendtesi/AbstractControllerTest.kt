@@ -3,6 +3,9 @@ package com.gabrigiunchi.backendtesi
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.RepeatedInterval
+import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
+import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import org.junit.Assert
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,11 +48,40 @@ abstract class AbstractControllerTest {
 
 
     @Throws(IOException::class)
+    protected fun json(reservation: ReservationDTOInput): String {
+        return ObjectMapper().writeValueAsString(mapOf(
+                Pair("userID", reservation.userID),
+                Pair("assetID", reservation.assetID),
+                Pair("start", reservation.start.toString()),
+                Pair("end", reservation.end.toString())))
+    }
+
+    @Throws(IOException::class)
     protected fun json(city: City): String {
         return ObjectMapper().writeValueAsString(mapOf(
                 Pair("id", city.id.toString()),
                 Pair("name", city.name),
                 Pair("zoneId", city.zoneId.toString())))
+    }
+
+    @Throws(IOException::class)
+    protected fun json(timetable: TimetableDTO): String {
+        return ObjectMapper().writeValueAsString(mapOf(
+                Pair("gymId", timetable.gymId.toString()),
+                Pair("closingDays", timetable.closingDays),
+                Pair("openings", timetable.openings.map { toMap(it) }),
+                Pair("closingDays", timetable.closingDays.map { toMap(it) }))
+        )
+    }
+
+    fun toMap(repeatedInterval: RepeatedInterval): Map<String, String> {
+        return mapOf(
+                Pair("id", repeatedInterval.id.toString()),
+                Pair("start", repeatedInterval.start.toString()),
+                Pair("end", repeatedInterval.end.toString()),
+                Pair("repetitionType", repeatedInterval.repetitionType.toString()),
+                Pair("repetitionEnd", repeatedInterval.repetitionEnd.toString())
+        )
     }
 
 

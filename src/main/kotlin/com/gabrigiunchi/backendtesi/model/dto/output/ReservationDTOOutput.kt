@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.model.dto.output
 import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.Reservation
 import java.time.LocalDateTime
-import java.util.*
 
 data class ReservationDTOOutput(
         val id: Int,

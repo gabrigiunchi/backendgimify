@@ -6,12 +6,10 @@ import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.RepeatedInterval
 import com.gabrigiunchi.backendtesi.model.Timetable
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
-import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -72,8 +70,6 @@ class TimetableControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetable.openings.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.closingDays.length()", Matchers.`is`(timetable.closingDays.size)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(timetable.id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.recurringExceptions.length()",
-                        Matchers.`is`(MockEntities.mockHolidays.size)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
