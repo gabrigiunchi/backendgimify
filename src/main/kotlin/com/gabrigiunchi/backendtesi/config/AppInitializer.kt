@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
+import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.time.DayOfWeek
 import java.util.*
 
 @Service
@@ -179,7 +179,7 @@ class AppInitializer {
 
     private fun initTimetables() {
         this.logger.info("Init timetables")
-        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings, emptySet(), emptySet(), Constants.holidays)) }
+        this.gyms.forEach { this.timetableDAO.save(Timetable(it, this.openings, Constants.holidays)) }
     }
 
     private fun initComments() {
@@ -198,9 +198,8 @@ class AppInitializer {
         this.gyms.forEach { gym -> this.gymImageDAO.saveAll(((1..4).map { GymImage(gym, "gym1_$it.jpg") })) }
     }
 
-    private val openings: Set<Schedule>
-        get() = DayOfWeek.values().map { Schedule(it, this.timeIntervals) }.toSet()
-
-    private val timeIntervals: Set<TimeInterval>
-        get() = setOf(TimeInterval("09:00", "21:00"))
+    private val openings: Set<RepeatedInterval>
+        get() = setOf(
+                RepeatedInterval("2019-01-07T09:00:00", "2019-01-07T21:00:00", RepetitionType.weekly)
+        )
 }

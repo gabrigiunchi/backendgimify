@@ -20,8 +20,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
 import javax.validation.Valid
 
 @RestController
@@ -67,7 +67,7 @@ class ReservationController(
         return this.assetDAO.findById(assetId)
                 .map {
                     ResponseEntity(
-                            this.reservationDAO.findByAssetAndEndAfter(it, Date()).map { r -> ReservationDTOOutput(r) },
+                            this.reservationDAO.findByAssetAndEndAfter(it, LocalDateTime.now()).map { r -> ReservationDTOOutput(r) },
                             HttpStatus.OK)
                 }
                 .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
@@ -91,8 +91,8 @@ class ReservationController(
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}")
     fun getAvailableAssets(@PathVariable kindId: Int,
-                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
-                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date): ResponseEntity<Collection<Asset>> {
+                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") from: LocalDateTime,
+                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") to: LocalDateTime): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to")
         return ResponseEntity(this.reservationService.getAvailableAssets(kindId, from, to), HttpStatus.OK)
@@ -100,8 +100,8 @@ class ReservationController(
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/gym/{gymId}")
     fun getAvailableAssetsInGym(@PathVariable kindId: Int,
-                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
-                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date,
+                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") from: LocalDateTime,
+                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") to: LocalDateTime,
                                 @PathVariable gymId: Int): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to in gym $gymId")
@@ -110,8 +110,8 @@ class ReservationController(
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/city/{cityId}")
     fun getAvailableAssetsInCity(@PathVariable kindId: Int,
-                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
-                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date,
+                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") from: LocalDateTime,
+                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") to: LocalDateTime,
                                  @PathVariable cityId: Int): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to in city $cityId")
@@ -120,8 +120,8 @@ class ReservationController(
 
     @GetMapping("/available/asset/{assetId}/from/{from}/to/{to}")
     fun isAssetAvailable(@PathVariable assetId: Int,
-                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") from: Date,
-                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ") to: Date): ResponseEntity<Boolean> {
+                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") from: LocalDateTime,
+                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") to: LocalDateTime): ResponseEntity<Boolean> {
 
         this.logger.info("GET availability of asset $assetId in interval: from $from to $to")
         return ResponseEntity(this.reservationService.isAssetAvailable(assetId, from, to), HttpStatus.OK)

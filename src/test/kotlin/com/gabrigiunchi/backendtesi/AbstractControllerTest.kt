@@ -3,8 +3,6 @@ package com.gabrigiunchi.backendtesi
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.dto.input.ScheduleDTO
-import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import org.junit.Assert
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,23 +32,6 @@ abstract class AbstractControllerTest {
     @Throws(IOException::class)
     protected fun json(o: Any): String {
         return ObjectMapper().writeValueAsString(o)
-    }
-
-    @Throws(IOException::class)
-    protected fun json(timetable: TimetableDTO): String {
-        return ObjectMapper().writeValueAsString(mapOf(
-                Pair("gymId", timetable.gymId.toString()),
-                Pair("closingDays", timetable.closingDays),
-                Pair("exceptionalOpenings", timetable.exceptionalOpenings),
-                Pair("openings", timetable.openings.map { it.toMap() }),
-                Pair("recurringExceptions", timetable.recurringExceptions.map { it.toString() })))
-    }
-
-    @Throws(IOException::class)
-    protected fun json(scheduleDTO: ScheduleDTO): String {
-        return ObjectMapper().writeValueAsString(mapOf(
-                Pair("dayOfWeek", scheduleDTO.dayOfWeek.toString()),
-                Pair("timeIntervals", scheduleDTO.timeIntervals.map { it.toMap() })))
     }
 
     @Throws(IOException::class)

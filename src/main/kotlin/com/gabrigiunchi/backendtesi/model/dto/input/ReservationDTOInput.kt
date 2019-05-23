@@ -1,9 +1,9 @@
 package com.gabrigiunchi.backendtesi.model.dto.input
 
-import java.util.*
+import java.time.LocalDateTime
 
 class ReservationDTOInput(
         val userID: Int,
         val assetID: Int,
-        val start: Date,
-        val end: Date)
+        val start: LocalDateTime,
+        val end: LocalDateTime)

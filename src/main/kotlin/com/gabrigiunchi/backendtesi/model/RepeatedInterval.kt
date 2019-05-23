@@ -1,8 +1,10 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.persistence.Entity
 
 @Entity
@@ -20,7 +22,26 @@ class RepeatedInterval(
     constructor(start: String, end: String, repetitionType: RepetitionType, repetitionEnd: String) :
             this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDate.parse(repetitionEnd))
 
+
+    companion object {
+        fun create(dayOfWeek: DayOfWeek, start: LocalTime, end: LocalTime): RepeatedInterval {
+            val startDate = LocalDateTime.from(dayOfWeek.adjustInto(start.atDate(LocalDate.ofYearDay(2019, 1))))
+            val endDate = LocalDateTime.from(dayOfWeek.adjustInto(end.atDate(LocalDate.ofYearDay(2019, 1))))
+            return RepeatedInterval(-1, startDate, endDate, RepetitionType.weekly, LocalDate.MAX)
+        }
+    }
+
+    override fun contains(interval: Interval): Boolean =
+            this.isWithinSameDay() &&
+                    this.contains(interval.start) &&
+                    this.contains(interval.end)
+
+
     override fun contains(date: LocalDateTime): Boolean {
+        if (this.repetitionType == RepetitionType.none) {
+            return date in this.start..this.end
+        }
+
         var s = this.start
         var e = this.end
 
@@ -30,6 +51,9 @@ class RepeatedInterval(
             }
 
             when (this.repetitionType) {
+                RepetitionType.none -> {
+                }
+
                 RepetitionType.daily -> {
                     s = s.plusDays(1)
                     e = e.plusDays(1)
@@ -56,6 +80,10 @@ class RepeatedInterval(
     }
 
     override fun overlaps(interval: Interval): Boolean {
+        if (this.repetitionType == RepetitionType.none) {
+            return super.overlaps(interval)
+        }
+
         var s = this.start
         var e = this.end
 
@@ -65,6 +93,9 @@ class RepeatedInterval(
             }
 
             when (this.repetitionType) {
+                RepetitionType.none -> {
+                }
+
                 RepetitionType.daily -> {
                     s = s.plusDays(1)
                     e = e.plusDays(1)

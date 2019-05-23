@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.model
 
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
 
@@ -18,10 +19,10 @@ class Reservation(
         @OnDelete(action = OnDeleteAction.CASCADE)
         val user: User,
 
-        val start: Date,
+        val start: LocalDateTime,
 
-        val end: Date
+        val end: LocalDateTime
 
 ) {
-    constructor(asset: Asset, user: User, start: Date, end: Date) : this(-1, asset, user, start, end)
+    constructor(asset: Asset, user: User, start: LocalDateTime, end: LocalDateTime) : this(-1, asset, user, start, end)
 }

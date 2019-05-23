@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.model.User
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.PagingAndSortingRepository
+import java.time.LocalDateTime
 import java.util.*
 
 interface ReservationDAO : PagingAndSortingRepository<Reservation, Int> {
@@ -13,7 +14,7 @@ interface ReservationDAO : PagingAndSortingRepository<Reservation, Int> {
     fun findByIdAndUser(id: Int, user: User): Optional<Reservation>
     fun findByAssetAndEndBetween(asset: Asset, start: Date, end: Date): Collection<Reservation>
     fun findByUserAndEndAfter(user: User, date: Date): Collection<Reservation>
-    fun findByAssetAndEndAfter(asset: Asset, date: Date): Collection<Reservation>
+    fun findByAssetAndEndAfter(asset: Asset, date: LocalDateTime): Collection<Reservation>
     fun findByEndAfter(date: Date): Collection<Reservation>
     fun findByUser(user: User, pageable: Pageable): Page<Reservation>
     fun findByAsset(asset: Asset): Collection<Reservation>
