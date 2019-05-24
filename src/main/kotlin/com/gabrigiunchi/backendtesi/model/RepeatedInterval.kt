@@ -47,45 +47,26 @@ class RepeatedInterval(
 
 
     override fun contains(date: LocalDateTime): Boolean {
-        if (this.repetitionType == RepetitionType.none) {
-            return date in this.start..this.end
-        }
-
-        var s = this.start
-        var e = this.end
-
-        while (s <= date && s.toLocalDate() < this.repetitionEnd) {
-            if (date in s..e) {
-                return true
-            }
-
+        return if (date.toLocalDate() >= this.repetitionEnd) false
+        else
             when (this.repetitionType) {
-                RepetitionType.none -> {
-                }
-
-                RepetitionType.daily -> {
-                    s = s.plusDays(1)
-                    e = e.plusDays(1)
-                }
-
+                RepetitionType.none -> date in this.start..this.end
+                RepetitionType.daily -> date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
                 RepetitionType.weekly -> {
-                    s = s.plusWeeks(1)
-                    e = e.plusWeeks(1)
+                    date.dayOfWeek == this.start.dayOfWeek && date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
                 }
 
                 RepetitionType.monthly -> {
-                    s = s.plusMonths(1)
-                    e = e.plusMonths(1)
+                    date.dayOfMonth == this.start.dayOfMonth && date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
                 }
 
                 RepetitionType.yearly -> {
-                    s = s.plusYears(1)
-                    e = e.plusYears(1)
+                    date.dayOfMonth == this.start.dayOfMonth &&
+                            date.month == this.start.month &&
+                            date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
+
                 }
             }
-        }
-
-        return false
     }
 
     override fun overlaps(interval: Interval): Boolean {
