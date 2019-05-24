@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.model
 
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import java.time.OffsetDateTime
 import java.util.*
 import javax.persistence.*
 
@@ -22,12 +23,12 @@ class Comment(
         val title: String,
         val message: String,
         val rating: Int,
-        val date: Date
+        val date: OffsetDateTime
 ) {
     constructor(user: User, gym: Gym, title: String, message: String, rating: Int) :
-            this(-1, user, gym, title, message, rating, Date())
+            this(-1, user, gym, title, message, rating, OffsetDateTime.now())
 
-    constructor(user: User, gym: Gym, title: String, message: String, rating: Int, date: Date) :
+    constructor(user: User, gym: Gym, title: String, message: String, rating: Int, date: OffsetDateTime) :
             this(-1, user, gym, title, message, rating, date)
 
     init {

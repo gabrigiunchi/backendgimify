@@ -167,8 +167,8 @@ class ReservationController(
                 HttpStatus.CREATED)
     }
 
-    @DeleteMapping("/me/{id}")
-    fun deleteReservationForLoggedUser(@PathVariable(name = "id") reservationId: Int): ResponseEntity<Void> {
+    @DeleteMapping("/me/{reservationId}")
+    fun deleteReservationForLoggedUser(@PathVariable reservationId: Int): ResponseEntity<Void> {
         val user = this.getLoggedUser()
         this.logger.info("DELETE reservation #$reservationId of user #${user.id}")
         this.reservationService.deleteReservationOfUser(user, reservationId)

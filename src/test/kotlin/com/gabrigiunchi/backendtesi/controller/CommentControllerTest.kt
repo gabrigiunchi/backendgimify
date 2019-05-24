@@ -14,6 +14,7 @@ import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
+import org.assertj.core.data.Offset
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
@@ -22,6 +23,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.OffsetDateTime
 
 class CommentControllerTest : AbstractControllerTest() {
 
@@ -95,14 +97,14 @@ class CommentControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
         val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("gym2", "another address", gym.city))
-        val d = DateDecorator.now()
+        val d = OffsetDateTime.now()
         val comments = this.commentDAO.saveAll(listOf(
-                Comment(user, gym, "title1", "message1", 1, d.date),
-                Comment(user, anotherGym, "title2", "message2", 2, d.minusMinutes(10).date),
-                Comment(user, anotherGym, "title3", "message3", 3, d.minusMinutes(15).date),
-                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20).date),
-                Comment(user, anotherGym, "title5", "message5", 4, d.minusMinutes(25).date),
-                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30).date)
+                Comment(user, gym, "title1", "message1", 1, d),
+                Comment(user, anotherGym, "title2", "message2", 2, d.minusMinutes(10)),
+                Comment(user, anotherGym, "title3", "message3", 3, d.minusMinutes(15)),
+                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20)),
+                Comment(user, anotherGym, "title5", "message5", 4, d.minusMinutes(25)),
+                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30))
         )).toList()
 
         val expectedResult = listOf(comments[0], comments[3], comments[5])
@@ -130,14 +132,14 @@ class CommentControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
         val gym = this.mockGym()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
-        val d = DateDecorator.now()
+        val d = OffsetDateTime.now()
         val comments = this.commentDAO.saveAll(listOf(
-                Comment(user, gym, "title1", "message1", 1, d.date),
-                Comment(anotherUser, gym, "title2", "message2", 2, d.minusMinutes(10).date),
-                Comment(anotherUser, gym, "title3", "message3", 3, d.minusMinutes(15).date),
-                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20).date),
-                Comment(anotherUser, gym, "title5", "message5", 4, d.minusMinutes(25).date),
-                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30).date)
+                Comment(user, gym, "title1", "message1", 1, d),
+                Comment(anotherUser, gym, "title2", "message2", 2, d.minusMinutes(10)),
+                Comment(anotherUser, gym, "title3", "message3", 3, d.minusMinutes(15)),
+                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20)),
+                Comment(anotherUser, gym, "title5", "message5", 4, d.minusMinutes(25)),
+                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30))
         )).toList()
 
         val expectedResult = listOf(comments[0], comments[3], comments[5])
@@ -354,14 +356,14 @@ class CommentControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
         val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("jn", "Jn", "j", "km"))
         val gym = this.mockGym()
-        val d = DateDecorator.now()
+        val d = OffsetDateTime.now()
         val comments = this.commentDAO.saveAll(listOf(
-                Comment(user, gym, "title1", "message1", 1, d.date),
-                Comment(anotherUser, gym, "title2", "message2", 2, d.minusMinutes(10).date),
-                Comment(anotherUser, gym, "title3", "message3", 3, d.minusMinutes(15).date),
-                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20).date),
-                Comment(anotherUser, gym, "title5", "message5", 4, d.minusMinutes(25).date),
-                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30).date)
+                Comment(user, gym, "title1", "message1", 1, d),
+                Comment(anotherUser, gym, "title2", "message2", 2, d.minusMinutes(10)),
+                Comment(anotherUser, gym, "title3", "message3", 3, d.minusMinutes(15)),
+                Comment(user, gym, "title4", "message4", 5, d.minusMinutes(20)),
+                Comment(anotherUser, gym, "title5", "message5", 4, d.minusMinutes(25)),
+                Comment(user, gym, "title6", "message6", 2, d.minusMinutes(30))
         )).toList()
 
         val expectedResult = listOf(comments[0], comments[3], comments[5])
