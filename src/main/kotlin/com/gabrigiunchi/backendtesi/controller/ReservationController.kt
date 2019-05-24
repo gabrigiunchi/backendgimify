@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import javax.validation.Valid
 
 @RestController
@@ -60,40 +61,44 @@ class ReservationController(
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}")
     fun getAvailableAssets(@PathVariable kindId: Int,
-                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") from: LocalDateTime,
-                           @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") to: LocalDateTime): ResponseEntity<Collection<Asset>> {
+                           @PathVariable from: String,
+                           @PathVariable to: String): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to")
-        return ResponseEntity(this.reservationService.getAvailableAssets(kindId, from, to), HttpStatus.OK)
+        return ResponseEntity(this.reservationService.getAvailableAssets(
+                kindId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/gym/{gymId}")
     fun getAvailableAssetsInGym(@PathVariable kindId: Int,
-                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") from: LocalDateTime,
-                                @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") to: LocalDateTime,
+                                @PathVariable from: String,
+                                @PathVariable to: String,
                                 @PathVariable gymId: Int): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to in gym $gymId")
-        return ResponseEntity(this.reservationService.getAvailableAssetsInGym(kindId, gymId, from, to), HttpStatus.OK)
+        return ResponseEntity(this.reservationService.getAvailableAssetsInGym(
+                kindId, gymId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/city/{cityId}")
     fun getAvailableAssetsInCity(@PathVariable kindId: Int,
-                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") from: LocalDateTime,
-                                 @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") to: LocalDateTime,
+                                 @PathVariable from: String,
+                                 @PathVariable to: String,
                                  @PathVariable cityId: Int): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to in city $cityId")
-        return ResponseEntity(this.reservationService.getAvailableAssetsInCity(kindId, cityId, from, to), HttpStatus.OK)
+        return ResponseEntity(this.reservationService.getAvailableAssetsInCity(
+                kindId, cityId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
     }
 
     @GetMapping("/available/asset/{assetId}/from/{from}/to/{to}")
     fun isAssetAvailable(@PathVariable assetId: Int,
-                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") from: LocalDateTime,
-                         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") to: LocalDateTime): ResponseEntity<Boolean> {
+                         @PathVariable from: String,
+                         @PathVariable to: String): ResponseEntity<Boolean> {
 
         this.logger.info("GET availability of asset $assetId in interval: from $from to $to")
-        return ResponseEntity(this.reservationService.isAssetAvailable(assetId, from, to), HttpStatus.OK)
+        return ResponseEntity(this.reservationService.isAssetAvailable(
+                assetId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -138,12 +143,12 @@ class ReservationController(
 
     @GetMapping("/me/from/{from}")
     fun getAllFutureReservationsOfLoggedUser(
-            @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") from: LocalDateTime): ResponseEntity<Collection<ReservationDTOOutput>> {
+            @PathVariable from: String): ResponseEntity<Collection<ReservationDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all future reservations of user #${user.id}")
         return ResponseEntity(
                 this.reservationDAO
-                        .findByUserAndEndAfter(user, from)
+                        .findByUserAndEndAfter(user, OffsetDateTime.parse(from))
                         .map { ReservationDTOOutput(it) },
                 HttpStatus.OK)
     }

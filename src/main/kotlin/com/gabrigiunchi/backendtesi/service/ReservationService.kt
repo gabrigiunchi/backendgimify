@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -39,7 +40,7 @@ class ReservationService(
     private var zoneId: String = "UTC"
 
     fun addReservation(reservationDTO: ReservationDTOInput, userId: Int): Reservation {
-        if (reservationDTO.start < LocalDateTime.now()) {
+        if (reservationDTO.start.toLocalDateTime() < LocalDateTime.now()) {
             throw BadRequestException("reservation must be in the future")
         }
 
@@ -103,10 +104,10 @@ class ReservationService(
         return reservation
     }
 
-    fun getAvailableAssets(kindId: Int, start: LocalDateTime, end: LocalDateTime): Collection<Asset> {
+    fun getAvailableAssets(kindId: Int, start: OffsetDateTime, end: OffsetDateTime): Collection<Asset> {
         this.checkInterval(start, end)
 
-        if (start < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
+        if (start.toLocalDateTime() < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
             return emptyList()
         }
 
@@ -117,11 +118,11 @@ class ReservationService(
                 .filter { isAssetAvailable(it, start, end) }
     }
 
-    fun getAvailableAssetsInCity(kindId: Int, cityId: Int, start: LocalDateTime, end: LocalDateTime): Collection<Asset> {
+    fun getAvailableAssetsInCity(kindId: Int, cityId: Int, start: OffsetDateTime, end: OffsetDateTime): Collection<Asset> {
         this.checkInterval(start, end)
         this.getCity(cityId)
 
-        if (start < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
+        if (start.toLocalDateTime() < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
             return emptyList()
         }
 
@@ -133,11 +134,11 @@ class ReservationService(
                 .filter { isAssetAvailable(it, start, end) }
     }
 
-    fun getAvailableAssetsInGym(kindId: Int, gymId: Int, start: LocalDateTime, end: LocalDateTime): Collection<Asset> {
+    fun getAvailableAssetsInGym(kindId: Int, gymId: Int, start: OffsetDateTime, end: OffsetDateTime): Collection<Asset> {
         this.checkInterval(start, end)
         val gym = this.getGym(gymId)
 
-        if (start < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
+        if (start.toLocalDateTime() < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
             return emptyList()
         }
 
@@ -147,8 +148,8 @@ class ReservationService(
                 .filter { isAssetAvailable(it, start, end) }
     }
 
-    fun isAssetAvailable(assetId: Int, start: LocalDateTime, end: LocalDateTime): Boolean {
-        if (start >= end || start < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
+    fun isAssetAvailable(assetId: Int, start: OffsetDateTime, end: OffsetDateTime): Boolean {
+        if (start >= end || start.toLocalDateTime() < LocalDateTime.now() || this.isBeyondTheThreshold(start)) {
             return false
         }
         return this.assetDAO.findById(assetId)
@@ -160,7 +161,7 @@ class ReservationService(
                 .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
     }
 
-    private fun checkInterval(start: LocalDateTime, end: LocalDateTime) {
+    private fun checkInterval(start: OffsetDateTime, end: OffsetDateTime) {
         if (start >= end) {
             throw IllegalArgumentException("start is after the end")
         }
@@ -187,24 +188,24 @@ class ReservationService(
                 .count()
     }
 
-    fun isGymOpen(gym: Gym, start: LocalDateTime, end: LocalDateTime): Boolean {
+    fun isGymOpen(gym: Gym, start: OffsetDateTime, end: OffsetDateTime): Boolean {
         val timetable = this.timetableDAO.findByGym(gym)
-        return timetable.isPresent && timetable.get().contains(Interval(start, end))
+        return timetable.isPresent && timetable.get().contains(ZonedInterval(start, end), gym.city.zoneId)
     }
 
     /**
      * Returns true if there are no other reservations for the given asset in the given interval
      */
-    fun isAssetAvailable(asset: Asset, start: LocalDateTime, end: LocalDateTime): Boolean {
+    fun isAssetAvailable(asset: Asset, start: OffsetDateTime, end: OffsetDateTime): Boolean {
         val reservations = this.reservationDAO.findByAssetAndEndAfter(asset, start)
-        return reservations.none { Interval(it.start, it.end).overlaps(Interval(start, end)) }
+        return reservations.none { ZonedInterval(it.start, it.end).overlaps(ZonedInterval(start, end)) }
     }
 
     /**
      * Check if the duration given by the interval (start, end) is valid according to the asset's kind
      * For instance, a ciclette could be reserved for max 1 hour
      */
-    fun isReservationDurationValid(asset: Asset, start: LocalDateTime, end: LocalDateTime): Boolean {
+    fun isReservationDurationValid(asset: Asset, start: OffsetDateTime, end: OffsetDateTime): Boolean {
         return start.plusMinutes(asset.kind.maxReservationTime.toLong()) >= end
     }
 
@@ -219,7 +220,7 @@ class ReservationService(
         return this.userDAO.findById(userID).orElseThrow { ResourceNotFoundException("user $userID does not exist") }
     }
 
-    private fun isBeyondTheThreshold(date: LocalDateTime) = date > LocalDateTime.now().plusDays(this.reservationThresholdInDays.toLong())
+    private fun isBeyondTheThreshold(date: OffsetDateTime) = date.toInstant() > OffsetDateTime.now().plusDays(this.reservationThresholdInDays.toLong()).toInstant()
 
     private fun sendConfirmationEmail(reservation: Reservation) {
         val user = reservation.user

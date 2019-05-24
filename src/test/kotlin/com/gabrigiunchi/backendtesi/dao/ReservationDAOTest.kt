@@ -9,7 +9,7 @@ import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 class ReservationDAOTest : AbstractControllerTest() {
 
@@ -48,15 +48,15 @@ class ReservationDAOTest : AbstractControllerTest() {
         val asset = this.mockAsset("ciclette1")
         val user = this.mockUser("gabrigiunchi")
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(asset, user, LocalDateTime.now(), LocalDateTime.now().plusMinutes(20)),
-                Reservation(asset, user, LocalDateTime.now().minusMinutes(200), LocalDateTime.now().minusMinutes(20)),
-                Reservation(asset, user, LocalDateTime.parse("2018-01-01T00:00:00"), LocalDateTime.parse("2018-01-01T00:00:00")),
+                Reservation(asset, user, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(20)),
+                Reservation(asset, user, OffsetDateTime.now().minusMinutes(200), OffsetDateTime.now().minusMinutes(20)),
+                Reservation(asset, user, OffsetDateTime.parse("2018-01-01T00:00:00+00:00"), OffsetDateTime.parse("2018-01-01T00:00:00+00:00")),
 
-                Reservation(asset, user, LocalDateTime.parse("2100-01-01T10:00:00"),
-                        LocalDateTime.parse("2100-01-01T12:00:00")))).toList()
+                Reservation(asset, user, OffsetDateTime.parse("2100-01-01T10:00:00+00:00"),
+                        OffsetDateTime.parse("2100-01-01T12:00:00+00:00")))).toList()
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(4)
-        val result = this.reservationDAO.findByEndAfter(LocalDateTime.now()).toList()
+        val result = this.reservationDAO.findByEndAfter(OffsetDateTime.now()).toList()
         Assertions.assertThat(result.size).isEqualTo(2)
         Assertions.assertThat(result[0].id).isEqualTo(reservations.first().id)
         Assertions.assertThat(result[1].id).isEqualTo(reservations.last().id)
@@ -68,17 +68,17 @@ class ReservationDAOTest : AbstractControllerTest() {
         val asset2 = this.mockAsset("ciclette2")
         val user = this.mockUser("gabrigiunchi")
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(asset1, user, LocalDateTime.now(), LocalDateTime.now().plusMinutes(20)),
-                Reservation(asset1, user, LocalDateTime.now().minusMinutes(200),
-                        LocalDateTime.now().minusMinutes(20)),
-                Reservation(asset2, user, LocalDateTime.now().minusMinutes(200), LocalDateTime.now().minusMinutes(20)),
-                Reservation(asset2, user, LocalDateTime.parse("2018-01-01T00:00:00"), LocalDateTime.parse("2018-01-01T00:00:00")),
+                Reservation(asset1, user, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(20)),
+                Reservation(asset1, user, OffsetDateTime.now().minusMinutes(200),
+                        OffsetDateTime.now().minusMinutes(20)),
+                Reservation(asset2, user, OffsetDateTime.now().minusMinutes(200), OffsetDateTime.now().minusMinutes(20)),
+                Reservation(asset2, user, OffsetDateTime.parse("2018-01-01T00:00:00+00:00"), OffsetDateTime.parse("2018-01-01T00:00:00+00:00")),
 
-                Reservation(asset1, user, LocalDateTime.parse("2100-01-01T10:00:00"),
-                        LocalDateTime.parse("2100-01-01T12:00:00")))).toList()
+                Reservation(asset1, user, OffsetDateTime.parse("2100-01-01T10:00:00+00:00"),
+                        OffsetDateTime.parse("2100-01-01T12:00:00+00:00")))).toList()
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(5)
-        val result = this.reservationDAO.findByAssetAndEndAfter(asset1, LocalDateTime.now()).toList()
+        val result = this.reservationDAO.findByAssetAndEndAfter(asset1, OffsetDateTime.now()).toList()
         Assertions.assertThat(result.size).isEqualTo(2)
         Assertions.assertThat(result[0].id).isEqualTo(reservations.first().id)
         Assertions.assertThat(result[1].id).isEqualTo(reservations.last().id)
@@ -92,18 +92,18 @@ class ReservationDAOTest : AbstractControllerTest() {
         val user1 = this.mockUser("gabrigiunchi")
         val user2 = this.mockUser("dnasnajda")
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(asset1, user1, LocalDateTime.now(), LocalDateTime.now().plusMinutes(20)),
-                Reservation(asset1, user1, LocalDateTime.now().minusMinutes(200),
-                        LocalDateTime.now().minusMinutes(20)),
+                Reservation(asset1, user1, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(20)),
+                Reservation(asset1, user1, OffsetDateTime.now().minusMinutes(200),
+                        OffsetDateTime.now().minusMinutes(20)),
 
-                Reservation(asset2, user2, LocalDateTime.now().minusMinutes(200), LocalDateTime.now().minusMinutes(20)),
-                Reservation(asset2, user2, LocalDateTime.parse("2018-01-01T00:00:00"), LocalDateTime.parse("2018-01-01T00:00:00")),
+                Reservation(asset2, user2, OffsetDateTime.now().minusMinutes(200), OffsetDateTime.now().minusMinutes(20)),
+                Reservation(asset2, user2, OffsetDateTime.parse("2018-01-01T00:00:00+00:00"), OffsetDateTime.parse("2018-01-01T00:00:00+00:00")),
 
-                Reservation(asset1, user1, LocalDateTime.parse("2100-01-01T10:00:00"),
-                        LocalDateTime.parse("2100-01-01T12:00:00")))).toList()
+                Reservation(asset1, user1, OffsetDateTime.parse("2100-01-01T10:00:00+00:00"),
+                        OffsetDateTime.parse("2100-01-01T12:00:00+00:00")))).toList()
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(5)
-        val result = this.reservationDAO.findByUserAndEndAfter(user1, LocalDateTime.now()).toList()
+        val result = this.reservationDAO.findByUserAndEndAfter(user1, OffsetDateTime.now()).toList()
         Assertions.assertThat(result.size).isEqualTo(2)
         Assertions.assertThat(result[0].id).isEqualTo(reservations.first().id)
         Assertions.assertThat(result[1].id).isEqualTo(reservations.last().id)

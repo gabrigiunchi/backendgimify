@@ -15,7 +15,7 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 class ReservationServiceTest : AbstractControllerTest() {
@@ -76,13 +76,13 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the interval is in the past`() {
         val reservationDTO = ReservationDTOInput(this.user!!.id, -1,
-                LocalDateTime.now().minusMinutes(20), LocalDateTime.now().minusMinutes(10))
+                OffsetDateTime.now().minusMinutes(20), OffsetDateTime.now().minusMinutes(10))
         this.reservationService.addReservation(reservationDTO, reservationDTO.userID)
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the asset does not exist`() {
-        val start = LocalDateTime.now().plusMinutes(5)
+        val start = OffsetDateTime.now().plusMinutes(5)
         val end = start.plusMinutes(5)
         val reservationDTO = ReservationDTOInput(this.user!!.id, -1, start, end)
         this.reservationService.addReservation(reservationDTO, reservationDTO.userID)
@@ -90,7 +90,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not create a reservation if the user does not exist`() {
-        val start = LocalDateTime.now().plusMinutes(1)
+        val start = OffsetDateTime.now().plusMinutes(1)
         val end = start.plusMinutes(10)
         val reservationDTO = ReservationDTOInput(-1, this.mockAsset().id, start, end)
         this.reservationService.addReservation(reservationDTO)
@@ -98,21 +98,21 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the start is after the end`() {
-        val start = LocalDateTime.now().plusMinutes(200)
+        val start = OffsetDateTime.now().plusMinutes(200)
         val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start, start.minusMinutes(20))
         this.reservationService.addReservation(reservationDTO)
     }
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the start is equal to the end`() {
-        val start = LocalDateTime.now().plusMinutes(10)
+        val start = OffsetDateTime.now().plusMinutes(10)
         val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start, start)
         this.reservationService.addReservation(reservationDTO)
     }
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if the duration exceeds the maximum`() {
-        val start = LocalDateTime.now().plusMinutes(1)
+        val start = OffsetDateTime.now().plusMinutes(1)
         val end = start.plusMinutes(21)
         val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start, end)
         this.reservationService.addReservation(reservationDTO)
@@ -123,12 +123,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T12:00:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T12:00:00+00:00")))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T10:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T10:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
     }
 
     @Test(expected = ReservationConflictException::class)
@@ -136,12 +136,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T12:00:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T12:00:00+00:00")))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T12:00:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T12:00:00+00:00")))
     }
 
     @Test(expected = GymClosedException::class)
@@ -149,7 +149,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T07:00:00"), LocalDateTime.parse("2050-04-04T09:00:00")))
+                OffsetDateTime.parse("2050-04-04T07:00:00+00:00"), OffsetDateTime.parse("2050-04-04T09:00:00+00:00")))
     }
 
     @Test(expected = GymClosedException::class)
@@ -157,7 +157,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T07:00:00"), LocalDateTime.parse("2050-04-04T07:30:00")))
+                OffsetDateTime.parse("2050-04-04T07:00:00+00:00"), OffsetDateTime.parse("2050-04-04T07:30:00+00:00")))
     }
 
     @Test(expected = GymClosedException::class)
@@ -165,20 +165,20 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T14:00:00"), LocalDateTime.parse("2050-04-04T16:00:00")))
+                OffsetDateTime.parse("2050-04-04T14:00:00+00:00"), OffsetDateTime.parse("2050-04-04T16:00:00+00:00")))
     }
 
     @Test(expected = BadRequestException::class)
     fun `Should not create a reservation if interval is not within the same day`() {
         val asset = this.mockAsset(300)
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T10:00:00"), LocalDateTime.parse("2050-04-05T12:00:00")))
+                OffsetDateTime.parse("2050-04-04T10:00:00+00:00"), OffsetDateTime.parse("2050-04-05T12:00:00+00:00")))
     }
 
     @Test(expected = ReservationThresholdExceededException::class)
     fun `Should not create a reservation if interval beyond the threshold`() {
         val asset = this.mockAsset(300)
-        val start = LocalDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id, start, end))
     }
@@ -186,7 +186,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should create a reservation`() {
         val now = Date()
-        val start = LocalDateTime.parse("2050-04-04T11:00:00")
+        val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
         val end = start.plusMinutes(20)
         val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start, end)
         val savedReservation = this.reservationService.addReservation(reservationDTO)
@@ -206,16 +206,16 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset2 = this.assetDAO.save(Asset("ciclette2", asset1.kind, this.gym!!))
 
         this.reservationService.addReservation(ReservationDTOInput(user1.id, asset1.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         this.reservationService.addReservation(ReservationDTOInput(user1.id, asset2.id,
-                LocalDateTime.parse("2050-04-04T11:30:00"), LocalDateTime.parse("2050-04-04T12:00:00")))
+                OffsetDateTime.parse("2050-04-04T11:30:00+00:00"), OffsetDateTime.parse("2050-04-04T12:00:00+00:00")))
 
         this.reservationService.addReservation(ReservationDTOInput(user2.id, asset1.id,
-                LocalDateTime.parse("2050-04-18T11:30:00"), LocalDateTime.parse("2050-04-18T12:00:00")))
+                OffsetDateTime.parse("2050-04-18T11:30:00+00:00"), OffsetDateTime.parse("2050-04-18T12:00:00+00:00")))
 
         this.reservationService.addReservation(ReservationDTOInput(user2.id, asset2.id,
-                LocalDateTime.parse("2050-04-25T11:30:00"), LocalDateTime.parse("2050-04-25T12:00:00")))
+                OffsetDateTime.parse("2050-04-25T11:30:00+00:00"), OffsetDateTime.parse("2050-04-25T12:00:00+00:00")))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(4)
     }
@@ -225,10 +225,10 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:30:00"), LocalDateTime.parse("2050-04-04T12:00:00")))
+                OffsetDateTime.parse("2050-04-04T11:30:00+00:00"), OffsetDateTime.parse("2050-04-04T12:00:00+00:00")))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(2)
     }
@@ -238,10 +238,10 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-11T11:00:00"), LocalDateTime.parse("2050-04-11T11:30:00")))
+                OffsetDateTime.parse("2050-04-11T11:00:00+00:00"), OffsetDateTime.parse("2050-04-11T11:30:00+00:00")))
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(2)
     }
@@ -251,13 +251,13 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset()
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:15:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:15:00+00:00")))
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-11T11:00:00"), LocalDateTime.parse("2050-04-11T11:15:00")))
+                OffsetDateTime.parse("2050-04-11T11:00:00+00:00"), OffsetDateTime.parse("2050-04-11T11:15:00+00:00")))
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-18T11:00:00"), LocalDateTime.parse("2050-04-18T11:15:00")))
+                OffsetDateTime.parse("2050-04-18T11:00:00+00:00"), OffsetDateTime.parse("2050-04-18T11:15:00+00:00")))
     }
 
     @Test(expected = TooManyReservationsException::class)
@@ -265,16 +265,16 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset()
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:15:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:15:00+00:00")))
 
         val savedReservation = this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-11T11:00:00"), LocalDateTime.parse("2050-04-11T11:15:00")))
+                OffsetDateTime.parse("2050-04-11T11:00:00+00:00"), OffsetDateTime.parse("2050-04-11T11:15:00+00:00")))
 
         this.reservationDAO.delete(savedReservation)
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-18T11:00:00"), LocalDateTime.parse("2050-04-18T11:15:00")))
+                OffsetDateTime.parse("2050-04-18T11:00:00+00:00"), OffsetDateTime.parse("2050-04-18T11:15:00+00:00")))
     }
 
     /************************************* ASSET AVAILABILITY ***********************************************/
@@ -283,12 +283,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
-                LocalDateTime.parse("2050-04-04T08:00:00"),
-                LocalDateTime.parse("2050-04-04T10:00:00"))).isTrue()
+                OffsetDateTime.parse("2050-04-04T08:00:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T10:00:00+00:00"))).isTrue()
     }
 
     @Test
@@ -296,12 +296,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
-                LocalDateTime.parse("2050-04-04T16:00:00"),
-                LocalDateTime.parse("2050-04-04T18:00:00"))).isTrue()
+                OffsetDateTime.parse("2050-04-04T16:00:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T18:00:00+00:00"))).isTrue()
     }
 
     @Test
@@ -309,12 +309,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
-                LocalDateTime.parse("2050-04-04T11:10:00"),
-                LocalDateTime.parse("2050-04-04T12:00:00"))).isFalse()
+                OffsetDateTime.parse("2050-04-04T11:10:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T12:00:00+00:00"))).isFalse()
     }
 
     @Test
@@ -322,12 +322,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
-                LocalDateTime.parse("2050-04-04T08:00:00"),
-                LocalDateTime.parse("2050-04-04T11:02:00"))).isFalse()
+                OffsetDateTime.parse("2050-04-04T08:00:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T11:02:00+00:00"))).isFalse()
     }
 
     @Test
@@ -335,12 +335,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
-                LocalDateTime.parse("2050-04-04T11:02:00"),
-                LocalDateTime.parse("2050-04-04T11:04:00"))).isFalse()
+                OffsetDateTime.parse("2050-04-04T11:02:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T11:04:00+00:00"))).isFalse()
     }
 
     @Test
@@ -348,12 +348,12 @@ class ReservationServiceTest : AbstractControllerTest() {
         val asset = this.mockAsset(300)
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                LocalDateTime.parse("2050-04-04T11:00:00"), LocalDateTime.parse("2050-04-04T11:30:00")))
+                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:30:00+00:00")))
 
         Assertions.assertThat(this.reservationService.isAssetAvailable(
                 asset,
-                LocalDateTime.parse("2050-04-04T10:00:00"),
-                LocalDateTime.parse("2050-04-04T12:00:00"))).isFalse()
+                OffsetDateTime.parse("2050-04-04T10:00:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T12:00:00+00:00"))).isFalse()
     }
 
     /****************************** SEARCH AVAILABLE ASSETS ***********************************************/
@@ -365,7 +365,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
         val result = this.reservationService.getAvailableAssets(kind.id,
-                LocalDateTime.parse("2050-04-04T10:15:00"), LocalDateTime.parse("2050-04-04T10:30:00"))
+                OffsetDateTime.parse("2050-04-04T10:15:00+00:00"), OffsetDateTime.parse("2050-04-04T10:30:00+00:00"))
 
         Assertions.assertThat(result.size).isEqualTo(10)
         Assertions.assertThat(assets.map { it.id }.toSet()).isEqualTo(result.map { it.id }.toSet())
@@ -378,7 +378,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
         val result = this.reservationService.getAvailableAssets(kind.id,
-                LocalDateTime.parse("2050-04-04T10:15:00"), LocalDateTime.parse("2050-04-04T11:15:00"))
+                OffsetDateTime.parse("2050-04-04T10:15:00+00:00"), OffsetDateTime.parse("2050-04-04T11:15:00+00:00"))
 
         Assertions.assertThat(result.size).isEqualTo(0)
     }
@@ -390,7 +390,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
 
         val result = this.reservationService.getAvailableAssets(kind.id,
-                LocalDateTime.parse("2019-04-22T10:15:00"), LocalDateTime.parse("2019-04-22T10:20:00"))
+                OffsetDateTime.parse("2019-04-22T10:15:00+00:00"), OffsetDateTime.parse("2019-04-22T10:20:00+00:00"))
 
         Assertions.assertThat(result.size).isEqualTo(0)
     }
@@ -404,8 +404,8 @@ class ReservationServiceTest : AbstractControllerTest() {
         val result = this.reservationService.getAvailableAssetsInCity(
                 kind.id,
                 this.gym!!.city.id,
-                LocalDateTime.parse("2019-04-22T10:15:00"),
-                LocalDateTime.parse("2019-04-22T10:20:00"))
+                OffsetDateTime.parse("2019-04-22T10:15:00+00:00"),
+                OffsetDateTime.parse("2019-04-22T10:20:00+00:00"))
 
         Assertions.assertThat(result.size).isEqualTo(0)
     }
@@ -418,8 +418,8 @@ class ReservationServiceTest : AbstractControllerTest() {
 
         val result = this.reservationService.getAvailableAssetsInGym(kind.id,
                 this.gym!!.id,
-                LocalDateTime.parse("2019-04-22T10:15:00"),
-                LocalDateTime.parse("2019-04-22T10:20:00"))
+                OffsetDateTime.parse("2019-04-22T10:15:00+00:00"),
+                OffsetDateTime.parse("2019-04-22T10:20:00+00:00"))
 
         Assertions.assertThat(result.size).isEqualTo(0)
     }
@@ -436,8 +436,8 @@ class ReservationServiceTest : AbstractControllerTest() {
         val result = this.reservationService.getAvailableAssetsInGym(
                 kind.id,
                 anotherGym.id,
-                LocalDateTime.parse("2050-04-04T10:15:00"),
-                LocalDateTime.parse("2050-04-04T10:30:00"))
+                OffsetDateTime.parse("2050-04-04T10:15:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T10:30:00+00:00"))
 
         Assertions.assertThat(result.size).isEqualTo(5)
         Assertions.assertThat(result.all { it.gym.id == anotherGym.id }).isTrue()
@@ -477,8 +477,8 @@ class ReservationServiceTest : AbstractControllerTest() {
         val result = this.reservationService.getAvailableAssetsInCity(
                 targetKind.id,
                 targetCity.id,
-                LocalDateTime.parse("2050-04-04T10:15:00"),
-                LocalDateTime.parse("2050-04-04T10:30:00"))
+                OffsetDateTime.parse("2050-04-04T10:15:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T10:30:00+00:00"))
 
         val expectedResult = listOf(assets[1], assets[3])
 
@@ -490,7 +490,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should return empty list when searching the free assets if the gym is closed`() {
-        val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.cityDAO.save(City(CityEnum.MIAMI))))
+        val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.cityDAO.save(MockEntities.mockCities[0])))
         this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
@@ -499,10 +499,18 @@ class ReservationServiceTest : AbstractControllerTest() {
         val result = this.reservationService.getAvailableAssetsInGym(
                 kind.id,
                 anotherGym.id,
-                LocalDateTime.parse("2050-04-05T12:15:00"),
-                LocalDateTime.parse("2050-04-05T12:30:00"))
+                OffsetDateTime.parse("2050-04-05T12:15:00+00:00"),
+                OffsetDateTime.parse("2050-04-05T12:30:00+00:00"))
 
-        Assertions.assertThat(result.size).isEqualTo(0)
+        Assertions.assertThat(result.isEmpty()).isTrue()
+
+        val result2 = this.reservationService.getAvailableAssetsInGym(
+                kind.id,
+                anotherGym.id,
+                OffsetDateTime.parse("2050-04-05T18:15:00+06:00"),
+                OffsetDateTime.parse("2050-04-05T18:30:00+06:00"))
+
+        Assertions.assertThat(result2.isEmpty()).isTrue()
     }
 
     @Test
@@ -519,22 +527,22 @@ class ReservationServiceTest : AbstractControllerTest() {
                 Reservation(
                         reservedAssets.first(),
                         this.user!!,
-                        LocalDateTime.parse("2050-04-04T10:15:00"),
-                        LocalDateTime.parse("2050-04-04T10:30:00")
+                        OffsetDateTime.parse("2050-04-04T10:15:00+00:00"),
+                        OffsetDateTime.parse("2050-04-04T10:30:00+00:00")
                 ),
 
                 Reservation(
                         reservedAssets[1],
                         this.user!!,
-                        LocalDateTime.parse("2050-04-04T10:05:00"),
-                        LocalDateTime.parse("2050-04-04T10:25:00")
+                        OffsetDateTime.parse("2050-04-04T10:05:00+00:00"),
+                        OffsetDateTime.parse("2050-04-04T10:25:00+00:00")
                 )
         ))
 
         val result = this.reservationService.getAvailableAssets(
                 kind.id,
-                LocalDateTime.parse("2050-04-04T10:10:00"),
-                LocalDateTime.parse("2050-04-04T10:20:00"))
+                OffsetDateTime.parse("2050-04-04T10:10:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T10:20:00+00:00"))
 
         Assertions.assertThat(result.size).isEqualTo(8)
         Assertions.assertThat(result.none { r -> reservedAssets.map { it.id }.contains(r.id) }).isTrue()
@@ -548,8 +556,8 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.getAvailableAssetsInGym(
                 -1,
                 this.gym!!.id,
-                LocalDateTime.parse("2050-04-05T10:15:00"),
-                LocalDateTime.parse("2050-04-05T10:30:00"))
+                OffsetDateTime.parse("2050-04-05T10:15:00+00:00"),
+                OffsetDateTime.parse("2050-04-05T10:30:00+00:00"))
     }
 
     @Test(expected = ResourceNotFoundException::class)
@@ -560,8 +568,8 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.getAvailableAssetsInGym(
                 kind.id,
                 -1,
-                LocalDateTime.parse("2050-04-05T10:15:00"),
-                LocalDateTime.parse("2050-04-05T10:30:00"))
+                OffsetDateTime.parse("2050-04-05T10:15:00+00:00"),
+                OffsetDateTime.parse("2050-04-05T10:30:00+00:00"))
     }
 
     @Test(expected = ResourceNotFoundException::class)
@@ -572,20 +580,20 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.getAvailableAssetsInCity(
                 kind.id,
                 -1,
-                LocalDateTime.parse("2050-04-05T10:15:00"),
-                LocalDateTime.parse("2050-04-05T10:30:00"))
+                OffsetDateTime.parse("2050-04-05T10:15:00+00:00"),
+                OffsetDateTime.parse("2050-04-05T10:30:00+00:00"))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the start is after the end when searching for free assets`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
-        this.reservationService.getAvailableAssets(kind.id, LocalDateTime.now(), LocalDateTime.now().minusMinutes(1))
+        this.reservationService.getAvailableAssets(kind.id, OffsetDateTime.now(), OffsetDateTime.now().minusMinutes(1))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the after is equal to the end when searching for free assets`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
-        val now = LocalDateTime.now()
+        val now = OffsetDateTime.now()
         this.reservationService.getAvailableAssets(kind.id, now, now)
     }
 
@@ -593,27 +601,27 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Should throw an exception if the start is after the end when searching for free assets (gym filter)`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.reservationService.getAvailableAssetsInGym(kind.id, this.gym!!.id,
-                LocalDateTime.now(), LocalDateTime.now().minusMinutes(1))
+                OffsetDateTime.now(), OffsetDateTime.now().minusMinutes(1))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the start is after the end when searching for free assets (city filter)`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.reservationService.getAvailableAssetsInCity(kind.id, this.gym!!.city.id,
-                LocalDateTime.now(), LocalDateTime.now().minusMinutes(1))
+                OffsetDateTime.now(), OffsetDateTime.now().minusMinutes(1))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the after is equal to the end when searching for free assets (gym filter)`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
-        val now = LocalDateTime.now()
+        val now = OffsetDateTime.now()
         this.reservationService.getAvailableAssetsInGym(kind.id, this.gym!!.id, now, now)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should throw an exception if the after is equal to the end when searching for free assets (city filter)`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
-        val now = LocalDateTime.now()
+        val now = OffsetDateTime.now()
         this.reservationService.getAvailableAssetsInCity(kind.id, this.gym!!.city.id, now, now)
     }
 
@@ -622,7 +630,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.timetableDAO.deleteAll()
         this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules))
         val asset = this.mockAsset(300)
-        val start = LocalDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
 
         // Before the threshold
@@ -638,7 +646,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.timetableDAO.deleteAll()
         this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules))
         val asset = this.mockAsset(300)
-        val start = LocalDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
         val cityId = this.gym!!.city.id
 
@@ -656,7 +664,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.timetableDAO.deleteAll()
         this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules))
         val asset = this.mockAsset(300)
-        val start = LocalDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
         val gymId = this.gym!!.id
 
@@ -673,7 +681,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should check if a user own a reservation and throws an exception if the reservation belongs to another user`() {
-        val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, LocalDateTime.now(), LocalDateTime.now().plusMinutes(20)))
+        val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(20)))
         val anotherUser = this.userDAO.save(this.userFactory.createAdminUser("dasdaas", "aaaa", "Gabriele", "Giunchi"))
 
         this.reservationService.getReservationOfUser(anotherUser, r.id)
@@ -681,7 +689,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should check if a user own a reservation and not throw an exception if the reservation belongs to the user`() {
-        val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, LocalDateTime.now(), LocalDateTime.now().plusMinutes(20)))
+        val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(20)))
         this.reservationService.getReservationOfUser(this.user!!, r.id)
     }
 
@@ -705,7 +713,7 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete the reservation of a user`() {
-        val start = LocalDateTime.parse("2050-04-04T11:00:00")
+        val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
         val end = start.plusMinutes(20)
         val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start, end)
         val savedReservation = this.reservationService.addReservation(reservationDTO)
@@ -718,7 +726,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Should not delete the reservation of a user if the reservation is not of the user`() {
         val user1 = this.user!!
         val user2 = this.userDAO.save(this.userFactory.createRegularUser("dnjasda", "nj", "s", "", ""))
-        val start = LocalDateTime.parse("2050-04-04T11:00:00")
+        val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
         val end = start.plusMinutes(20)
         val reservationDTO = ReservationDTOInput(user2.id, this.mockAsset().id, start, end)
         val savedReservation = this.reservationService.addReservation(reservationDTO)
@@ -735,21 +743,21 @@ class ReservationServiceTest : AbstractControllerTest() {
         Assertions.assertThat(
                 this.reservationService.isAssetAvailable(
                         this.mockAsset().id,
-                        LocalDateTime.parse("2050-04-04T11:20:00"),
-                        LocalDateTime.parse("2050-04-04T11:10:00")
+                        OffsetDateTime.parse("2050-04-04T11:20:00+00:00"),
+                        OffsetDateTime.parse("2050-04-04T11:10:00+00:00")
                 )
         ).isFalse()
 
         Assertions.assertThat(
                 this.reservationService.isAssetAvailable(
                         this.mockAsset().id,
-                        LocalDateTime.parse("2017-04-04T11:00:00"),
-                        LocalDateTime.parse("2017-04-04T11:10:00")
+                        OffsetDateTime.parse("2017-04-04T11:00:00+00:00"),
+                        OffsetDateTime.parse("2017-04-04T11:10:00+00:00")
                 )
         ).isFalse()
 
 
-        val start = LocalDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
         Assertions.assertThat(
                 this.reservationService.isAssetAvailable(
@@ -765,16 +773,16 @@ class ReservationServiceTest : AbstractControllerTest() {
         Assertions.assertThat(
                 this.reservationService.isAssetAvailable(
                         this.mockAsset().id,
-                        LocalDateTime.parse("2050-04-09T11:00:00"),
-                        LocalDateTime.parse("2050-04-09T11:10:00")
+                        OffsetDateTime.parse("2050-04-09T11:00:00+00:00"),
+                        OffsetDateTime.parse("2050-04-09T11:10:00+00:00")
                 )
         ).isFalse()
     }
 
     @Test
     fun `Should return false if there is another reservation at that time`() {
-        val start = LocalDateTime.parse("2050-04-04T11:10:00")
-        val end = LocalDateTime.parse("2050-04-04T11:20:00")
+        val start = OffsetDateTime.parse("2050-04-04T11:10:00+00:00")
+        val end = OffsetDateTime.parse("2050-04-04T11:20:00+00:00")
         val asset = this.mockAsset()
         this.reservationDAO.save(Reservation(asset, this.user!!, start, end))
         Assertions.assertThat(this.reservationService.isAssetAvailable(asset.id, start.minusMinutes(1), end)).isFalse()
@@ -783,14 +791,14 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception if the asset does not exist when checking its availability`() {
         this.reservationService.isAssetAvailable(-1,
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(1).plusMinutes(1))
+                OffsetDateTime.now().plusDays(1),
+                OffsetDateTime.now().plusDays(1).plusMinutes(1))
     }
 
     @Test
     fun `Should return true if the asset is available`() {
-        val start = LocalDateTime.parse("2050-04-04T11:00:00")
-        val end = LocalDateTime.parse("2050-04-04T11:10:00")
+        val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
+        val end = OffsetDateTime.parse("2050-04-04T11:10:00+00:00")
         val asset = this.mockAsset()
         Assertions.assertThat(this.reservationService.isAssetAvailable(asset.id, start.minusMinutes(1), end)).isTrue()
     }

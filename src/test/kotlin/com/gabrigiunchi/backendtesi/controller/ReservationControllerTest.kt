@@ -18,7 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 class ReservationControllerTest : AbstractControllerTest() {
@@ -74,7 +74,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should get a reservation by its id`() {
         val reservation = this.reservationDAO.save(
                 Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
-                        LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00")))
+                        OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")))
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/${reservation.id}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -124,8 +124,8 @@ class ReservationControllerTest : AbstractControllerTest() {
         val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
-                start = LocalDateTime.parse("2050-04-04T10:00:00"),
-                end = LocalDateTime.parse("2050-04-04T10:15:00"))
+                start = OffsetDateTime.parse("2050-04-04T10:00:00+00:00"),
+                end = OffsetDateTime.parse("2050-04-04T10:15:00+00:00"))
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -148,8 +148,8 @@ class ReservationControllerTest : AbstractControllerTest() {
         val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
-                start = LocalDateTime.parse("2019-04-22T10:00:00"),
-                end = LocalDateTime.parse("2019-04-22T11:00:00"))
+                start = OffsetDateTime.parse("2019-04-22T10:00:00+00:00"),
+                end = OffsetDateTime.parse("2019-04-22T11:00:00+00:00"))
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -160,15 +160,15 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a reservation if the gym is closed`() {
-        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.MIAMI))))
+        val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(MockEntities.mockCities[0])))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockSchedules))
         val asset = this.mockAsset(gym)
 
         val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
-                start = LocalDateTime.parse("2050-04-05T12:00:00"),
-                end = LocalDateTime.parse("2050-04-05T12:15:00"))
+                start = OffsetDateTime.parse("2050-04-05T12:00:00+00:00"),
+                end = OffsetDateTime.parse("2050-04-05T12:15:00+00:00"))
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -185,14 +185,14 @@ class ReservationControllerTest : AbstractControllerTest() {
         val asset = this.mockAsset(gym)
         val user = this.mockUser()
 
-        this.reservationDAO.save(Reservation(asset, user, LocalDateTime.parse("2050-04-04T11:00:00"),
-                LocalDateTime.parse("2050-04-04T11:10:00")))
+        this.reservationDAO.save(Reservation(asset, user, OffsetDateTime.parse("2050-04-04T11:00:00+00:00"),
+                OffsetDateTime.parse("2050-04-04T11:10:00+00:00")))
 
         val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
-                start = LocalDateTime.parse("2050-04-04T10:55:00"),
-                end = LocalDateTime.parse("2050-04-04T11:05:00"))
+                start = OffsetDateTime.parse("2050-04-04T10:55:00+00:00"),
+                end = OffsetDateTime.parse("2050-04-04T11:05:00+00:00"))
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -213,20 +213,20 @@ class ReservationControllerTest : AbstractControllerTest() {
                 ReservationDTOInput(
                         userID = user.id,
                         assetID = asset.id,
-                        start = LocalDateTime.parse("2050-04-04T10:55:00"),
-                        end = LocalDateTime.parse("2050-04-04T11:05:00")),
+                        start = OffsetDateTime.parse("2050-04-04T10:55:00+00:00"),
+                        end = OffsetDateTime.parse("2050-04-04T11:05:00+00:00")),
 
                 ReservationDTOInput(
                         userID = user.id,
                         assetID = asset.id,
-                        start = LocalDateTime.parse("2050-04-11T10:55:00"),
-                        end = LocalDateTime.parse("2050-04-11T11:05:00")),
+                        start = OffsetDateTime.parse("2050-04-11T10:55:00+00:00"),
+                        end = OffsetDateTime.parse("2050-04-11T11:05:00+00:00")),
 
                 ReservationDTOInput(
                         userID = user.id,
                         assetID = asset.id,
-                        start = LocalDateTime.parse("2050-04-18T10:55:00"),
-                        end = LocalDateTime.parse("2050-04-18T11:05:00")))
+                        start = OffsetDateTime.parse("2050-04-18T10:55:00+00:00"),
+                        end = OffsetDateTime.parse("2050-04-18T11:05:00+00:00")))
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -254,7 +254,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.timetableDAO.save(Timetable(gym, MockEntities.wildcardSchedules))
         val asset = this.mockAsset(gym)
         val user = this.mockUser()
-        val start = LocalDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
+        val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(10)
         val end = start.plusMinutes(5)
         val reservation = ReservationDTOInput(
                 userID = user.id,
@@ -274,7 +274,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should delete a reservation`() {
         val savedId = this.reservationDAO.save(
                 Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
-                        LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00"))
+                        OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00"))
         ).id
 
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/$savedId")
@@ -308,12 +308,12 @@ class ReservationControllerTest : AbstractControllerTest() {
         )
 
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(assets[0], user1, LocalDateTime.parse("2017-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00")),
-                Reservation(assets[1], user1, LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2019-01-01T12:00:00")),
-                Reservation(assets[0], user1, LocalDateTime.parse("2019-02-01T10:00:00"), LocalDateTime.parse("2019-02-01T12:00:00")),
-                Reservation(assets[3], user1, LocalDateTime.parse("2020-03-01T10:00:00"), LocalDateTime.parse("2019-03-01T12:00:00")),
-                Reservation(assets[0], user2, LocalDateTime.parse("2019-02-01T10:00:00"), LocalDateTime.parse("2019-02-01T12:00:00")),
-                Reservation(assets[3], user2, LocalDateTime.parse("2019-03-01T10:00:00"), LocalDateTime.parse("2019-03-01T12:00:00"))
+                Reservation(assets[0], user1, OffsetDateTime.parse("2017-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
+                Reservation(assets[1], user1, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2019-01-01T12:00:00+00:00")),
+                Reservation(assets[0], user1, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
+                Reservation(assets[3], user1, OffsetDateTime.parse("2020-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00")),
+                Reservation(assets[0], user2, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
+                Reservation(assets[3], user2, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
         )).toList()
 
         mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/page/0/size/2")
@@ -352,13 +352,14 @@ class ReservationControllerTest : AbstractControllerTest() {
         )
 
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(assets[0], user1, LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00")),
-                Reservation(assets[1], user1, LocalDateTime.parse("2022-01-01T10:00:00"), LocalDateTime.parse("2022-01-01T12:00:00")),
-                Reservation(assets[0], user2, LocalDateTime.parse("2019-02-01T10:00:00"), LocalDateTime.parse("2019-02-01T12:00:00")),
-                Reservation(assets[3], user2, LocalDateTime.parse("2019-03-01T10:00:00"), LocalDateTime.parse("2019-03-01T12:00:00"))
+                Reservation(assets[0], user1, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
+                Reservation(assets[1], user1, OffsetDateTime.parse("2022-01-01T10:00:00+00:00"), OffsetDateTime.parse("2022-01-01T12:00:00+00:00")),
+                Reservation(assets[0], user2, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
+                Reservation(assets[3], user2, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
         )).toList()
 
-        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/from/2019-02-01T00:00")
+        val from = "2019-02-01T00:00:00+00:00"
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/from/$from")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(1)))
@@ -380,10 +381,10 @@ class ReservationControllerTest : AbstractControllerTest() {
         )
 
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(assets[0], user1, LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00")),
-                Reservation(assets[1], user1, LocalDateTime.parse("2022-01-01T10:00:00"), LocalDateTime.parse("2022-01-01T12:00:00")),
-                Reservation(assets[0], user2, LocalDateTime.parse("2019-02-01T10:00:00"), LocalDateTime.parse("2019-02-01T12:00:00")),
-                Reservation(assets[3], user2, LocalDateTime.parse("2019-03-01T10:00:00"), LocalDateTime.parse("2019-03-01T12:00:00"))
+                Reservation(assets[0], user1, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
+                Reservation(assets[1], user1, OffsetDateTime.parse("2022-01-01T10:00:00+00:00"), OffsetDateTime.parse("2022-01-01T12:00:00+00:00")),
+                Reservation(assets[0], user2, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
+                Reservation(assets[3], user2, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
         )).toList()
 
         mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/${reservations[0].id}")
@@ -419,10 +420,10 @@ class ReservationControllerTest : AbstractControllerTest() {
         )
 
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(assets[0], user1, LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00")),
-                Reservation(assets[1], user1, LocalDateTime.parse("2022-01-01T10:00:00"), LocalDateTime.parse("2022-01-01T12:00:00")),
-                Reservation(assets[0], user2, LocalDateTime.parse("2019-02-01T10:00:00"), LocalDateTime.parse("2019-02-01T12:00:00")),
-                Reservation(assets[3], user2, LocalDateTime.parse("2019-03-01T10:00:00"), LocalDateTime.parse("2019-03-01T12:00:00"))
+                Reservation(assets[0], user1, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
+                Reservation(assets[1], user1, OffsetDateTime.parse("2022-01-01T10:00:00+00:00"), OffsetDateTime.parse("2022-01-01T12:00:00+00:00")),
+                Reservation(assets[0], user2, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
+                Reservation(assets[3], user2, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
         )).toList()
 
         val id = reservations[2].id
@@ -444,8 +445,8 @@ class ReservationControllerTest : AbstractControllerTest() {
         val reservation = ReservationDTOInput(
                 userID = this.mockUser().id,
                 assetID = asset.id,
-                start = LocalDateTime.parse("2050-04-04T10:00:00"),
-                end = LocalDateTime.parse("2050-04-04T10:10:00"))
+                start = OffsetDateTime.parse("2050-04-04T10:00:00+00:00"),
+                end = OffsetDateTime.parse("2050-04-04T10:10:00+00:00"))
 
         mockMvc.perform(MockMvcRequestBuilders.post("${ApiUrls.RESERVATIONS}/me")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -462,7 +463,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val savedId = this.reservationDAO.save(
                 Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
-                        LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T10:15:00"))
+                        OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T10:15:00+00:00"))
         ).id
 
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.RESERVATIONS}/me/$savedId")
@@ -499,10 +500,10 @@ class ReservationControllerTest : AbstractControllerTest() {
         )
 
         val reservations = this.reservationDAO.saveAll(listOf(
-                Reservation(assets[0], user1, LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00")),
-                Reservation(assets[1], user1, LocalDateTime.parse("2022-01-01T10:00:00"), LocalDateTime.parse("2022-01-01T12:00:00")),
-                Reservation(assets[0], user2, LocalDateTime.parse("2019-02-01T10:00:00"), LocalDateTime.parse("2019-02-01T12:00:00")),
-                Reservation(assets[3], user2, LocalDateTime.parse("2019-03-01T10:00:00"), LocalDateTime.parse("2019-03-01T12:00:00"))
+                Reservation(assets[0], user1, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
+                Reservation(assets[1], user1, OffsetDateTime.parse("2022-01-01T10:00:00+00:00"), OffsetDateTime.parse("2022-01-01T12:00:00+00:00")),
+                Reservation(assets[0], user2, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
+                Reservation(assets[3], user2, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
         )).toList()
 
         val id = reservations[2].id
@@ -526,7 +527,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
 
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/$from/to/$to"
 
@@ -552,7 +553,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
 
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/$from/to/$to/gym/${gym.id}"
 
@@ -571,7 +572,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 if the kind does not exist when searching for available assets`() {
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/$from/to/$to"
 
@@ -585,7 +586,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should return 404 if the kind does not exist when searching for available assets and filtering by gym`() {
         val gym = this.mockGym()
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/$from/to/$to/gym/${gym.id}"
 
@@ -599,7 +600,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should return 404 if the kind does not exist when searching for available assets and filtering by city`() {
         val gym = this.mockGym()
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/-1/from/$from/to/$to/city/${gym.city.id}"
 
@@ -613,7 +614,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should return 404 if the gym does not exist when searching for available assets and filtering by gym`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.BENCH, 20))
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/$from/to/$to/gym/-1"
 
@@ -627,7 +628,7 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Test
     fun `Should return 404 if the city does not exist when searching for available assets and filtering by city`() {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.BENCH, 20))
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/$from/to/$to/city/-1"
 
@@ -642,7 +643,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 if the asset does not exist when checking its availability`() {
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/asset/-1/from/$from/to/$to"
 
@@ -658,7 +659,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.wildcardSchedules))
         val asset = this.mockAsset(gym)
-        val from = LocalDateTime.parse("2050-04-04T10:00:00")
+        val from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         val to = from.plusMinutes(10)
         val url = "${ApiUrls.RESERVATIONS}/available/asset/${asset.id}/from/$from/to/$to"
 
@@ -674,7 +675,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.wildcardSchedules))
         val asset = this.mockAsset(gym)
-        var from = LocalDateTime.parse("2050-04-04T10:00:00")
+        var from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
         var to = from.minusMinutes(10)
         var url = "${ApiUrls.RESERVATIONS}/available/asset/${asset.id}/from/$from/to/$to"
 
@@ -684,7 +685,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(false)))
                 .andDo(MockMvcResultHandlers.print())
 
-        from = LocalDateTime.parse("2005-04-04T10:20:00")
+        from = OffsetDateTime.parse("2005-04-04T10:20:00+00:00")
         to = from.plusMinutes(10)
         url = "${ApiUrls.RESERVATIONS}/available/asset/${asset.id}/from/$from/to/$to"
         mockMvc.perform(MockMvcRequestBuilders.get(url)
@@ -720,10 +721,10 @@ class ReservationControllerTest : AbstractControllerTest() {
         )
 
         return this.reservationDAO.saveAll(listOf(
-                Reservation(assets[0], user, LocalDateTime.parse("2018-01-01T10:00:00"), LocalDateTime.parse("2018-01-01T12:00:00")),
-                Reservation(assets[1], user, LocalDateTime.parse("2019-01-01T10:00:00"), LocalDateTime.parse("2019-01-01T12:00:00")),
-                Reservation(assets[0], user, LocalDateTime.parse("2019-02-01T10:00:00"), LocalDateTime.parse("2019-02-01T12:00:00")),
-                Reservation(assets[3], user, LocalDateTime.parse("2019-03-01T10:00:00"), LocalDateTime.parse("2019-03-01T12:00:00"))
+                Reservation(assets[0], user, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
+                Reservation(assets[1], user, OffsetDateTime.parse("2019-01-01T10:00:00+00:00"), OffsetDateTime.parse("2019-01-01T12:00:00+00:00")),
+                Reservation(assets[0], user, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
+                Reservation(assets[3], user, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
         )).toList()
     }
 }

@@ -10,27 +10,19 @@ class RepeatedInterval(
         start: LocalDateTime,
         end: LocalDateTime,
         val repetitionType: RepetitionType,
-        val repetitionEnd: LocalDate
+        val repetitionEnd: LocalDateTime
 ) : Interval(id, start, end) {
 
     constructor(start: String, end: String) : this(start, end, RepetitionType.none)
 
     constructor(start: String, end: String, repetitionType: RepetitionType) :
-            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDate.MAX)
+            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDateTime.MAX)
 
     constructor(start: String, end: String, repetitionType: RepetitionType, repetitionEnd: String) :
-            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDate.parse(repetitionEnd))
+            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDateTime.parse(repetitionEnd))
 
 
     companion object {
-        fun create(monthDay: MonthDay): RepeatedInterval =
-                RepeatedInterval(
-                        -1,
-                        LocalDateTime.of(2018, monthDay.month, monthDay.dayOfMonth, 0, 0),
-                        LocalDateTime.of(2018, monthDay.month, monthDay.dayOfMonth, 0, 0).plusDays(1),
-                        RepetitionType.monthly,
-                        LocalDate.MAX)
-
         fun create(dayOfWeek: DayOfWeek, start: String, end: String): RepeatedInterval =
                 this.create(dayOfWeek, LocalTime.parse(start), LocalTime.parse(end))
 
@@ -38,16 +30,41 @@ class RepeatedInterval(
         fun create(dayOfWeek: DayOfWeek, start: LocalTime, end: LocalTime): RepeatedInterval {
             val startDate = LocalDateTime.from(dayOfWeek.adjustInto(start.atDate(LocalDate.ofYearDay(2019, 1))))
             val endDate = LocalDateTime.from(dayOfWeek.adjustInto(end.atDate(LocalDate.ofYearDay(2019, 1))))
-            return RepeatedInterval(-1, startDate, endDate, RepetitionType.weekly, LocalDate.MAX)
+            return RepeatedInterval(-1, startDate, endDate, RepetitionType.weekly, LocalDateTime.MAX)
         }
     }
+
+    override fun contains(date: OffsetDateTime, zoneId: ZoneId): Boolean {
+        return if (date >= this.repetitionEnd.atZone(zoneId).toOffsetDateTime() ||
+                !this.contains(date.atZoneSameInstant(zoneId).toOffsetDateTime().toOffsetTime())) false
+        else
+            when (this.repetitionType) {
+                RepetitionType.none -> super.contains(date, zoneId)
+                RepetitionType.daily -> true
+                RepetitionType.weekly -> {
+                    date.atZoneSameInstant(zoneId).dayOfWeek == this.start.atZone(zoneId).dayOfWeek
+                }
+
+                RepetitionType.monthly -> {
+                    date.atZoneSameInstant(zoneId).dayOfMonth == this.start.atZone(zoneId).dayOfMonth
+                }
+
+                RepetitionType.yearly -> {
+                    val s = this.start.atZone(zoneId)
+                    val d = date.atZoneSameInstant(zoneId)
+                    d.dayOfMonth == s.dayOfMonth && d.month == s.month
+                }
+            }
+    }
+
+    override fun contains(zonedInterval: ZonedInterval, zoneId: ZoneId): Boolean =
+            this.contains(zonedInterval.start, zoneId) && this.contains(zonedInterval.end, zoneId)
 
     override fun contains(interval: Interval): Boolean =
             this.contains(interval.start) && this.contains(interval.end)
 
-
     override fun contains(date: LocalDateTime): Boolean {
-        return if (date.toLocalDate() >= this.repetitionEnd) false
+        return if (date >= this.repetitionEnd) false
         else
             when (this.repetitionType) {
                 RepetitionType.none -> date in this.start..this.end
@@ -70,4 +87,7 @@ class RepeatedInterval(
     }
 
     override fun contains(date: String): Boolean = this.contains(LocalDateTime.parse(date))
+
+    private fun contains(offsetTime: OffsetTime): Boolean =
+            offsetTime in this.start.toLocalTime().atOffset(offsetTime.offset)..this.end.toLocalTime().atOffset(offsetTime.offset)
 }

@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.model
 
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
+import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
@@ -28,6 +29,11 @@ class Timetable(
 
     constructor(gym: Gym, openings: Set<RepeatedInterval>, closingDays: Set<RepeatedInterval>) :
             this(-1, gym, openings, closingDays)
+
+
+    fun contains(zonedInterval: ZonedInterval, zoneId: ZoneId): Boolean =
+            this.closingDays.none { it.contains(zonedInterval, zoneId) } &&
+                    this.openings.any { it.contains(zonedInterval, zoneId) }
 
 
     fun contains(interval: Interval): Boolean =
