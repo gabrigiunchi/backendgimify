@@ -69,47 +69,5 @@ class RepeatedInterval(
             }
     }
 
-    override fun overlaps(interval: Interval): Boolean {
-        if (this.repetitionType == RepetitionType.none) {
-            return super.overlaps(interval)
-        }
-
-        var s = this.start
-        var e = this.end
-
-        while (s <= interval.end && s.toLocalDate() < this.repetitionEnd) {
-            if (Interval(s, e).overlaps(interval)) {
-                return true
-            }
-
-            when (this.repetitionType) {
-                RepetitionType.none -> {
-                }
-
-                RepetitionType.daily -> {
-                    s = s.plusDays(1)
-                    e = e.plusDays(1)
-                }
-
-                RepetitionType.weekly -> {
-                    s = s.plusWeeks(1)
-                    e = e.plusWeeks(1)
-                }
-
-                RepetitionType.monthly -> {
-                    s = s.plusMonths(1)
-                    e = e.plusMonths(1)
-                }
-
-                RepetitionType.yearly -> {
-                    s = s.plusYears(1)
-                    e = e.plusYears(1)
-                }
-            }
-        }
-
-        return false
-    }
-
     override fun contains(date: String): Boolean = this.contains(LocalDateTime.parse(date))
 }
