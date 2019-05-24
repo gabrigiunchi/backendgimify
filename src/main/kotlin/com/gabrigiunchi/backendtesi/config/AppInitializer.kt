@@ -50,9 +50,6 @@ class AppInitializer {
     @Autowired
     private lateinit var userFactory: UserFactory
 
-    @Value("\${application.zoneId}")
-    private var zoneId: String = "UTC"
-
     @Value("\${application.initDB}")
     private var initDB = false
 
@@ -81,18 +78,11 @@ class AppInitializer {
             Pair(AssetKindEnum.TREADMILLS, 60))
 
     fun initApp() {
-        this.initTimezone()
-
         if (this.initDB) {
             this.initDB()
         } else {
             this.initUsers()
         }
-    }
-
-    private fun initTimezone() {
-        this.logger.info("Setting timezone to $zoneId")
-        DateDecorator.DEFAULT_TIMEZONE = this.zoneId
     }
 
     private fun initDB() {

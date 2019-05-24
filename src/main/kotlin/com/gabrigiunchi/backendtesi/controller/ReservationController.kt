@@ -33,9 +33,6 @@ class ReservationController(
 
     private val logger = LoggerFactory.getLogger(ReservationController::class.java)
 
-    @Value("\${application.zoneId}")
-    private var zoneId: String = "UTC"
-
     @GetMapping("/page/{page}/size/{size}")
     fun getAllReservations(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {
         this.logger.info("GET all reservations, page=$page size=$size")

@@ -38,30 +38,12 @@ abstract class AbstractControllerTest {
     }
 
     @Throws(IOException::class)
-    protected fun json(gym: Gym): String {
-        return ObjectMapper().writeValueAsString(mapOf(
-                Pair("id", gym.id.toString()),
-                Pair("name", gym.name),
-                Pair("address", gym.address),
-                Pair("city", this.toMap(gym.city))))
-    }
-
-
-    @Throws(IOException::class)
     protected fun json(reservation: ReservationDTOInput): String {
         return ObjectMapper().writeValueAsString(mapOf(
                 Pair("userID", reservation.userID),
                 Pair("assetID", reservation.assetID),
                 Pair("start", reservation.start.toString()),
                 Pair("end", reservation.end.toString())))
-    }
-
-    @Throws(IOException::class)
-    protected fun json(city: City): String {
-        return ObjectMapper().writeValueAsString(mapOf(
-                Pair("id", city.id.toString()),
-                Pair("name", city.name),
-                Pair("zoneId", city.zoneId.toString())))
     }
 
     @Throws(IOException::class)
@@ -83,15 +65,6 @@ abstract class AbstractControllerTest {
                 Pair("repetitionEnd", repeatedInterval.repetitionEnd.toString())
         )
     }
-
-
-    fun toMap(city: City): Map<String, String> {
-        return mapOf(
-                Pair("id", city.id.toString()),
-                Pair("zoneId", city.zoneId.toString()),
-                Pair("name", city.name))
-    }
-
 
     @Autowired
     internal fun setConverters(converters: Array<HttpMessageConverter<Any>>) {
