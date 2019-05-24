@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 
 class ZonedInterval(val start: OffsetDateTime, val end: OffsetDateTime) {
 
-    constructor(start: String, end: String): this(OffsetDateTime.parse(start), OffsetDateTime.parse(end))
+    constructor(start: String, end: String) : this(OffsetDateTime.parse(start), OffsetDateTime.parse(end))
 
     fun contains(date: OffsetDateTime): Boolean = date in this.start..this.end
     fun contains(interval: ZonedInterval): Boolean =

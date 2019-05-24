@@ -75,13 +75,17 @@ abstract class AbstractControllerTest {
     }
 
     fun toMap(repeatedInterval: RepeatedInterval): Map<String, String> {
-        return mapOf(
+        val map = mutableMapOf(
                 Pair("id", repeatedInterval.id.toString()),
                 Pair("start", repeatedInterval.start.toString()),
                 Pair("end", repeatedInterval.end.toString()),
-                Pair("repetitionType", repeatedInterval.repetitionType.toString()),
-                Pair("repetitionEnd", repeatedInterval.repetitionEnd.toString())
-        )
+                Pair("repetitionType", repeatedInterval.repetitionType.toString()))
+
+        if (repeatedInterval.repetitionEnd != null) {
+            map += Pair("repetitionEnd", repeatedInterval.repetitionEnd.toString())
+        }
+
+        return map
     }
 
 

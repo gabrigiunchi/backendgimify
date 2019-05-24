@@ -10,13 +10,13 @@ class RepeatedInterval(
         start: LocalDateTime,
         end: LocalDateTime,
         val repetitionType: RepetitionType,
-        val repetitionEnd: LocalDateTime
+        val repetitionEnd: LocalDateTime?
 ) : Interval(id, start, end) {
 
     constructor(start: String, end: String) : this(start, end, RepetitionType.none)
 
     constructor(start: String, end: String, repetitionType: RepetitionType) :
-            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDateTime.MAX)
+            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, null)
 
     constructor(start: String, end: String, repetitionType: RepetitionType, repetitionEnd: String) :
             this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDateTime.parse(repetitionEnd))
@@ -26,16 +26,15 @@ class RepeatedInterval(
         fun create(dayOfWeek: DayOfWeek, start: String, end: String): RepeatedInterval =
                 this.create(dayOfWeek, LocalTime.parse(start), LocalTime.parse(end))
 
-
         fun create(dayOfWeek: DayOfWeek, start: LocalTime, end: LocalTime): RepeatedInterval {
             val startDate = LocalDateTime.from(dayOfWeek.adjustInto(start.atDate(LocalDate.ofYearDay(2019, 1))))
             val endDate = LocalDateTime.from(dayOfWeek.adjustInto(end.atDate(LocalDate.ofYearDay(2019, 1))))
-            return RepeatedInterval(-1, startDate, endDate, RepetitionType.weekly, LocalDateTime.MAX)
+            return RepeatedInterval(-1, startDate, endDate, RepetitionType.weekly, null)
         }
     }
 
     override fun contains(date: OffsetDateTime, zoneId: ZoneId): Boolean {
-        return if (date >= this.repetitionEnd.atZone(zoneId).toOffsetDateTime() ||
+        return if (this.isBeyondRepetitionEnd(date, zoneId) ||
                 !this.contains(date.atZoneSameInstant(zoneId).toOffsetDateTime().toOffsetTime())) false
         else
             when (this.repetitionType) {
@@ -64,7 +63,7 @@ class RepeatedInterval(
             this.contains(interval.start) && this.contains(interval.end)
 
     override fun contains(date: LocalDateTime): Boolean {
-        return if (date >= this.repetitionEnd) false
+        return if (this.isBeyondRepetitionEnd(date)) false
         else
             when (this.repetitionType) {
                 RepetitionType.none -> date in this.start..this.end
@@ -90,4 +89,11 @@ class RepeatedInterval(
 
     private fun contains(offsetTime: OffsetTime): Boolean =
             offsetTime in this.start.toLocalTime().atOffset(offsetTime.offset)..this.end.toLocalTime().atOffset(offsetTime.offset)
+
+
+    private fun isBeyondRepetitionEnd(date: LocalDateTime) =
+            this.repetitionEnd != null && date >= this.repetitionEnd
+
+    private fun isBeyondRepetitionEnd(date: OffsetDateTime, zoneId: ZoneId) =
+            this.repetitionEnd != null && date >= this.repetitionEnd.atZone(zoneId).toOffsetDateTime()
 }

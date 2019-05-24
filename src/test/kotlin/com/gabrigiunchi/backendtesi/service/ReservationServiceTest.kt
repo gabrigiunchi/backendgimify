@@ -7,7 +7,6 @@ import com.gabrigiunchi.backendtesi.exceptions.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
-import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
@@ -478,7 +477,7 @@ class ReservationServiceTest : AbstractControllerTest() {
                 targetKind.id,
                 targetCity.id,
                 OffsetDateTime.parse("2050-04-04T10:15:00+00:00"),
-                OffsetDateTime.parse("2050-04-04T10:30:00+00:00"))
+                OffsetDateTime.parse("2050-04-04T16:30:00+06:00"))
 
         val expectedResult = listOf(assets[1], assets[3])
 

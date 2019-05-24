@@ -5,7 +5,6 @@ import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
-import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
@@ -13,6 +12,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.time.DayOfWeek
+import java.time.LocalTime
 import java.util.*
 
 @Service
@@ -115,6 +116,8 @@ class AppInitializer {
 
     private fun initUsers() {
         this.logger.info("Init users")
+        this.userDAO.deleteAll()
+        this.userRoleDAO.deleteAll()
         this.initUserRole()
         this.userDAO.saveAll(listOf(
                 this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com"),
@@ -199,7 +202,5 @@ class AppInitializer {
     }
 
     private val openings: Set<RepeatedInterval>
-        get() = setOf(
-                RepeatedInterval("2019-01-07T09:00:00", "2019-01-07T21:00:00", RepetitionType.weekly)
-        )
+        get() = DayOfWeek.values().map { RepeatedInterval.create(it, LocalTime.parse("09:00"), LocalTime.parse("21:00")) }.toSet()
 }
