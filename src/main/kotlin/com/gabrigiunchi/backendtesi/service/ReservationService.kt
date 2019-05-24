@@ -35,6 +35,9 @@ class ReservationService(
     @Value("\${application.mail.enabled}")
     private var mailEnabled: Boolean = false
 
+    @Value("\${application.zoneId}")
+    private var zoneId: String = "UTC"
+
     fun addReservation(reservationDTO: ReservationDTOInput, userId: Int): Reservation {
         if (reservationDTO.start < LocalDateTime.now()) {
             throw BadRequestException("reservation must be in the future")
@@ -180,7 +183,7 @@ class ReservationService(
     fun numberOfReservationsMadeByUserInDate(user: User, date: Date): Int {
         val d = DateDecorator.of(date)
         return this.reservationLogDAO.findByUserAndDateBetween(user, d.minusDays(1).date, d.plusDays(1).date)
-                .filter { DateDecorator.of(it.date).isSameDay(date, ZoneId.of("UTC")) }
+                .filter { DateDecorator.of(it.date).isSameDay(date, ZoneId.of(this.zoneId)) }
                 .count()
     }
 

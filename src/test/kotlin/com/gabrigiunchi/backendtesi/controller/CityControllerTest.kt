@@ -44,6 +44,7 @@ class CityControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(city.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(city.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -55,6 +56,7 @@ class CityControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(city.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(city.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -85,6 +87,7 @@ class CityControllerTest : AbstractControllerTest() {
                 .content(json(city)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`("Los Angeles")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.cityDAO.count()).isEqualTo(1)
