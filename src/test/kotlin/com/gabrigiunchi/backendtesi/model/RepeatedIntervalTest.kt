@@ -5,8 +5,6 @@ import org.assertj.core.api.Assertions
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
 
 class RepeatedIntervalTest {
 

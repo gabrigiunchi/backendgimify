@@ -1,14 +1,19 @@
 package com.gabrigiunchi.backendtesi.service
 
+import com.gabrigiunchi.backendtesi.dao.AvatarDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.Avatar
 import com.gabrigiunchi.backendtesi.model.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.User
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.util.*
 
 @Service
 class AvatarService(private val userDAO: UserDAO,
+                    private val avatarDAO: AvatarDAO,
                     objectStorageService: ObjectStorageService,
 
                     @Value("\${application.objectstorage.avatarsbucket}")
@@ -24,34 +29,41 @@ class AvatarService(private val userDAO: UserDAO,
         get() = this.getAllMetadataWithPrefix(PRESET_PREFIX)
 
     fun getAvatarMetadataOfUser(username: String): ImageMetadata {
-        return this.userDAO.findByUsername(username)
-                .map {
-                    if (this.contains(username)) this.getImageMetadata(username)
-                    else DEFAULT_AVATAR_METADATA
-                }
-                .orElseThrow { ResourceNotFoundException("user $username does not exist") }
-    }
-
-    fun setAvatarOfUser(username: String, image: MultipartFile): ImageMetadata {
-        return this.userDAO.findByUsername(username)
-                .map { this.upload(image, username) }
-                .orElseThrow { ResourceNotFoundException("user $username does not exist") }
-    }
-
-    fun deleteAvatarOfUser(username: String) {
-        return this.userDAO.findByUsername(username)
-                .map { this.deleteImage(username) }
-                .orElseThrow { ResourceNotFoundException("user $username does not exist") }
+        val user = this.getUser(username)
+        return this.avatarDAO.findByUser(user)
+                .map { ImageMetadata(it.id, it.lastModified) }
+                .orElseGet { DEFAULT_AVATAR_METADATA }
     }
 
     fun getAvatarOfUser(username: String): ByteArray {
-        return this.userDAO.findByUsername(username)
-                .map { this.download(this.getAvatarMetadataOfUser(username).id) }
-                .orElseThrow { ResourceNotFoundException("user $username does not exist") }
+        return this.download(this.getAvatarMetadataOfUser(username).id)
+    }
+
+    fun setAvatarOfUser(username: String, image: MultipartFile): ImageMetadata {
+        val user = this.getUser(username)
+        val avatarId = "${randomName()}${user.id}"
+        val metadata = this.upload(image, avatarId)
+        this.avatarDAO.save(Avatar(metadata.id, user, metadata.lastModified))
+        return metadata
+    }
+
+    fun deleteAvatarOfUser(username: String) {
+        val user = this.getUser(username)
+        this.avatarDAO.findByUser(user)
+                .map {
+                    this.deleteImage(it.id)
+                    this.avatarDAO.delete(it)
+                }
     }
 
     fun setDefaultAvatar(image: MultipartFile) = this.upload(image, DEFAULT_AVATAR_METADATA.id)
 
     val defaultAvatar: ByteArray
         get() = super.download(DEFAULT_AVATAR_METADATA.id)
+
+    private fun randomName(): String = UUID.randomUUID().toString()
+
+    private fun getUser(username: String): User =
+            this.userDAO.findByUsername(username).orElseThrow { ResourceNotFoundException("user $username does not exist") }
+
 }

@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.ImageMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import org.springframework.web.multipart.MultipartFile
+import java.util.*
 
 open class ImageService(
         private val objectStorageService: ObjectStorageService,
@@ -51,12 +52,12 @@ open class ImageService(
                 .readAllBytes()
     }
 
-    fun upload(image: MultipartFile, name: String): ImageMetadata {
+    fun upload(image: MultipartFile, id: String): ImageMetadata {
         val client = this.objectStorageService.createClient()
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
-        client.putObject(this.bucketName, name, image.inputStream, metadata).metadata
-        return ImageMetadata(name, this.getImageMetadata(name).lastModified)
+        client.putObject(this.bucketName, id, image.inputStream, metadata).metadata
+        return ImageMetadata(id, Date().time)
     }
 
     open fun deleteImage(id: String) {

@@ -1,7 +1,10 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
-import java.time.*
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.persistence.Entity
 
 @Entity

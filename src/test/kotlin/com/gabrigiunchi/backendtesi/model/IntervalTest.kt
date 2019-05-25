@@ -2,8 +2,6 @@ package com.gabrigiunchi.backendtesi.model
 
 import org.assertj.core.api.Assertions
 import org.junit.Test
-import java.time.OffsetDateTime
-import java.time.ZoneId
 
 class IntervalTest {
 
