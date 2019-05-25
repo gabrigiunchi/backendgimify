@@ -32,10 +32,9 @@ class Timetable(
 
 
     fun contains(zonedInterval: ZonedInterval, zoneId: ZoneId): Boolean =
-            this.closingDays.none { it.contains(zonedInterval, zoneId) } &&
-                    this.openings.any { it.contains(zonedInterval, zoneId) }
-
+            this.closingDays.none { it.overlaps(zonedInterval.toInterval(zoneId)) } &&
+                    this.openings.any { it.contains(zonedInterval.toInterval(zoneId)) }
 
     fun contains(interval: Interval): Boolean =
-            this.closingDays.none { it.contains(interval) } && this.openings.any { it.contains(interval) }
+            this.closingDays.none { it.overlaps(interval) } && this.openings.any { it.contains(interval) }
 }

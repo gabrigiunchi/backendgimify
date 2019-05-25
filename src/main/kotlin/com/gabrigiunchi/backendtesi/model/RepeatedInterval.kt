@@ -33,32 +33,6 @@ class RepeatedInterval(
         }
     }
 
-    override fun contains(date: OffsetDateTime, zoneId: ZoneId): Boolean {
-        return if (this.isBeyondRepetitionEnd(date, zoneId) ||
-                !this.contains(date.atZoneSameInstant(zoneId).toOffsetDateTime().toOffsetTime())) false
-        else
-            when (this.repetitionType) {
-                RepetitionType.none -> super.contains(date, zoneId)
-                RepetitionType.daily -> true
-                RepetitionType.weekly -> {
-                    date.atZoneSameInstant(zoneId).dayOfWeek == this.start.atZone(zoneId).dayOfWeek
-                }
-
-                RepetitionType.monthly -> {
-                    date.atZoneSameInstant(zoneId).dayOfMonth == this.start.atZone(zoneId).dayOfMonth
-                }
-
-                RepetitionType.yearly -> {
-                    val s = this.start.atZone(zoneId)
-                    val d = date.atZoneSameInstant(zoneId)
-                    d.dayOfMonth == s.dayOfMonth && d.month == s.month
-                }
-            }
-    }
-
-    override fun contains(zonedInterval: ZonedInterval, zoneId: ZoneId): Boolean =
-            this.contains(zonedInterval.start, zoneId) && this.contains(zonedInterval.end, zoneId)
-
     override fun contains(interval: Interval): Boolean =
             this.contains(interval.start) && this.contains(interval.end)
 
@@ -87,13 +61,5 @@ class RepeatedInterval(
 
     override fun contains(date: String): Boolean = this.contains(LocalDateTime.parse(date))
 
-    private fun contains(offsetTime: OffsetTime): Boolean =
-            offsetTime in this.start.toLocalTime().atOffset(offsetTime.offset)..this.end.toLocalTime().atOffset(offsetTime.offset)
-
-
-    private fun isBeyondRepetitionEnd(date: LocalDateTime) =
-            this.repetitionEnd != null && date >= this.repetitionEnd
-
-    private fun isBeyondRepetitionEnd(date: OffsetDateTime, zoneId: ZoneId) =
-            this.repetitionEnd != null && date >= this.repetitionEnd.atZone(zoneId).toOffsetDateTime()
+    private fun isBeyondRepetitionEnd(date: LocalDateTime) = this.repetitionEnd != null && date >= this.repetitionEnd
 }
