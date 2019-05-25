@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
+import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Gym
@@ -17,6 +18,7 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/gyms")
 class GymController(private val gymDAO: GymDAO,
                     private val gymService: GymService,
+                    private val timetableDAO: TimetableDAO,
                     private val cityDAO: CityDAO) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
@@ -81,7 +83,15 @@ class GymController(private val gymDAO: GymDAO,
     @DeleteMapping("/{id}")
     fun deleteGym(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE gym #$id")
-        this.gymDAO.delete(this.gymDAO.findById(id).orElseThrow { ResourceNotFoundException("gym $id does not exist") })
+        val gym = this.gymDAO.findById(id).orElseThrow { ResourceNotFoundException("gym $id does not exist") }
+        val timetable = this.timetableDAO.findByGym(gym)
+
+        if (timetable.isPresent) {
+            this.timetableDAO.delete(timetable.get())
+        }
+
+        this.gymDAO.delete(gym)
+
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

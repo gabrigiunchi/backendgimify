@@ -2,7 +2,6 @@ package com.gabrigiunchi.backendtesi.model.dto.output
 
 import com.gabrigiunchi.backendtesi.model.Comment
 import java.time.OffsetDateTime
-import java.util.*
 
 data class CommentDTOOutput(
         val id: Int,

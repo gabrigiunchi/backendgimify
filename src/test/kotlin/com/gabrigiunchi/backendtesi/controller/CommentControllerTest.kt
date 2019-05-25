@@ -11,10 +11,8 @@ import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
-import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
-import org.assertj.core.data.Offset
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test

@@ -3,16 +3,11 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.dao.CommentDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.City
-import com.gabrigiunchi.backendtesi.model.Comment
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.dao.*
+import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.util.UserFactory
+import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
@@ -39,10 +34,14 @@ class GymControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var commentDAO: CommentDAO
 
+    @Autowired
+    private lateinit var timetableDAO: TimetableDAO
+
     private var city = City(CityEnum.NEW_YORK)
 
     @Before
     fun clearDB() {
+        this.timetableDAO.deleteAll()
         this.cityDAO.deleteAll()
         this.city = this.cityDAO.save(this.city)
         this.commentDAO.deleteAll()
@@ -194,11 +193,14 @@ class GymControllerTest : AbstractControllerTest() {
     @Test
     fun `Should delete a gym`() {
         val gym = this.gymDAO.save(Gym("gym dsjad", "address", this.city))
+        this.timetableDAO.save(Timetable(gym))
         val savedId = this.gymDAO.save(gym).id
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/$savedId")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
                 .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.timetableDAO.count()).isEqualTo(0)
     }
 
     @Test
