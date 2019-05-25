@@ -60,16 +60,11 @@ GymImageServiceTest : AbstractControllerTest() {
     fun `Should return the photos of a gym`() {
         val now = Date().time
         val gym = this.mockGym()
-        val saved = this.gymImageDAO.saveAll(listOf(
-                GymImage(gym, "photo1"),
-                GymImage(gym, "photo2"),
-                GymImage(gym, "photo3"),
-                GymImage(gym, "photo4")
-        )).toList()
+        val saved = this.gymImageDAO.saveAll((1..4).map { GymImage("photo$it", gym) }).toList()
 
         val result = this.imageService.getPhotosOfGym(gym.id)
         Assertions.assertThat(result.size).isEqualTo(4)
-        Assertions.assertThat(result[0].id).isEqualTo(saved[0].name)
+        Assertions.assertThat(result[0].id).isEqualTo(saved[0].id)
         Assertions.assertThat(result.all { it.lastModified >= now }).isTrue()
     }
 
@@ -88,7 +83,7 @@ GymImageServiceTest : AbstractControllerTest() {
         val saved = this.gymImageDAO.findByGym(gym)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         Assertions.assertThat(saved.size).isEqualTo(1)
-        Assertions.assertThat(saved[0].name).isEqualTo(name)
+        Assertions.assertThat(saved[0].id).isEqualTo(name)
         Assertions.assertThat(saved[0].gym.id).isEqualTo(gym.id)
         Assertions.assertThat(saved[0].lastModified).isGreaterThanOrEqualTo(now)
     }

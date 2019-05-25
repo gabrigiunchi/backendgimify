@@ -3,20 +3,20 @@ package com.gabrigiunchi.backendtesi.model
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.ManyToOne
 
 @Entity
 class GymImage(
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        val id: Int,
+        val id: String,
 
         @ManyToOne
         @OnDelete(action = OnDeleteAction.CASCADE)
         val gym: Gym,
 
-        val name: String,
         val lastModified: Long
 ) {
-    constructor(gym: Gym, name: String) : this(-1, gym, name, Date().time)
+    constructor(id: String, gym: Gym) : this(id, gym, Date().time)
 }

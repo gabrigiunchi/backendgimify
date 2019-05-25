@@ -198,7 +198,10 @@ class AppInitializer {
 
     private fun initImages() {
         this.logger.info("Init gym images")
-        this.gyms.forEach { gym -> this.gymImageDAO.saveAll(((1..4).map { GymImage(gym, "gym1_$it.jpg") })) }
+        for (i in 0 until this.gyms.size) {
+            val gym = this.gyms[i]
+            this.gymImageDAO.saveAll(((1..4).map { GymImage("gym$i $it.jpg", gym) }))
+        }
     }
 
     private val openings: Set<RepeatedInterval>

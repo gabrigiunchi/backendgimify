@@ -23,16 +23,16 @@ class GymImageService(
         return this.gymDAO.findById(gymId)
                 .map {
                     this.gymImageDAO.findByGym(it).map { image ->
-                        ImageMetadata(image.name, image.lastModified)
+                        ImageMetadata(image.id, image.lastModified)
                     }
                 }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
-    fun setImage(gymId: Int, image: MultipartFile, name: String): ImageMetadata {
+    fun setImage(gymId: Int, image: MultipartFile, imageId: String): ImageMetadata {
         return this.gymDAO.findById(gymId)
                 .map {
-                    this.gymImageDAO.findByName(name)
+                    this.gymImageDAO.findById(imageId)
                             .ifPresent { i ->
                                 if (i.gym.id == gymId) {
                                     this.gymImageDAO.delete(i)
@@ -41,15 +41,15 @@ class GymImageService(
                                 }
                             }
 
-                    val metadata = this.upload(image, name)
-                    this.gymImageDAO.save(GymImage(it, name))
+                    val metadata = this.upload(image, imageId)
+                    this.gymImageDAO.save(GymImage(imageId, it))
                     metadata
                 }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
     override fun deleteImage(id: String) {
-        this.gymImageDAO.findByName(id)
+        this.gymImageDAO.findById(id)
                 .map {
                     super.deleteImage(id)
                     this.gymImageDAO.delete(it)

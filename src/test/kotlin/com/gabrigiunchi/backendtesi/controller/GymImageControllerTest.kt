@@ -155,11 +155,11 @@ class GymImageControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should delete a photo`() {
-        val name = "photo1.jpg"
-        this.gymImageDAO.save(GymImage(this.mockGym(), name))
-        this.mockImage(name, "content")
-        Assertions.assertThat(this.gymImageDAO.findByName(name).isPresent).isTrue()
-        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/photos/$name"))
+        val imageId = "photo1.jpg"
+        this.gymImageDAO.save(GymImage(imageId, this.mockGym()))
+        this.mockImage(imageId, "content")
+        Assertions.assertThat(this.gymImageDAO.findById(imageId).isPresent).isTrue()
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/photos/$imageId"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
 
         Assertions.assertThat(this.gymImageDAO.count()).isEqualTo(0)
