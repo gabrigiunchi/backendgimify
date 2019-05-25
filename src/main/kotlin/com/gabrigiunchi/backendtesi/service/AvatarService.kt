@@ -41,7 +41,7 @@ class AvatarService(private val userDAO: UserDAO,
 
     fun setAvatarOfUser(username: String, image: MultipartFile): ImageMetadata {
         val user = this.getUser(username)
-        val avatarId = "${randomName()}${user.id}"
+        val avatarId = this.avatarDAO.findByUser(user).map { it.id }.orElseGet { "${randomName()}${user.id}" }
         val metadata = this.upload(image, avatarId)
         this.avatarDAO.save(Avatar(metadata.id, user, metadata.lastModified))
         return metadata

@@ -98,9 +98,36 @@ class AvatarServiceTest : AbstractControllerTest() {
         Assertions.assertThat(savedMetadata.lastModified).isEqualTo(putResult.lastModified)
     }
 
+    @Test
+    fun `Should change the avatar of a user`() {
+        val user = this.mockUser()
+        val metadata = this.avatarDAO.save(Avatar("avatar", user))
+
+        val image = MockMultipartFile("name", "content".toByteArray())
+        val putObjectResult = this.mockObjectStorage.add(image, "name")
+
+        Mockito.`when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(putObjectResult)
+
+        val result = this.avatarService.setAvatarOfUser(user.username, image)
+        Assertions.assertThat(metadata.id).isEqualTo(result.id)
+        Assertions.assertThat(metadata.lastModified).isEqualTo(result.lastModified)
+    }
+
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when setting the avatar of a user if the user does not exist`() {
-        this.avatarService.setAvatarOfUser("jndsajnda", this.createMockImage("name", "content").first)
+        this.avatarService.setAvatarOfUser("jndsajnda", this.createMockImage("name", "content"))
+    }
+
+    @Test
+    fun `Should delete an avatar of a user`() {
+        val user = this.mockUser()
+        val imageId = user.username
+        this.avatarDAO.save(Avatar(imageId, user))
+        this.avatarService.setAvatarOfUser(user.username, this.createMockImage(imageId, "dsadas"))
+        Assertions.assertThat(this.mockObjectStorage.contains(imageId)).isTrue()
+        this.avatarService.deleteAvatarOfUser(user.username)
+        Assertions.assertThat(this.mockObjectStorage.contains(imageId)).isFalse()
     }
 
     @Test(expected = ResourceNotFoundException::class)
@@ -119,7 +146,7 @@ class AvatarServiceTest : AbstractControllerTest() {
     @Test
     fun `Should get the preset avatars metadata`() {
         val prefix = "preset"
-        (1..4).map { this.createMockImage("$prefix$it", "jdnsajdas").first }.forEach { this.avatarService.upload(it, it.name) }
+        (1..4).map { this.createMockImage("$prefix$it", "jdnsajdas") }.forEach { this.avatarService.upload(it, it.name) }
         val objectListing = ListObjectsV2Result()
         objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata()
                 .filter { it.id.startsWith(prefix) }
@@ -139,12 +166,12 @@ class AvatarServiceTest : AbstractControllerTest() {
     @Test
     fun `Should set the default avatar`() {
         val content = "a"
-        this.avatarService.setDefaultAvatar(this.createMockImage(AvatarService.DEFAULT_AVATAR_METADATA.id, content).first)
+        this.avatarService.setDefaultAvatar(this.createMockImage(AvatarService.DEFAULT_AVATAR_METADATA.id, content))
         val result = this.avatarService.defaultAvatar
         Assertions.assertThat(result).isEqualTo(content.toByteArray())
     }
 
-    private fun createMockImage(name: String, content: String): Pair<MultipartFile, ImageMetadata> {
+    private fun createMockImage(name: String, content: String): MultipartFile {
         val image = MockMultipartFile(name, content.toByteArray())
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
@@ -167,7 +194,7 @@ class AvatarServiceTest : AbstractControllerTest() {
                 .then { this.mockObjectStorage.delete(name) }
 
         this.avatarService.upload(image, name)
-        return Pair(image, ImageMetadata(name, Date().time))
+        return image
     }
 
     private fun mockUser(username: String = "gabrigiunchi"): User {
