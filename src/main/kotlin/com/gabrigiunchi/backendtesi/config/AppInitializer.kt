@@ -134,22 +134,22 @@ class AppInitializer {
     private fun initGyms() {
         this.logger.info("Init gyms")
         this.gyms = this.gymDAO.saveAll(listOf(
-                Gym("Ultimate Fitness", "136 Madison Ave", this.cities[0], 40.745766, -73.984540),
-                Gym("The Wild Mustang", "10698 S Van Ness Ave", this.cities[1], 33.939874, -118.317831),
-                Gym("Levitate Yoga", "1135 Dorchester Ave", this.cities[2], 42.311925, -71.057449),
-                Gym("Sleek Physique", "239 14th St NW", this.cities[3], 38.893152, -77.031989),
-                Gym("Sage Fitness", "2501 Pine Tree Dr", this.cities[4], 25.802514, -80.129455),
-                Gym("Greek God Gym", "766 E 38th St", this.cities[5], 41.825801, -87.609050),
-                Gym("Total Fitness", "740 Bacon St", this.cities[6], 37.725906, -122.410281),
+                Gym("Ultimate Fitness", "136 Madison Ave", this.cities[0]),
+                Gym("The Wild Mustang", "10698 S Van Ness Ave", this.cities[1]),
+                Gym("Levitate Yoga", "1135 Dorchester Ave", this.cities[2]),
+                Gym("Sleek Physique", "239 14th St NW", this.cities[3]),
+                Gym("Sage Fitness", "2501 Pine Tree Dr", this.cities[4]),
+                Gym("Greek God Gym", "766 E 38th St", this.cities[5]),
+                Gym("Total Fitness", "740 Bacon St", this.cities[6]),
 
-                Gym("Yeah Fitness", "12 E 104th St", this.cities[0], 40.792719, -73.951434),
-                Gym("Heart & Soul Fitness", "500 1st St", this.cities[1], 33.878970, -118.403720),
-                Gym("Elite Body Fitness", "5 Bartlett Pl", this.cities[2], 42.364146, -71.055750),
-                Gym("Xpose Gym", "3398-3300 Brothers Pl SE", this.cities[3], 38.842048, -77.004393),
-                Gym("Muscle Up", "600 NE 38th St", this.cities[4], 25.812459, -80.186485),
-                Gym("Actively Fit", "7271 S Exchange Ave", this.cities[5], 41.762757, -87.563190),
-                Gym("The Fitness Institute", "1695 Beach St", this.cities[6], 37.804645, -122.436430),
-                Gym("Giunchi Fit", "Via Pacchioni 43", this.cities[7], 44.231921, 12.062291)
+                Gym("Yeah Fitness", "12 E 104th St", this.cities[0]),
+                Gym("Heart & Soul Fitness", "500 1st St", this.cities[1]),
+                Gym("Elite Body Fitness", "5 Bartlett Pl", this.cities[2]),
+                Gym("Xpose Gym", "3398-3300 Brothers Pl SE", this.cities[3]),
+                Gym("Muscle Up", "600 NE 38th St", this.cities[4]),
+                Gym("Actively Fit", "7271 S Exchange Ave", this.cities[5]),
+                Gym("The Fitness Institute", "1695 Beach St", this.cities[6]),
+                Gym("Giunchi Fit", "Via Pacchioni 43", this.cities[7])
         )).toList()
     }
 
