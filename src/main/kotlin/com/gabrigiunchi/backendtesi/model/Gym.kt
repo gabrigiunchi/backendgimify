@@ -14,9 +14,15 @@ class Gym(
 
         @ManyToOne
         @OnDelete(action = OnDeleteAction.CASCADE)
-        val city: City
+        val city: City,
+
+        val latitude: Double,
+        val longitude: Double
 ) {
 
     constructor(name: String, address: String, city: City) :
-            this(-1, name, address, city)
+            this(-1, name, address, city, 40.0, 40.0)
+
+    constructor(name: String, address: String, city: City, latitude: Double, longitude: Double) :
+            this(-1, name, address, city, latitude, longitude)
 }

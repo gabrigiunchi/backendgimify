@@ -3,9 +3,9 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.service.GymService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -53,18 +53,9 @@ class GymController(private val gymDAO: GymDAO,
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
-    fun createGym(@Valid @RequestBody gym: Gym): ResponseEntity<Gym> {
+    fun createGym(@Valid @RequestBody gym: GymDTOInput): ResponseEntity<Gym> {
         this.logger.info("CREATE gym")
-
-        if (this.gymDAO.findById(gym.id).isPresent || this.gymDAO.findByName(gym.name).isPresent) {
-            throw ResourceAlreadyExistsException("gym ${gym.id} with name ${gym.name} already exists")
-        }
-
-        if (this.cityDAO.findById(gym.city.id).isEmpty) {
-            throw ResourceNotFoundException("city ${gym.city.id} does not exist")
-        }
-
-        return ResponseEntity(this.gymDAO.save(gym), HttpStatus.CREATED)
+        return ResponseEntity(this.gymService.saveGym(gym), HttpStatus.CREATED)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
