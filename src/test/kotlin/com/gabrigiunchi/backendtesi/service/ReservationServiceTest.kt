@@ -427,7 +427,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Should return the available assets of a given kind in a given interval in a given gym`() {
         val anotherGym = this.gymDAO.save(
                 Gym("gym2", "adddress2", this.cityDAO.save(MockEntities.mockCities[0])))
-        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
+        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockOpenings))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
@@ -451,7 +451,7 @@ class ReservationServiceTest : AbstractControllerTest() {
                 Gym("gym3", "address1", cities[2]),
                 Gym("gym4", "address1", cities[1])
         )).toList()
-        gyms.forEach { this.timetableDAO.save(Timetable(it, MockEntities.mockSchedules)) }
+        gyms.forEach { this.timetableDAO.save(Timetable(it, MockEntities.mockOpenings)) }
 
         val kinds = this.assetKindDAO.saveAll(
                 listOf(
@@ -490,7 +490,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return empty list when searching the free assets if the gym is closed`() {
         val anotherGym = this.gymDAO.save(Gym("gym2", "address2", this.cityDAO.save(MockEntities.mockCities[0])))
-        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
+        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockOpenings))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
@@ -516,7 +516,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     fun `Should return the available asset in a given interval considering also conflicts with other reservations`() {
         val anotherGym = this.gymDAO.save(
                 Gym("gym2", "adddress2", this.cityDAO.save(MockEntities.mockCities[0])))
-        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockSchedules))
+        this.timetableDAO.save(Timetable(anotherGym, MockEntities.mockOpenings))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         val assets = this.assetDAO.saveAll((1..10).map { Asset("ciclette$it", kind, if (it % 2 == 0) this.gym!! else anotherGym) })
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(10)
@@ -627,7 +627,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return empty list when searching for available assets if the interval is beyond the threshold`() {
         this.timetableDAO.deleteAll()
-        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules))
+        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardOpenings))
         val asset = this.mockAsset(300)
         val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
@@ -643,7 +643,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return empty list when searching for available assets if the interval is beyond the threshold (city filter)`() {
         this.timetableDAO.deleteAll()
-        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules))
+        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardOpenings))
         val asset = this.mockAsset(300)
         val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
@@ -661,7 +661,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return empty list when searching for available assets if the interval is beyond the threshold (gym filter)`() {
         this.timetableDAO.deleteAll()
-        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules))
+        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardOpenings))
         val asset = this.mockAsset(300)
         val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(1)
         val end = start.plusMinutes(5)
@@ -738,7 +738,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Should return false if the start is after the end or the start is in the past or if the start is beyond the threshold`() {
         this.timetableDAO.deleteAll()
-        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardSchedules, emptySet()))
+        this.timetableDAO.save(Timetable(this.gym!!, MockEntities.wildcardOpenings, emptySet()))
         Assertions.assertThat(
                 this.reservationService.isAssetAvailable(
                         this.mockAsset().id,
@@ -805,7 +805,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     /**************************************** UTILS ***********************************************************/
 
     private fun mockTimetable(): Timetable {
-        return this.timetableDAO.save(Timetable(gym = this.gym!!, openings = MockEntities.mockSchedules, closingDays = emptySet()))
+        return this.timetableDAO.save(Timetable(gym = this.gym!!, openings = MockEntities.mockOpenings, closingDays = emptySet()))
     }
 
     private fun mockAsset(maxReservationTime: Int = 20): Asset {

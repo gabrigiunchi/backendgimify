@@ -192,7 +192,8 @@ class ReservationService(
 
     fun isGymOpen(gym: Gym, start: OffsetDateTime, end: OffsetDateTime): Boolean {
         val timetable = this.timetableDAO.findByGym(gym)
-        return timetable.isPresent && timetable.get().contains(ZonedInterval(start, end), gym.city.zoneId)
+        return timetable.isPresent && timetable.get()
+                .contains(ZonedInterval(start, end).toInterval(gym.city.zoneId))
     }
 
     /**

@@ -16,7 +16,7 @@ class RepeatedInterval(
         val repetitionEnd: LocalDateTime?
 ) : Interval(id, start, end) {
 
-    constructor(start: String, end: String) : this(start, end, RepetitionType.none)
+    constructor(start: String, end: String) : this(start, end, RepetitionType.NONE)
 
     constructor(start: String, end: String, repetitionType: RepetitionType) :
             this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, null)
@@ -32,34 +32,111 @@ class RepeatedInterval(
         fun create(dayOfWeek: DayOfWeek, start: LocalTime, end: LocalTime): RepeatedInterval {
             val startDate = LocalDateTime.from(dayOfWeek.adjustInto(start.atDate(LocalDate.ofYearDay(2019, 1))))
             val endDate = LocalDateTime.from(dayOfWeek.adjustInto(end.atDate(LocalDate.ofYearDay(2019, 1))))
-            return RepeatedInterval(-1, startDate, endDate, RepetitionType.weekly, null)
+            return RepeatedInterval(-1, startDate, endDate, RepetitionType.WEEKLY, null)
         }
     }
 
-    override fun contains(interval: Interval): Boolean =
-            this.contains(interval.start) && this.contains(interval.end)
+    override fun contains(interval: Interval): Boolean {
+        if (this.repetitionType == RepetitionType.NONE) {
+            return super.contains(interval)
+        }
+
+        var s = this.start
+        var e = this.end
+
+        while (s <= interval.end && !this.isBeyondRepetitionEnd(interval.end)) {
+            if (Interval(s, e).contains(interval)) {
+                return true
+            }
+
+            when (this.repetitionType) {
+                RepetitionType.NONE -> {
+                }
+                RepetitionType.DAILY -> {
+                    s = s.plusDays(1)
+                    e = e.plusDays(1)
+                }
+                RepetitionType.WEEKLY -> {
+                    s = s.plusWeeks(1)
+                    e = e.plusWeeks(1)
+                }
+
+                RepetitionType.MONTHLY -> {
+                    s = s.plusMonths(1)
+                    e = e.plusMonths(1)
+                }
+
+                RepetitionType.YEARLY -> {
+                    s = s.plusYears(1)
+                    e = e.plusYears(1)
+                }
+            }
+        }
+
+        return false
+    }
 
     override fun contains(date: LocalDateTime): Boolean {
         return if (this.isBeyondRepetitionEnd(date)) false
         else
             when (this.repetitionType) {
-                RepetitionType.none -> date in this.start..this.end
-                RepetitionType.daily -> date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
-                RepetitionType.weekly -> {
+                RepetitionType.NONE -> date in this.start..this.end
+                RepetitionType.DAILY -> date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
+                RepetitionType.WEEKLY -> {
                     date.dayOfWeek == this.start.dayOfWeek && date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
                 }
 
-                RepetitionType.monthly -> {
+                RepetitionType.MONTHLY -> {
                     date.dayOfMonth == this.start.dayOfMonth && date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
                 }
 
-                RepetitionType.yearly -> {
+                RepetitionType.YEARLY -> {
                     date.dayOfMonth == this.start.dayOfMonth &&
                             date.month == this.start.month &&
                             date.toLocalTime() in this.start.toLocalTime()..this.end.toLocalTime()
 
                 }
             }
+    }
+
+    override fun overlaps(interval: Interval): Boolean {
+        if (this.repetitionType == RepetitionType.NONE) {
+            return super.overlaps(interval)
+        }
+
+        var s = this.start
+        var e = this.end
+
+        while (s <= interval.end && !this.isBeyondRepetitionEnd(interval.start)) {
+            if (Interval(s, e).overlaps(interval)) {
+                return true
+            }
+
+            when (this.repetitionType) {
+                RepetitionType.NONE -> {
+                }
+                RepetitionType.DAILY -> {
+                    s = s.plusDays(1)
+                    e = e.plusDays(1)
+                }
+                RepetitionType.WEEKLY -> {
+                    s = s.plusWeeks(1)
+                    e = e.plusWeeks(1)
+                }
+
+                RepetitionType.MONTHLY -> {
+                    s = s.plusMonths(1)
+                    e = e.plusMonths(1)
+                }
+
+                RepetitionType.YEARLY -> {
+                    s = s.plusYears(1)
+                    e = e.plusYears(1)
+                }
+            }
+        }
+
+        return false
     }
 
     override fun contains(date: String): Boolean = this.contains(LocalDateTime.parse(date))

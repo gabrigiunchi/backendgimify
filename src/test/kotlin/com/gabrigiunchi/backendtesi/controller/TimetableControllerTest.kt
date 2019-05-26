@@ -110,7 +110,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         val timetableDTO = TimetableDTO(
                 gymId = this.mockGym().id,
                 closingDays = emptySet(),
-                openings = MockEntities.mockSchedules.take(2).toSet())
+                openings = MockEntities.mockOpenings.take(2).toSet())
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.TIMETABLES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(timetableDTO)))
@@ -139,7 +139,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     @Test
     fun `Should update a timetable`() {
         val timetable = this.createTimetable()
-        val openings = MockEntities.mockSchedules.take(2)
+        val openings = MockEntities.mockOpenings.take(2)
         val timetableDTO = TimetableDTO(
                 gymId = timetable.gym.id,
                 openings = openings.toSet(),
@@ -166,7 +166,7 @@ class TimetableControllerTest : AbstractControllerTest() {
         val timetable = this.createTimetable()
         val timetableDTO = TimetableDTO(
                 gymId = timetable.gym.id,
-                openings = MockEntities.mockSchedules.take(2).toSet(),
+                openings = MockEntities.mockOpenings.take(2).toSet(),
                 closingDays = emptySet()
         )
 
@@ -183,7 +183,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     @Test
     fun `Should NOT update a timetable if the gym does not exist`() {
         val timetable = this.createTimetable()
-        val openings = MockEntities.mockSchedules.take(2)
+        val openings = MockEntities.mockOpenings.take(2)
         val timetableDTO = TimetableDTO(
                 gymId = -1,
                 openings = openings.toSet(),

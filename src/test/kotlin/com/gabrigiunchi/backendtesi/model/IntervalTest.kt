@@ -47,4 +47,12 @@ class IntervalTest {
         Assertions.assertThat(interval.overlaps(Interval("2019-05-23T08:00:00", "2019-05-23T09:59:59"))).isFalse()
         Assertions.assertThat(interval.overlaps(Interval("2019-05-23T12:00:10", "2019-05-23T16:00:00"))).isFalse()
     }
+
+    @Test
+    fun `Should say if it is within the same day`() {
+        Assertions.assertThat(Interval("2019-05-23T00:00:00", "2019-05-23T23:59:59").isWithinSameDay()).isTrue()
+        Assertions.assertThat(Interval("2019-05-23T23:59:59", "2019-05-24T00:00:00").isWithinSameDay()).isFalse()
+        Assertions.assertThat(Interval("2019-05-23T08:00:00", "2019-05-25T11:00:00").isWithinSameDay()).isFalse()
+    }
+
 }

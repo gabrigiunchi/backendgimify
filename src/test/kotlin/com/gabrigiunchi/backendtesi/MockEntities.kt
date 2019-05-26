@@ -4,12 +4,13 @@ import com.gabrigiunchi.backendtesi.model.AssetKind
 import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.RepeatedInterval
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
+import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import java.time.DayOfWeek
 import java.time.ZoneId
 
 object MockEntities {
 
-    val mockSchedules = setOf(
+    val mockOpenings = setOf(
             RepeatedInterval.create(DayOfWeek.MONDAY, "08:00", "12:00"),
             RepeatedInterval.create(DayOfWeek.TUESDAY, "08:00", "12:00"),
             RepeatedInterval.create(DayOfWeek.WEDNESDAY, "08:00", "12:00"),
@@ -17,7 +18,7 @@ object MockEntities {
             RepeatedInterval.create(DayOfWeek.FRIDAY, "08:00", "12:00")
     )
 
-    val wildcardSchedules = DayOfWeek.values().map { RepeatedInterval.create(it, "00:00", "23:59") }.toSet()
+    val wildcardOpenings = setOf(RepeatedInterval("2019-01-01T00:00:00", "2019-01-02T00:00:00", RepetitionType.DAILY))
 
     val mockCities = MockCityEnum.values().map { City(-1, it.name, ZoneId.of(it.zoneId)) }
     val assetKinds = AssetKindEnum.values().map { AssetKind(it, 20) }

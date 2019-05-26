@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
+import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -50,21 +51,17 @@ class TimetableTest : AbstractControllerTest() {
 
     @Test
     fun `Should say if it does not contain a date interval`() {
-        Assertions.assertThat(
-                this.createTimetable().contains(RepeatedInterval("2019-04-22T05:00:00", "2019-04-22T07:00:00"))
-        ).isFalse()
+        val timetable = this.createTimetable()
+        Assertions.assertThat(timetable.contains(Interval("2019-04-22T05:00:00", "2019-04-22T07:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(Interval("2019-04-22T19:00:00", "2019-04-22T20:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(Interval("2019-04-22T05:00:00", "2019-04-22T10:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(Interval("2020-12-25T08:00:00", "2020-12-25T12:00:00"))).isFalse()
+    }
 
-        Assertions.assertThat(
-                this.createTimetable().contains(RepeatedInterval("2019-04-22T19:00:00", "2019-04-22T20:00:00"))
-        ).isFalse()
-
-        Assertions.assertThat(
-                this.createTimetable().contains(RepeatedInterval("2019-04-22T05:00:00", "2019-04-22T10:00:00"))
-        ).isFalse()
-
-        Assertions.assertThat(
-                this.createTimetable().contains(RepeatedInterval("2019-04-29T08:00:00", "2019-04-29T12:00:00"))
-        ).isFalse()
+    @Test
+    fun `Should not contain an interval if the interval is not within the same day`() {
+        val timetable = this.timetableDAO.save(Timetable(this.mockGym(), MockEntities.wildcardOpenings, emptySet()))
+        Assertions.assertThat(timetable.contains(Interval("2019-04-22T23:00:00", "2019-04-23T01:00:00"))).isFalse()
     }
 
     /**************************************** UTILS *************************************************************************/
@@ -80,8 +77,9 @@ class TimetableTest : AbstractControllerTest() {
                 RepeatedInterval.create(DayOfWeek.FRIDAY, "13:00", "19:00")
         )
         val closingDays = setOf(
-                // Monday 29 April 2019
-                RepeatedInterval("2019-04-29T00:00:00", "2019-04-30T00:00:00")
+                // Christmas
+                RepeatedInterval("2019-12-25T00:00:00", "2019-12-25T23:59:59", RepetitionType.YEARLY),
+                RepeatedInterval("2019-01-01T00:00:00", "2019-01-01T23:59:59", RepetitionType.YEARLY)
         )
         return Timetable(gym = gym, openings = openings, closingDays = closingDays)
     }

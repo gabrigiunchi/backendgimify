@@ -33,4 +33,6 @@ open class Interval(
     open fun overlaps(interval: Interval): Boolean =
             !((this.start <= interval.end && this.end <= interval.start) ||
                     (interval.start <= this.end && interval.end <= this.start))
+
+    fun isWithinSameDay(): Boolean = this.start.toLocalDate() == this.end.toLocalDate()
 }
