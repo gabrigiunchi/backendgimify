@@ -1,5 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDateTime
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -34,5 +35,6 @@ open class Interval(
             !((this.start <= interval.end && this.end <= interval.start) ||
                     (interval.start <= this.end && interval.end <= this.start))
 
+    @JsonIgnore
     fun isWithinSameDay(): Boolean = this.start.toLocalDate() == this.end.toLocalDate()
 }
