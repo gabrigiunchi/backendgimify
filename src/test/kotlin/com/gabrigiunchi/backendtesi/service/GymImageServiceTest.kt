@@ -10,6 +10,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.GymImage
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import org.assertj.core.api.Assertions
@@ -60,7 +61,7 @@ GymImageServiceTest : AbstractControllerTest() {
     fun `Should return the photos of a gym`() {
         val now = Date().time
         val gym = this.mockGym()
-        val saved = this.gymImageDAO.saveAll((1..4).map { GymImage("photo$it", gym) }).toList()
+        val saved = this.gymImageDAO.saveAll((1..4).map { GymImage("photo$it", ImageType.profile, gym) }).toList()
 
         val result = this.imageService.getPhotosOfGym(gym.id)
         Assertions.assertThat(result.size).isEqualTo(4)
@@ -79,7 +80,7 @@ GymImageServiceTest : AbstractControllerTest() {
         val name = "photo1"
         val gym = this.mockGym()
         val image = this.createMockImage(name, "dnansda")
-        this.imageService.setImage(gym.id, image, name)
+        this.imageService.setImage(gym.id, image, name, ImageType.profile)
         val saved = this.gymImageDAO.findByGym(gym)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         Assertions.assertThat(saved.size).isEqualTo(1)
@@ -90,16 +91,16 @@ GymImageServiceTest : AbstractControllerTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when adding the photo of a gym if the gym does not exist`() {
-        this.imageService.setImage(-1, this.createMockImage("name", "content"), "photo1")
+        this.imageService.setImage(-1, this.createMockImage("name", "content"), "photo1", ImageType.profile)
     }
 
     @Test
     fun `Should override the photo of a gym`() {
         val gym = this.mockGym()
         val name = "name"
-        this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
+        this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name, ImageType.profile)
         Assertions.assertThat(this.imageService.contains(name)).isTrue()
-        this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
+        this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name, ImageType.profile)
         Assertions.assertThat(this.imageService.contains(name)).isTrue()
     }
 
@@ -108,16 +109,17 @@ GymImageServiceTest : AbstractControllerTest() {
         val gym1 = this.mockGym()
         val gym2 = this.gymDAO.save(Gym("gym2", "address2", gym1.city))
         val name = "name"
-        this.imageService.setImage(gym1.id, this.createMockImage(name, "content"), name)
+        this.imageService.setImage(gym1.id, this.createMockImage(name, "content"), name, ImageType.profile)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
-        this.imageService.setImage(gym2.id, this.createMockImage(name, "content"), name)
+        this.imageService.setImage(gym2.id, this.createMockImage(name, "content"), name, ImageType.profile)
     }
 
     @Test
     fun `Should delete an image`() {
         val gym = this.mockGym()
         val name = "name"
-        val saved = this.imageService.setImage(gym.id, this.createMockImage(name, "content"), name)
+        val saved = this.imageService.setImage(gym.id, this.createMockImage(name, "content"),
+                name, ImageType.profile)
         Assertions.assertThat(this.gymImageDAO.count()).isEqualTo(1)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         this.imageService.deleteImage(saved.id)

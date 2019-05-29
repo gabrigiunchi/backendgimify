@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.model.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.GymImageService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -28,6 +29,12 @@ class GymImageController(private val gymImageService: GymImageService) {
         return ResponseEntity(this.gymImageService.getPhotosOfGym(id), HttpStatus.OK)
     }
 
+    @GetMapping("/{id}/avatar/")
+    fun getAvatarOfGym(@PathVariable id: Int): ResponseEntity<ByteArray> {
+        this.logger.info("GET avatar of gym $id")
+        return ResponseEntity(this.gymImageService.getAvatarOfGym(id), HttpStatus.OK)
+    }
+
     @GetMapping("/photos/{imageId}")
     fun getPhoto(@PathVariable imageId: String): ResponseEntity<ByteArray> {
         this.logger.info("GET image $imageId")
@@ -46,7 +53,16 @@ class GymImageController(private val gymImageService: GymImageService) {
                  @PathVariable name: String,
                  @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
         this.logger.info("POST photo of gym $id")
-        return ResponseEntity(this.gymImageService.setImage(id, image, name), HttpStatus.CREATED)
+        return ResponseEntity(this.gymImageService.setImage(id, image, name, ImageType.profile), HttpStatus.CREATED)
+    }
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    @RequestMapping("/{id}/avatar/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
+    fun setAvatar(@PathVariable id: Int,
+                  @PathVariable name: String,
+                  @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
+        this.logger.info("POST avatar of gym $id")
+        return ResponseEntity(this.gymImageService.setAvatar(id, image, name), HttpStatus.CREATED)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

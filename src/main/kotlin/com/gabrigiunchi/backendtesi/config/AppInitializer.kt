@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
@@ -200,7 +201,7 @@ class AppInitializer {
         this.logger.info("Init gym images")
         for (i in 0 until this.gyms.size) {
             val gym = this.gyms[i]
-            this.gymImageDAO.saveAll(((1..4).map { GymImage("gym${i + 1} $it.jpg", gym) }))
+            this.gymImageDAO.saveAll(((1..4).map { GymImage("gym${i + 1} $it.jpg", ImageType.profile, gym) }))
         }
     }
 

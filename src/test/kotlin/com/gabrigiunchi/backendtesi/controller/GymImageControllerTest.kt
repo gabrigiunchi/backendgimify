@@ -9,6 +9,7 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.GymImageDAO
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.GymImage
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
@@ -156,7 +157,7 @@ class GymImageControllerTest : AbstractControllerTest() {
     @Test
     fun `Should delete a photo`() {
         val imageId = "photo1.jpg"
-        this.gymImageDAO.save(GymImage(imageId, this.mockGym()))
+        this.gymImageDAO.save(GymImage(imageId, ImageType.profile, this.mockGym()))
         this.mockImage(imageId, "content")
         Assertions.assertThat(this.gymImageDAO.findById(imageId).isPresent).isTrue()
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/photos/$imageId"))

@@ -1,5 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import java.util.*
@@ -10,6 +11,8 @@ import javax.persistence.ManyToOne
 class GymImage(
         id: String,
 
+        val type: ImageType,
+
         @ManyToOne
         @OnDelete(action = OnDeleteAction.CASCADE)
         val gym: Gym,
@@ -17,5 +20,5 @@ class GymImage(
         lastModified: Long
 ) : Image(id, lastModified) {
 
-    constructor(id: String, gym: Gym) : this(id, gym, Date().time)
+    constructor(id: String, type: ImageType, gym: Gym) : this(id, type, gym, Date().time)
 }
