@@ -35,17 +35,20 @@ class GymImageService(
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
-    fun getAvatarOfGym(gymId: Int): ByteArray {
+    fun getAvatarMetadataOfGym(gymId: Int): ImageMetadata {
         return this.gymDAO.findById(gymId)
                 .map {
                     val avatar = this.gymImageDAO.findByGymAndType(it, ImageType.avatar).map { image ->
                         ImageMetadata(image.id, image.lastModified)
                     }
 
-                    val metadata = if (avatar.isNotEmpty()) avatar.first() else DEFAULT_GYM_AVATAR
-                    this.download(metadata.id)
+                    if (avatar.isNotEmpty()) avatar.first() else DEFAULT_GYM_AVATAR
                 }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+    }
+
+    fun getAvatarOfGym(gymId: Int): ByteArray {
+        return this.download(this.getAvatarMetadataOfGym(gymId).id)
     }
 
     fun setAvatar(gymId: Int, image: MultipartFile, imageId: String): ImageMetadata {

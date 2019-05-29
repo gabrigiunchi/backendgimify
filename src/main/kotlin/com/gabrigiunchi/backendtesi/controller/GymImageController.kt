@@ -35,6 +35,12 @@ class GymImageController(private val gymImageService: GymImageService) {
         return ResponseEntity(this.gymImageService.getAvatarOfGym(id), HttpStatus.OK)
     }
 
+    @GetMapping("/{id}/avatar/metadata")
+    fun getAvatarMetadataOfGym(@PathVariable id: Int): ResponseEntity<ImageMetadata> {
+        this.logger.info("GET avatar metadata of gym $id")
+        return ResponseEntity(this.gymImageService.getAvatarMetadataOfGym(id), HttpStatus.OK)
+    }
+
     @GetMapping("/photos/{imageId}")
     fun getPhoto(@PathVariable imageId: String): ResponseEntity<ByteArray> {
         this.logger.info("GET image $imageId")
