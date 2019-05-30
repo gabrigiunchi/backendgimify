@@ -202,6 +202,7 @@ class AppInitializer {
         for (i in 0 until this.gyms.size) {
             val gym = this.gyms[i]
             this.gymImageDAO.saveAll(((1..4).map { GymImage("gym${i + 1} $it.jpg", ImageType.profile, gym) }))
+            this.gymImageDAO.save(GymImage("avatargym$i", ImageType.avatar, gym))
         }
     }
 
