@@ -26,7 +26,7 @@ class GymController(private val gymDAO: GymDAO,
     @GetMapping
     fun getAllGyms(): ResponseEntity<Iterable<Gym>> {
         this.logger.info("GET all gyms")
-        return ResponseEntity(this.gymDAO.findAll(), HttpStatus.OK)
+        return ResponseEntity(this.gymDAO.findAll().sortedBy(Gym::name), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")

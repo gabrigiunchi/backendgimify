@@ -55,17 +55,21 @@ class GymControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should get all the gyms`() {
+    fun `Should get all the gyms in alphabetical order`() {
         this.gymDAO.saveAll(listOf(
-                Gym("gym1", "address", this.city),
                 Gym("gym2", "address", this.city),
-                Gym("gym3", "address", this.city),
-                Gym("gym4", "address", this.city)
+                Gym("gym1", "address", this.city),
+                Gym("gym4", "address", this.city),
+                Gym("gym3", "address", this.city)
         ))
         this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.GYMS)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name", Matchers.`is`("gym1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name", Matchers.`is`("gym2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].name", Matchers.`is`("gym3")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[3].name", Matchers.`is`("gym4")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
