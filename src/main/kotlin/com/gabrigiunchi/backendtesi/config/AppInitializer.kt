@@ -200,7 +200,7 @@ class AppInitializer {
     private fun initImages() {
         this.logger.info("Init gym images")
         for (i in 1..this.gyms.size) {
-            val gym = this.gyms[i]
+            val gym = this.gyms[i - 1]
             this.gymImageDAO.saveAll(((1..4).map { GymImage("gym$i $it.jpg", ImageType.profile, gym) }))
             this.gymImageDAO.save(GymImage("avatargym$i.jpg", ImageType.avatar, gym))
         }
