@@ -29,7 +29,7 @@ class GymImageController(private val gymImageService: GymImageService) {
         return ResponseEntity(this.gymImageService.getPhotosOfGym(id), HttpStatus.OK)
     }
 
-    @GetMapping("/{id}/avatar/")
+    @GetMapping("/{id}/avatar")
     fun getAvatarOfGym(@PathVariable id: Int): ResponseEntity<ByteArray> {
         this.logger.info("GET avatar of gym $id")
         return ResponseEntity(this.gymImageService.getAvatarOfGym(id), HttpStatus.OK)

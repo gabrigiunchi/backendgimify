@@ -10,6 +10,7 @@ import com.gabrigiunchi.backendtesi.dao.GymImageDAO
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.GymImage
 import com.gabrigiunchi.backendtesi.model.type.ImageType
+import com.gabrigiunchi.backendtesi.service.GymImageService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
@@ -172,6 +173,71 @@ class GymImageControllerTest : AbstractControllerTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/photos/$name"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("image $name does not exist")))
+    }
+
+    @Test
+    fun `Should get the avatar of a gym`() {
+        val gym = this.mockGym()
+        val image = this.gymImageDAO.save(GymImage("avatar1.png", ImageType.avatar, gym))
+        val content = "dnasjndjk"
+        this.mockImage(image.id, content)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/avatar")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(content)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get the avatar metadata of a gym`() {
+        val gym = this.mockGym()
+        val metadata = this.gymImageDAO.save(GymImage("avatar1", ImageType.avatar, gym))
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/avatar/metadata")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(metadata.id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get the default avatar metadata of a gym`() {
+        val gym = this.mockGym()
+        val metadata = GymImageService.DEFAULT_GYM_AVATAR
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/avatar/metadata")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(metadata.id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should set the avatar of a gym`() {
+        val gym = this.mockGym()
+        val name = "photo1.jpg"
+        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.GYMS}/${gym.id}/avatar/$name")
+                .file(this.mockImage(name, "content")))
+                .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(name)))
+
+        Assertions.assertThat(this.gymImageDAO.count()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Should not set the avatar of a gym if the gym does not exit`() {
+        val name = "photo1.jpg"
+        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.GYMS}/-1/avatar/$name")
+                .file(this.mockImage(name, "content")))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+    }
+
+    @Test
+    fun `Should not get the avatar metadata of a gym if it does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/-1/avatar/metadata")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
     }
 
     private fun mockGym(): Gym {

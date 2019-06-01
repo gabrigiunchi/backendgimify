@@ -115,6 +115,48 @@ GymImageServiceTest : AbstractControllerTest() {
         this.imageService.setImage(gym2.id, this.createMockImage(name, "content"), name, ImageType.profile)
     }
 
+    /************************** AVATAR *********************************************/
+    @Test
+    fun `Should upload an avatar for a gym`() {
+        val now = Date().time
+        val name = "photo1"
+        val gym = this.mockGym()
+        val image = this.createMockImage(name, "dnansda")
+        this.imageService.setAvatar(gym.id, image, name)
+        val saved = this.gymImageDAO.findByGym(gym)
+        Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
+        Assertions.assertThat(saved.size).isEqualTo(1)
+        Assertions.assertThat(saved[0].id).isEqualTo(name)
+        Assertions.assertThat(saved[0].gym.id).isEqualTo(gym.id)
+        Assertions.assertThat(saved[0].lastModified).isGreaterThanOrEqualTo(now)
+        Assertions.assertThat(saved[0].type).isEqualTo(ImageType.avatar)
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should throw an exception when setting the avatar of a gym if the gym does not exist`() {
+        this.imageService.setAvatar(-1, this.createMockImage("name", "content"), "photo1")
+    }
+
+    @Test
+    fun `Should set the avatar of a gym`() {
+        val gym = this.mockGym()
+        val name = "name"
+        this.imageService.setAvatar(gym.id, this.createMockImage(name, "content"), name)
+        Assertions.assertThat(this.imageService.contains(name)).isTrue()
+        this.imageService.setAvatar(gym.id, this.createMockImage(name, "content"), name)
+        Assertions.assertThat(this.imageService.contains(name)).isTrue()
+    }
+
+    @Test(expected = ResourceAlreadyExistsException::class)
+    fun `Should not be possible to add two avatars with the same name for different gyms`() {
+        val gym1 = this.mockGym()
+        val gym2 = this.gymDAO.save(Gym("gym2", "address2", gym1.city))
+        val name = "name"
+        this.imageService.setAvatar(gym1.id, this.createMockImage(name, "content"), name)
+        Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
+        this.imageService.setAvatar(gym2.id, this.createMockImage(name, "content"), name)
+    }
+
     @Test
     fun `Should delete an image`() {
         val gym = this.mockGym()

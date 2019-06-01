@@ -22,7 +22,7 @@ class GymImageService(
 
 
     companion object {
-        private val DEFAULT_GYM_AVATAR = ImageMetadata("gymdefault.jpg", 0)
+        val DEFAULT_GYM_AVATAR = ImageMetadata("gymdefault.jpg", 0)
     }
 
     fun getPhotosOfGym(gymId: Int): List<ImageMetadata> {
