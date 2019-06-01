@@ -16,4 +16,5 @@ class City(
         val zoneId: ZoneId
 ) {
     constructor(city: CityEnum) : this(-1, city.fullName, ZoneId.of(city.zoneId))
+    constructor(name: String, zoneId: ZoneId) : this(-1, name, zoneId)
 }

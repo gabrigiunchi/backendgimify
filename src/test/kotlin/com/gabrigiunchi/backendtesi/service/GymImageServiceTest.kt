@@ -87,6 +87,7 @@ GymImageServiceTest : AbstractControllerTest() {
         Assertions.assertThat(saved[0].id).isEqualTo(name)
         Assertions.assertThat(saved[0].gym.id).isEqualTo(gym.id)
         Assertions.assertThat(saved[0].lastModified).isGreaterThanOrEqualTo(now)
+        Assertions.assertThat(saved[0].type).isEqualTo(ImageType.profile)
     }
 
     @Test(expected = ResourceNotFoundException::class)

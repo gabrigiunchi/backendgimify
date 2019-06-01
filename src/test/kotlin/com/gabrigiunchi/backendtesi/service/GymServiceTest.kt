@@ -7,14 +7,19 @@ import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.MockBean
 
 class GymServiceTest : AbstractControllerTest() {
 
@@ -36,8 +41,13 @@ class GymServiceTest : AbstractControllerTest() {
     @Autowired
     private lateinit var userDAO: UserDAO
 
+    @MockBean
+    private lateinit var mockMapsService: MapsService
+
+
     @Before
     fun clearDB() {
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(LatLng(10.0, 10.0))
         this.gymDAO.deleteAll()
         this.cityDAO.deleteAll()
         this.commentDAO.deleteAll()
@@ -70,12 +80,20 @@ class GymServiceTest : AbstractControllerTest() {
         this.gymService.calculateRatingOfGym(-1)
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun `Should not create a gym if the address is not found`() {
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(null)
+        this.gymService.saveGym(GymDTOInput("gym", "dnsadas", this.mockCity.id))
+    }
+
     private fun mockUser(): User {
         return this.userDAO.save(this.userFactory.createRegularUser("adsa", "jns", "jnj", "njnj"))
     }
 
     private fun mockGym(): Gym {
-        val city = this.cityDAO.save(MockEntities.mockCities[0])
-        return this.gymDAO.save(Gym("gym1", "address1", city))
+        return this.gymDAO.save(Gym("gym1", "address1", this.mockCity))
     }
+
+    private val mockCity: City
+        get() = this.cityDAO.save(MockEntities.mockCities[0])
 }

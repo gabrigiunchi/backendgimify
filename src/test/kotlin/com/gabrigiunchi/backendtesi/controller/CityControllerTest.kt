@@ -5,24 +5,35 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.model.City
+import com.gabrigiunchi.backendtesi.model.dto.input.CityDTOInput
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
+import com.gabrigiunchi.backendtesi.service.MapsService
+import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import java.time.ZoneId
 
 class CityControllerTest : AbstractControllerTest() {
 
     @Autowired
     private lateinit var cityDAO: CityDAO
 
+    @MockBean
+    private lateinit var mockMapsService: MapsService
+
     @Before
     fun clearDB() {
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(LatLng(10.0, 10.0))
+        Mockito.`when`(mockMapsService.getTimezone(LatLng(10.0, 10.0))).thenReturn(ZoneId.of("UTC"))
         this.cityDAO.deleteAll()
     }
 
@@ -81,25 +92,13 @@ class CityControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a city`() {
-        val city = City(CityEnum.LOS_ANGELES)
+        val city = CityDTOInput("Los Angeles")
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(city)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`("Los Angeles")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`(city.zoneId.toString())))
-                .andDo(MockMvcResultHandlers.print())
-
-        Assertions.assertThat(this.cityDAO.count()).isEqualTo(1)
-    }
-
-    @Test
-    fun `Should not create a city if its id already exist`() {
-        val city = this.mockCity()
-        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json(city)))
-                .andExpect(MockMvcResultMatchers.status().isConflict)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`("UTC"))) // because of mock
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.cityDAO.count()).isEqualTo(1)
@@ -118,6 +117,19 @@ class CityControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.cityDAO.count()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Should not create a city if it does not exist`() {
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(null)
+        val name = "dkjasndas"
+        val city = CityDTOInput(name)
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(city)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city $name not found")))
+                .andDo(MockMvcResultHandlers.print())
     }
 
     @Test

@@ -7,7 +7,7 @@ import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
-import com.gabrigiunchi.backendtesi.service.GeocodingService
+import com.gabrigiunchi.backendtesi.service.MapsService
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions
@@ -16,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
@@ -41,13 +42,15 @@ class GymControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
 
+    @MockBean
+    private lateinit var mockMapsService: MapsService
+
+
     private var city = City(CityEnum.NEW_YORK)
 
     @Before
     fun clearDB() {
-        val mockGeocodingService = Mockito.mock(GeocodingService::class.java)
-        Mockito.`when`(mockGeocodingService.geocode(Mockito.anyString())).thenReturn(LatLng(10.0, 10.0))
-
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(LatLng(10.0, 10.0))
         this.timetableDAO.deleteAll()
         this.cityDAO.deleteAll()
         this.city = this.cityDAO.save(this.city)
@@ -204,6 +207,20 @@ class GymControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should not create a gym if the address does not exist`() {
+        this.cityDAO.deleteAll()
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(null)
+        val address = "djksanjdna"
+        val gym = GymDTOInput("A", address, this.mockCity.id)
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.GYMS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(gym)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("address $address does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should delete a gym`() {
         val gym = this.gymDAO.save(Gym("gym dsjad", "address", this.city))
         this.timetableDAO.save(Timetable(gym))
@@ -275,7 +292,9 @@ class GymControllerTest : AbstractControllerTest() {
     }
 
     private fun mockGym(): Gym {
-        val city = this.cityDAO.save(MockEntities.mockCities[0])
-        return this.gymDAO.save(Gym("gym1", "address1", city))
+        return this.gymDAO.save(Gym("gym1", "address1", this.mockCity))
     }
+
+    private val mockCity: City
+        get() = this.cityDAO.save(MockEntities.mockCities[0])
 }

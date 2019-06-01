@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class GymService(
         private val gymDAO: GymDAO,
         private val cityDAO: CityDAO,
-        private val geocodingService: GeocodingService,
+        private val mapsService: MapsService,
         private val commentDAO: CommentDAO) {
 
     fun saveGym(gym: GymDTOInput): Gym {
@@ -25,7 +25,8 @@ class GymService(
         val city = this.cityDAO.findById(gym.cityId)
                 .orElseThrow { ResourceNotFoundException("city ${gym.cityId} does not exist") }
 
-        val location = this.geocodingService.geocode("${gym.address} ${city.name}")
+        val location = this.mapsService.geocode("${gym.address} ${city.name}")
+                ?: throw IllegalArgumentException("address ${gym.address} does not exist")
         return this.gymDAO.save(Gym(gym.name, gym.address, city, location.lat, location.lng))
     }
 
