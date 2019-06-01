@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.model.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.GymImageService
 import org.slf4j.LoggerFactory
@@ -18,13 +18,13 @@ class GymImageController(private val gymImageService: GymImageService) {
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/photos")
-    fun getAllMetadata(): ResponseEntity<Collection<ImageMetadata>> {
+    fun getAllMetadata(): ResponseEntity<Collection<Image>> {
         this.logger.info("GET all images")
         return ResponseEntity(this.gymImageService.getAllMetadata(), HttpStatus.OK)
     }
 
     @GetMapping("/{id}/photos")
-    fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
+    fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<Image>> {
         this.logger.info("GET photos of gym $id")
         return ResponseEntity(this.gymImageService.getPhotosOfGym(id), HttpStatus.OK)
     }
@@ -36,7 +36,7 @@ class GymImageController(private val gymImageService: GymImageService) {
     }
 
     @GetMapping("/{id}/avatar/metadata")
-    fun getAvatarMetadataOfGym(@PathVariable id: Int): ResponseEntity<ImageMetadata> {
+    fun getAvatarMetadataOfGym(@PathVariable id: Int): ResponseEntity<Image> {
         this.logger.info("GET avatar metadata of gym $id")
         return ResponseEntity(this.gymImageService.getAvatarMetadataOfGym(id), HttpStatus.OK)
     }
@@ -48,7 +48,7 @@ class GymImageController(private val gymImageService: GymImageService) {
     }
 
     @GetMapping("/photos/{imageId}/metadata")
-    fun getMetadataOfPhoto(@PathVariable imageId: String): ResponseEntity<ImageMetadata> {
+    fun getMetadataOfPhoto(@PathVariable imageId: String): ResponseEntity<Image> {
         this.logger.info("GET metadata of image $imageId")
         return ResponseEntity(this.gymImageService.getImageMetadata(imageId), HttpStatus.OK)
     }
@@ -57,7 +57,7 @@ class GymImageController(private val gymImageService: GymImageService) {
     @RequestMapping("/{id}/photos/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
     fun addPhoto(@PathVariable id: Int,
                  @PathVariable name: String,
-                 @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
+                 @RequestBody image: MultipartFile): ResponseEntity<Image> {
         this.logger.info("POST photo of gym $id")
         return ResponseEntity(this.gymImageService.setImage(id, image, name, ImageType.profile), HttpStatus.CREATED)
     }
@@ -66,7 +66,7 @@ class GymImageController(private val gymImageService: GymImageService) {
     @RequestMapping("/{id}/avatar/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
     fun setAvatar(@PathVariable id: Int,
                   @PathVariable name: String,
-                  @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
+                  @RequestBody image: MultipartFile): ResponseEntity<Image> {
         this.logger.info("POST avatar of gym $id")
         return ResponseEntity(this.gymImageService.setAvatar(id, image, name), HttpStatus.CREATED)
     }

@@ -4,7 +4,7 @@ import com.gabrigiunchi.backendtesi.dao.AvatarDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Avatar
-import com.gabrigiunchi.backendtesi.model.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.Image
 import com.gabrigiunchi.backendtesi.model.User
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -21,17 +21,17 @@ class AvatarService(private val userDAO: UserDAO,
 
 
     companion object {
-        val DEFAULT_AVATAR_METADATA = ImageMetadata("default", 0)
+        val DEFAULT_AVATAR_METADATA = Image("default", 0)
         const val PRESET_PREFIX = "preset"
     }
 
-    val presetAvatars: List<ImageMetadata>
+    val presetAvatars: List<Image>
         get() = this.getAllMetadataWithPrefix(PRESET_PREFIX)
 
-    fun getAvatarMetadataOfUser(username: String): ImageMetadata {
+    fun getAvatarMetadataOfUser(username: String): Image {
         val user = this.getUser(username)
         return this.avatarDAO.findByUser(user)
-                .map { ImageMetadata(it.id, it.lastModified) }
+                .map { Image(it.id, it.lastModified) }
                 .orElseGet { DEFAULT_AVATAR_METADATA }
     }
 
@@ -39,7 +39,7 @@ class AvatarService(private val userDAO: UserDAO,
         return this.download(this.getAvatarMetadataOfUser(username).id)
     }
 
-    fun setAvatarOfUser(username: String, image: MultipartFile): ImageMetadata {
+    fun setAvatarOfUser(username: String, image: MultipartFile): Image {
         val user = this.getUser(username)
         val avatarId = this.avatarDAO.findByUser(user).map { it.id }.orElseGet { "${randomName()}${user.id}" }
         val metadata = this.upload(image, avatarId)

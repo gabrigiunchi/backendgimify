@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.Image
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
@@ -15,21 +15,21 @@ open class ImageService(
         return this.objectStorageService.createClient().doesObjectExist(this.bucketName, image)
     }
 
-    fun getAllMetadata(): List<ImageMetadata> {
+    fun getAllMetadata(): List<Image> {
         return this.objectStorageService.createClient()
                 .listObjectsV2(this.bucketName)
                 .objectSummaries
-                .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
+                .map { summary -> Image(summary.key, summary.lastModified.time) }
     }
 
-    fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> {
+    fun getAllMetadataWithPrefix(prefix: String): List<Image> {
         return this.objectStorageService.createClient()
                 .listObjectsV2(this.bucketName, prefix)
                 .objectSummaries
-                .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
+                .map { summary -> Image(summary.key, summary.lastModified.time) }
     }
 
-    fun getImageMetadata(id: String): ImageMetadata {
+    fun getImageMetadata(id: String): Image {
         val client = this.objectStorageService.createClient()
 
         if (!client.doesObjectExist(this.bucketName, id)) {
@@ -37,7 +37,7 @@ open class ImageService(
         }
 
         val metadata = client.getObjectMetadata(this.bucketName, id)
-        return ImageMetadata(id, metadata.lastModified.time)
+        return Image(id, metadata.lastModified.time)
     }
 
     fun download(id: String): ByteArray {
@@ -52,12 +52,12 @@ open class ImageService(
                 .readAllBytes()
     }
 
-    fun upload(image: MultipartFile, id: String): ImageMetadata {
+    fun upload(image: MultipartFile, id: String): Image {
         val client = this.objectStorageService.createClient()
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
         client.putObject(this.bucketName, id, image.inputStream, metadata).metadata
-        return ImageMetadata(id, Date().time)
+        return Image(id, Date().time)
     }
 
     open fun deleteImage(id: String) {
