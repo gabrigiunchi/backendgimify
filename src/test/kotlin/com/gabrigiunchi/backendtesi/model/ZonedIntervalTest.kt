@@ -54,19 +54,19 @@ class ZonedIntervalTest {
     fun `Should convert into a local interval`() {
         val interval = ZonedInterval("2019-05-23T10:00:00+00:00", "2019-05-23T12:00:00+00:00")
 
-        var localInterval = interval.toInterval(ZoneId.of("UTC"))
+        var localInterval = interval.toLocalInterval(ZoneId.of("UTC"))
         Assertions.assertThat(localInterval.start.toString()).isEqualTo("2019-05-23T10:00")
         Assertions.assertThat(localInterval.end.toString()).isEqualTo("2019-05-23T12:00")
 
-        localInterval = interval.toInterval(ZoneId.of("Europe/Rome"))
+        localInterval = interval.toLocalInterval(ZoneId.of("Europe/Rome"))
         Assertions.assertThat(localInterval.start.toString()).isEqualTo("2019-05-23T12:00")
         Assertions.assertThat(localInterval.end.toString()).isEqualTo("2019-05-23T14:00")
 
-        localInterval = interval.toInterval(ZoneId.of("America/New_York"))
+        localInterval = interval.toLocalInterval(ZoneId.of("America/New_York"))
         Assertions.assertThat(localInterval.start.toString()).isEqualTo("2019-05-23T06:00")
         Assertions.assertThat(localInterval.end.toString()).isEqualTo("2019-05-23T08:00")
 
-        localInterval = interval.toInterval(ZoneId.of("America/Los_Angeles"))
+        localInterval = interval.toLocalInterval(ZoneId.of("America/Los_Angeles"))
         Assertions.assertThat(localInterval.start.toString()).isEqualTo("2019-05-23T03:00")
         Assertions.assertThat(localInterval.end.toString()).isEqualTo("2019-05-23T05:00")
     }

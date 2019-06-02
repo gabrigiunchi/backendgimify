@@ -17,7 +17,7 @@ class ZonedInterval(override val start: OffsetDateTime, override val end: Offset
     override fun contains(interval: Interval<OffsetDateTime>): Boolean = this.contains(interval.start) && this.contains(interval.end)
     override fun overlaps(interval: Interval<OffsetDateTime>): Boolean = !(this.end <= interval.start || interval.end <= this.start)
 
-    fun toInterval(zoneId: ZoneId): LocalInterval =
+    fun toLocalInterval(zoneId: ZoneId): LocalInterval =
             LocalInterval(this.start.atZoneSameInstant(zoneId).toLocalDateTime(),
                     this.end.atZoneSameInstant(zoneId).toLocalDateTime())
 

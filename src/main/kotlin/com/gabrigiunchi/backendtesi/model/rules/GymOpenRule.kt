@@ -18,7 +18,7 @@ class GymOpenRule(private val timetableDAO: TimetableDAO) : Rule<Pair<Gym, Zoned
         val timetable = this.timetableDAO.findByGym(element.first)
         return timetable.isPresent && timetable.get()
                 .contains(ZonedInterval(element.second.start, element.second.end)
-                        .toInterval(element.first.city.zoneId))
+                        .toLocalInterval(element.first.city.zoneId))
     }
 
 
