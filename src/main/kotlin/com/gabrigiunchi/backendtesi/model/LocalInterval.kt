@@ -20,8 +20,8 @@ open class LocalInterval(
     constructor(start: String, end: String) : this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end))
 
     init {
-        if (this.start > this.end) {
-            throw IllegalArgumentException("start is before the end")
+        if (this.start >= this.end) {
+            throw IllegalArgumentException("start is after the end")
         }
     }
 

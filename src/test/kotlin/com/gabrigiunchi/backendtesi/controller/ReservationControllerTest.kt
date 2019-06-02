@@ -675,8 +675,8 @@ class ReservationControllerTest : AbstractControllerTest() {
         val gym = this.mockGym()
         this.timetableDAO.save(Timetable(gym, MockEntities.wildcardOpenings))
         val asset = this.mockAsset(gym)
-        var from = OffsetDateTime.parse("2050-04-04T10:00:00+00:00")
-        var to = from.minusMinutes(10)
+        var from = OffsetDateTime.parse("2010-04-04T10:00:00+00:00")
+        var to = from.plusMinutes(10)
         var url = "${ApiUrls.RESERVATIONS}/available/asset/${asset.id}/from/$from/to/$to"
 
         mockMvc.perform(MockMvcRequestBuilders.get(url)

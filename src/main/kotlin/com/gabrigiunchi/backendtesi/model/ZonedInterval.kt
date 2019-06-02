@@ -8,8 +8,8 @@ class ZonedInterval(override val start: OffsetDateTime, override val end: Offset
     constructor(start: String, end: String) : this(OffsetDateTime.parse(start), OffsetDateTime.parse(end))
 
     init {
-        if (this.start > this.end) {
-            throw IllegalArgumentException("start is before the end")
+        if (this.start >= this.end) {
+            throw IllegalArgumentException("start is after the end")
         }
     }
 
