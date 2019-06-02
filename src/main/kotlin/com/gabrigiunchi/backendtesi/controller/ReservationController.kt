@@ -139,14 +139,13 @@ class ReservationController(
                 HttpStatus.OK)
     }
 
-    @GetMapping("/me/from/{from}")
-    fun getAllFutureReservationsOfLoggedUser(
-            @PathVariable from: String): ResponseEntity<Collection<ReservationDTOOutput>> {
+    @GetMapping("/me/future")
+    fun getAllFutureReservationsOfLoggedUser(): ResponseEntity<Collection<ReservationDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all future reservations of user #${user.id}")
         return ResponseEntity(
                 this.reservationDAO
-                        .findByUserAndEndAfterAndActive(user, OffsetDateTime.parse(from), true)
+                        .findByUserAndEndAfterAndActive(user, OffsetDateTime.now(), true)
                         .map { ReservationDTOOutput(it) },
                 HttpStatus.OK)
     }

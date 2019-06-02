@@ -28,4 +28,7 @@ class Reservation(
 ) {
     constructor(asset: Asset, user: User, start: OffsetDateTime, end: OffsetDateTime) :
             this(-1, asset, user, start, end, OffsetDateTime.now(), true)
+
+    constructor(asset: Asset, user: User, start: OffsetDateTime, end: OffsetDateTime, active: Boolean) :
+            this(-1, asset, user, start, end, OffsetDateTime.now(), active)
 }

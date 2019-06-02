@@ -351,19 +351,25 @@ class ReservationControllerTest : AbstractControllerTest() {
                 this.mockAsset(gym, "a4")
         )
 
+        val start = OffsetDateTime.now().plusDays(1)
+        val end = start.plusMinutes(1)
         val reservations = this.reservationDAO.saveAll(listOf(
                 Reservation(assets[0], user1, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
-                Reservation(assets[1], user1, OffsetDateTime.parse("2022-01-01T10:00:00+00:00"), OffsetDateTime.parse("2022-01-01T12:00:00+00:00")),
-                Reservation(assets[0], user2, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
-                Reservation(assets[3], user2, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
+                Reservation(assets[0], user1, start, end),
+                Reservation(assets[3], user1, start, end),
+                Reservation(assets[3], user1, start, end, false),
+
+                Reservation(assets[3], user2, start, end),
+                Reservation(assets[3], user2, start, end),
+                Reservation(assets[3], user2, start, end, false)
         )).toList()
 
-        val from = "2019-02-01T00:00:00+00:00"
-        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/from/$from")
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/future")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(reservations[1].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(reservations[2].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
