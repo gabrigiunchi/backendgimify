@@ -20,8 +20,12 @@ class Reservation(
 
         val start: OffsetDateTime,
 
-        val end: OffsetDateTime
+        val end: OffsetDateTime,
+
+        val date: OffsetDateTime,
+        var active: Boolean
 
 ) {
-    constructor(asset: Asset, user: User, start: OffsetDateTime, end: OffsetDateTime) : this(-1, asset, user, start, end)
+    constructor(asset: Asset, user: User, start: OffsetDateTime, end: OffsetDateTime) :
+            this(-1, asset, user, start, end, OffsetDateTime.now(), true)
 }

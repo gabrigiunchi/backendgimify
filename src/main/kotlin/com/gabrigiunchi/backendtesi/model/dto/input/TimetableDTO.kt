@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model.dto.input
 
-import com.gabrigiunchi.backendtesi.model.RepeatedLocalInterval
+import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 
 class TimetableDTO(
         val gymId: Int,

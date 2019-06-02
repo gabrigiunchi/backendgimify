@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.time
 
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import java.time.temporal.Temporal

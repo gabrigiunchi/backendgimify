@@ -14,7 +14,6 @@ import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.OffsetDateTime
-import java.util.*
 
 class ReservationServiceTest : AbstractControllerTest() {
 
@@ -45,9 +44,6 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
 
-    @Autowired
-    private lateinit var reservationLogDAO: ReservationLogDAO
-
     @Value("\${application.reservationThresholdInDays}")
     private var reservationThresholdInDays: Long = 0
 
@@ -61,7 +57,6 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.assetKindDAO.deleteAll()
         this.userDAO.deleteAll()
         this.reservationDAO.deleteAll()
-        this.reservationLogDAO.deleteAll()
 
         this.user = this.userDAO.save(this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi"))
         this.gym = this.mockGym()
@@ -183,17 +178,12 @@ class ReservationServiceTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a reservation`() {
-        val now = Date()
+        val now = OffsetDateTime.now()
         val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
         val end = start.plusMinutes(20)
         val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start, end)
-        val savedReservation = this.reservationService.addReservation(reservationDTO)
-        Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
-        Assertions.assertThat(this.reservationLogDAO.count()).isEqualTo(1)
-        val log = this.reservationLogDAO.findByReservationId(savedReservation.id).get()
-        Assertions.assertThat(log.user.id).isEqualTo(this.user!!.id)
-        Assertions.assertThat(log.reservationId).isEqualTo(savedReservation.id)
-        Assertions.assertThat(log.date.time).isGreaterThanOrEqualTo(now.time)
+        val saved = this.reservationService.addReservation(reservationDTO)
+        Assertions.assertThat(saved.date).isAfterOrEqualTo(now)
     }
 
     @Test
@@ -268,9 +258,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val savedReservation = this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
                 OffsetDateTime.parse("2050-04-11T11:00:00+00:00"), OffsetDateTime.parse("2050-04-11T11:15:00+00:00")))
 
-        this.reservationDAO.delete(savedReservation)
-        Assertions.assertThat(this.reservationDAO.count()).isEqualTo(1)
-
+        this.reservationService.deleteReservation(savedReservation)
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
                 OffsetDateTime.parse("2050-04-18T11:00:00+00:00"), OffsetDateTime.parse("2050-04-18T11:15:00+00:00")))
     }
@@ -694,6 +682,17 @@ class ReservationServiceTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should delete a reservation`() {
+        val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
+        val end = start.plusMinutes(20)
+        val reservationDTO = ReservationDTOInput(this.user!!.id, this.mockAsset().id, start, end)
+        val savedReservation = this.reservationService.addReservation(reservationDTO)
+
+        this.reservationService.deleteReservation(savedReservation)
+        Assertions.assertThat(this.reservationDAO.findById(savedReservation.id).get().active).isFalse()
+    }
+
+    @Test
     fun `Should delete the reservation of a user`() {
         val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
         val end = start.plusMinutes(20)
@@ -701,7 +700,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         val savedReservation = this.reservationService.addReservation(reservationDTO)
 
         this.reservationService.deleteReservationOfUser(this.user!!, savedReservation.id)
-        Assertions.assertThat(this.reservationDAO.findById(savedReservation.id).isEmpty).isTrue()
+        Assertions.assertThat(this.reservationDAO.findById(savedReservation.id).get().active).isFalse()
     }
 
     @Test(expected = ResourceNotFoundException::class)

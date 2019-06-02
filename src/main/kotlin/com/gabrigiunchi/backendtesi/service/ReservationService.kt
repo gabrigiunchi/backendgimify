@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.rules.*
+import com.gabrigiunchi.backendtesi.model.time.ZonedInterval
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -15,7 +16,6 @@ import java.time.format.DateTimeFormatter
 @Service
 class ReservationService(
         private val mailService: MailService,
-        private val reservationLogDAO: ReservationLogDAO,
         private val cityDAO: CityDAO,
         private val gymDAO: GymDAO,
         private val assetKindDAO: AssetKindDAO,
@@ -37,9 +37,6 @@ class ReservationService(
     @Value("\${application.mail.enabled}")
     private var mailEnabled: Boolean = false
 
-    @Value("\${application.zoneId}")
-    private var zoneId: String = "UTC"
-
     fun addReservation(reservationDTO: ReservationDTOInput, userId: Int): Reservation {
         val asset = this.getAsset(reservationDTO.assetID)
         val user = this.getUser(userId)
@@ -52,7 +49,6 @@ class ReservationService(
 
         this.reservationValidator.validate(reservation)
         val savedReservation = this.reservationDAO.save(reservation)
-        this.reservationLogDAO.save(ReservationLog(savedReservation))
 
         if (this.mailEnabled && user.notificationsEnabled) {
             this.sendReservationConfirmationEmail(savedReservation)
@@ -65,16 +61,19 @@ class ReservationService(
         return this.addReservation(reservationDTO, reservationDTO.userID)
     }
 
-    fun deleteReservationOfUser(user: User, reservationId: Int): Reservation {
-        val reservation = this.getReservationOfUser(user, reservationId)
-        this.reservationDAO.delete(reservation)
+    fun deleteReservation(reservation: Reservation): Reservation {
+        reservation.active = false
+        this.reservationDAO.save(reservation)
 
-        if (this.mailEnabled && user.notificationsEnabled) {
+        if (this.mailEnabled && reservation.user.notificationsEnabled) {
             this.sendCancellationConfirmationEmail(reservation)
         }
 
         return reservation
     }
+
+    fun deleteReservationOfUser(user: User, reservationId: Int): Reservation =
+            this.deleteReservation(this.getReservationOfUser(user, reservationId))
 
     fun isAssetAvailable(assetId: Int, start: OffsetDateTime, end: OffsetDateTime): Boolean {
         val interval = ZonedInterval(start, end)
@@ -140,6 +139,7 @@ class ReservationService(
     @Throws(ResourceNotFoundException::class)
     fun getReservationOfUser(user: User, reservationId: Int): Reservation =
             this.reservationDAO.findByIdAndUser(reservationId, user)
+                    .filter { it.active }
                     .orElseThrow { ResourceNotFoundException("reservation $reservationId does not exist or is not owned by user ${user.id}") }
 
     @Throws(ResourceNotFoundException::class)

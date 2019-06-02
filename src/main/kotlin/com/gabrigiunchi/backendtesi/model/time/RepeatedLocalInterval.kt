@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.time
 
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import java.time.DayOfWeek
@@ -27,7 +27,7 @@ class RepeatedLocalInterval(
 
     companion object {
         fun create(dayOfWeek: DayOfWeek, start: String, end: String): RepeatedLocalInterval =
-                this.create(dayOfWeek, LocalTime.parse(start), LocalTime.parse(end))
+                create(dayOfWeek, LocalTime.parse(start), LocalTime.parse(end))
 
         fun create(dayOfWeek: DayOfWeek, start: LocalTime, end: LocalTime): RepeatedLocalInterval {
             val startDate = LocalDateTime.from(dayOfWeek.adjustInto(start.atDate(LocalDate.ofYearDay(2019, 1))))

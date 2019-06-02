@@ -103,7 +103,7 @@ class ReservationDAOTest : AbstractControllerTest() {
                         OffsetDateTime.parse("2100-01-01T12:00:00+00:00")))).toList()
 
         Assertions.assertThat(this.reservationDAO.count()).isEqualTo(5)
-        val result = this.reservationDAO.findByUserAndEndAfter(user1, OffsetDateTime.now()).toList()
+        val result = this.reservationDAO.findByUserAndEndAfterAndActive(user1, OffsetDateTime.now(), true).toList()
         Assertions.assertThat(result.size).isEqualTo(2)
         Assertions.assertThat(result[0].id).isEqualTo(reservations.first().id)
         Assertions.assertThat(result[1].id).isEqualTo(reservations.last().id)

@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.time
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDateTime

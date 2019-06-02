@@ -2,7 +2,7 @@ package com.gabrigiunchi.backendtesi
 
 import com.gabrigiunchi.backendtesi.model.AssetKind
 import com.gabrigiunchi.backendtesi.model.City
-import com.gabrigiunchi.backendtesi.model.RepeatedLocalInterval
+import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import java.time.DayOfWeek

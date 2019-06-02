@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.OffsetDateTime
-import java.util.*
 
 class ReservationControllerTest : AbstractControllerTest() {
 
@@ -44,9 +43,6 @@ class ReservationControllerTest : AbstractControllerTest() {
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
 
-    @Autowired
-    private lateinit var reservationLogDAO: ReservationLogDAO
-
     @Value("\${application.reservationThresholdInDays}")
     private var reservationThresholdInDays: Long = 0
 
@@ -56,7 +52,6 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.reservationDAO.deleteAll()
         this.gymDAO.deleteAll()
         this.assetDAO.deleteAll()
-        this.reservationLogDAO.deleteAll()
         this.timetableDAO.deleteAll()
     }
 
@@ -74,25 +69,29 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should get a reservation by its id`() {
         val reservation = this.reservationDAO.save(
                 Reservation(this.mockAsset(this.mockGym()), this.mockUser(),
-                        OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")))
+                        OffsetDateTime.parse("2018-01-01T10:00:00+00:00"),
+                        OffsetDateTime.parse("2018-01-01T12:00:00+00:00")))
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/${reservation.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(reservation.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(reservation.user.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.asset.id", Matchers.`is`(reservation.asset.id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
-    fun `Should get all reservations of an asset`() {
+    fun `Should get all active reservations of an asset`() {
         val reservations = this.mockReservations()
+        reservations[0].active = false
+        this.reservationDAO.save(reservations[0])
         val asset = reservations[0].asset
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/${asset.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`(reservations[0].id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`(reservations[2].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
@@ -134,9 +133,6 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user.id", Matchers.`is`(reservation.userID)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.asset.id", Matchers.`is`(reservation.assetID)))
                 .andDo(MockMvcResultHandlers.print())
-
-        val logs = this.reservationLogDAO.findByUser(this.userDAO.findById(reservation.userID).get())
-        Assertions.assertThat(logs.size).isEqualTo(1)
     }
 
     @Test
@@ -311,7 +307,10 @@ class ReservationControllerTest : AbstractControllerTest() {
                 Reservation(assets[0], user1, OffsetDateTime.parse("2017-01-01T10:00:00+00:00"), OffsetDateTime.parse("2018-01-01T12:00:00+00:00")),
                 Reservation(assets[1], user1, OffsetDateTime.parse("2018-01-01T10:00:00+00:00"), OffsetDateTime.parse("2019-01-01T12:00:00+00:00")),
                 Reservation(assets[0], user1, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
-                Reservation(assets[3], user1, OffsetDateTime.parse("2020-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00")),
+                Reservation(-1, assets[3], user1,
+                        OffsetDateTime.parse("2020-03-01T10:00:00+00:00"),
+                        OffsetDateTime.parse("2019-03-01T12:00:00+00:00"),
+                        OffsetDateTime.now(), false),
                 Reservation(assets[0], user2, OffsetDateTime.parse("2019-02-01T10:00:00+00:00"), OffsetDateTime.parse("2019-02-01T12:00:00+00:00")),
                 Reservation(assets[3], user2, OffsetDateTime.parse("2019-03-01T10:00:00+00:00"), OffsetDateTime.parse("2019-03-01T12:00:00+00:00"))
         )).toList()
@@ -320,8 +319,8 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`(reservations[3].id)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`(reservations[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`(reservations[2].id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`(reservations[1].id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -329,7 +328,8 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should return the number reservations I made`() {
         this.userDAO.deleteAll()
         val user = this.mockUser("gabrigiunchi")
-        this.reservationLogDAO.saveAll((1..4).map { ReservationLog(-1, user, -1, Date()) })
+        val asset = this.mockAsset(this.mockGym())
+        this.reservationDAO.saveAll((1..4).map { Reservation(asset, user, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(1)) })
 
         mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/count")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -471,7 +471,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
                 .andDo(MockMvcResultHandlers.print())
 
-        Assertions.assertThat(this.reservationDAO.findById(savedId).isEmpty).isTrue()
+        Assertions.assertThat(this.reservationDAO.findById(savedId).get().active).isFalse()
     }
 
     @Test

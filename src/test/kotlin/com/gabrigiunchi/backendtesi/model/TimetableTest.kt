@@ -5,6 +5,8 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
+import com.gabrigiunchi.backendtesi.model.time.LocalInterval
+import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import org.assertj.core.api.Assertions
 import org.junit.Before

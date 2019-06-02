@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.time
 
 import java.time.OffsetDateTime
 import java.time.ZoneId

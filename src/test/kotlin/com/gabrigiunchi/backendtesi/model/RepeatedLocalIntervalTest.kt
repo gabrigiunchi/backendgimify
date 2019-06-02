@@ -1,5 +1,7 @@
 package com.gabrigiunchi.backendtesi.model
 
+import com.gabrigiunchi.backendtesi.model.time.LocalInterval
+import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import org.assertj.core.api.Assertions
 import org.junit.Test

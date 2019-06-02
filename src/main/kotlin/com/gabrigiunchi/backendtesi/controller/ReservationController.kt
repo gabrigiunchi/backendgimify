@@ -2,10 +2,10 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.ReservationDAO
-import com.gabrigiunchi.backendtesi.dao.ReservationLogDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.Asset
+import com.gabrigiunchi.backendtesi.model.Reservation
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.ReservationDTOOutput
 import com.gabrigiunchi.backendtesi.service.ReservationService
@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -26,7 +27,6 @@ import javax.validation.Valid
 class ReservationController(
         private val reservationService: ReservationService,
         private val assetDAO: AssetDAO,
-        private val reservationLogDAO: ReservationLogDAO,
         private val reservationDAO: ReservationDAO,
         val userDAO: UserDAO) : BaseController(userDAO) {
 
@@ -42,10 +42,10 @@ class ReservationController(
     }
 
     @GetMapping("/{id}")
-    fun getReservationById(@PathVariable id: Int): ResponseEntity<ReservationDTOOutput> {
+    fun getReservationById(@PathVariable id: Int): ResponseEntity<Reservation> {
         this.logger.info("GET reservation #$id")
         return this.reservationDAO.findById(id)
-                .map { ResponseEntity(ReservationDTOOutput(it), HttpStatus.OK) }
+                .map { ResponseEntity(it, HttpStatus.OK) }
                 .orElseThrow { ResourceNotFoundException("reservation $id does not exist") }
     }
 
@@ -125,7 +125,7 @@ class ReservationController(
     fun countMyReservations(): ResponseEntity<Int> {
         val user = this.getLoggedUser()
         this.logger.info("GET number of reservations made by logged user (#${user.id})")
-        return ResponseEntity(this.reservationLogDAO.findByUser(user).count(), HttpStatus.OK)
+        return ResponseEntity(this.reservationDAO.findByUserAndActive(user, true, Pageable.unpaged()).count(), HttpStatus.OK)
     }
 
     @GetMapping("/me/page/{page}/size/{size}")
@@ -134,7 +134,7 @@ class ReservationController(
         this.logger.info("GET all reservations of user #${user.id}")
         return ResponseEntity(
                 this.reservationDAO
-                        .findByUser(user, PageRequest.of(page, size, Sort.by("start").descending()))
+                        .findByUserAndActive(user, true, PageRequest.of(page, size, Sort.by("start").descending()))
                         .map { ReservationDTOOutput(it) },
                 HttpStatus.OK)
     }
@@ -146,7 +146,7 @@ class ReservationController(
         this.logger.info("GET all future reservations of user #${user.id}")
         return ResponseEntity(
                 this.reservationDAO
-                        .findByUserAndEndAfter(user, OffsetDateTime.parse(from))
+                        .findByUserAndEndAfterAndActive(user, OffsetDateTime.parse(from), true)
                         .map { ReservationDTOOutput(it) },
                 HttpStatus.OK)
     }

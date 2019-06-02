@@ -1,5 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
+import com.gabrigiunchi.backendtesi.model.time.LocalInterval
 import org.assertj.core.api.Assertions
 import org.junit.Test
 

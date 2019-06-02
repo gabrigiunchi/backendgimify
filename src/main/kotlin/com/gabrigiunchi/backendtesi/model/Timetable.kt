@@ -1,5 +1,7 @@
 package com.gabrigiunchi.backendtesi.model
 
+import com.gabrigiunchi.backendtesi.model.time.LocalInterval
+import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import javax.persistence.*

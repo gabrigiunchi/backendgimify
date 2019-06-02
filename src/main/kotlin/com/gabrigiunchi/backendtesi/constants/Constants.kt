@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.constants
 
-import com.gabrigiunchi.backendtesi.model.RepeatedLocalInterval
+import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 
 object Constants {

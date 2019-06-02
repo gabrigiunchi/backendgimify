@@ -12,9 +12,10 @@ import java.util.*
 interface ReservationDAO : PagingAndSortingRepository<Reservation, Int> {
     override fun findAll(pageable: Pageable): Page<Reservation>
     fun findByIdAndUser(id: Int, user: User): Optional<Reservation>
-    fun findByUserAndEndAfter(user: User, date: OffsetDateTime): Collection<Reservation>
+    fun findByUserAndEndAfterAndActive(user: User, date: OffsetDateTime, active: Boolean): Collection<Reservation>
     fun findByAssetAndEndAfter(asset: Asset, date: OffsetDateTime): Collection<Reservation>
     fun findByEndAfter(date: OffsetDateTime): Collection<Reservation>
-    fun findByUser(user: User, pageable: Pageable): Page<Reservation>
+    fun findByUserAndActive(user: User, active: Boolean, pageable: Pageable): Page<Reservation>
     fun findByAsset(asset: Asset): Collection<Reservation>
+    fun findByUserAndDateBetween(user: User, start: OffsetDateTime, end: OffsetDateTime): Collection<Reservation>
 }

@@ -3,9 +3,9 @@ package com.gabrigiunchi.backendtesi
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import org.junit.Assert
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
