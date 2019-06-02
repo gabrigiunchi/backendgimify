@@ -5,6 +5,8 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.Timetable
 import com.gabrigiunchi.backendtesi.model.time.LocalInterval
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType

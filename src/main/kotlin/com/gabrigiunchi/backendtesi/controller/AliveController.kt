@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.entities.User
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize

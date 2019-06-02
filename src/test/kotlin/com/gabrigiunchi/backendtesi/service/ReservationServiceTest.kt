@@ -4,8 +4,8 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.exceptions.*
-import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions

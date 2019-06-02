@@ -5,7 +5,7 @@ import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.AvatarDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.service.AvatarService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
 import com.gabrigiunchi.backendtesi.util.UserFactory

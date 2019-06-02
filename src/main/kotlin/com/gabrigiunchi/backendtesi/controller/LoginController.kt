@@ -3,10 +3,10 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.config.security.JwtTokenProvider
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.AccessDeniedException
-import com.gabrigiunchi.backendtesi.model.UserRole
 import com.gabrigiunchi.backendtesi.model.dto.input.ValidateUserDTO
 import com.gabrigiunchi.backendtesi.model.dto.output.Token
 import com.gabrigiunchi.backendtesi.model.dto.output.UserDTO
+import com.gabrigiunchi.backendtesi.model.entities.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

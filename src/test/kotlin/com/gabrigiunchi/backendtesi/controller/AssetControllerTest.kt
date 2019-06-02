@@ -7,10 +7,10 @@ import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.AssetKind
-import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.Asset
+import com.gabrigiunchi.backendtesi.model.entities.AssetKind
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test

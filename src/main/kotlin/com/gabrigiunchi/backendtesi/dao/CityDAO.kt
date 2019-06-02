@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.dao
 
-import com.gabrigiunchi.backendtesi.model.City
+import com.gabrigiunchi.backendtesi.model.entities.City
 import org.springframework.data.repository.CrudRepository
 import java.util.*
 

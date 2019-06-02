@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.model.rules
 
 import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
-import com.gabrigiunchi.backendtesi.model.Asset
+import com.gabrigiunchi.backendtesi.model.entities.Asset
 import com.gabrigiunchi.backendtesi.model.time.ZonedInterval
 import org.springframework.stereotype.Service
 

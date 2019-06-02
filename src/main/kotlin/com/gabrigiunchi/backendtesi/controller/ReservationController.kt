@@ -4,10 +4,10 @@ import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.ReservationDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.Reservation
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.ReservationDTOOutput
+import com.gabrigiunchi.backendtesi.model.entities.Asset
+import com.gabrigiunchi.backendtesi.model.entities.Reservation
 import com.gabrigiunchi.backendtesi.service.ReservationService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

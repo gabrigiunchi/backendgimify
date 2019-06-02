@@ -1,6 +1,8 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.model.Image
+import com.gabrigiunchi.backendtesi.dao.GymImageDAO
+import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.GymImageService
 import org.slf4j.LoggerFactory
@@ -12,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/v1/gyms")
-class GymImageController(private val gymImageService: GymImageService) {
+class GymImageController(private val gymImageService: GymImageService, private val gymImageDAO: GymImageDAO) {
 
     private val logger = LoggerFactory.getLogger(GymImageController::class.java)
 
@@ -50,7 +52,9 @@ class GymImageController(private val gymImageService: GymImageService) {
     @GetMapping("/photos/{imageId}/metadata")
     fun getMetadataOfPhoto(@PathVariable imageId: String): ResponseEntity<Image> {
         this.logger.info("GET metadata of image $imageId")
-        return ResponseEntity(this.gymImageService.getImageMetadata(imageId), HttpStatus.OK)
+        return ResponseEntity(
+                this.gymImageDAO.findById(imageId).orElseThrow { ResourceNotFoundException("image $imageId does not exist") },
+                HttpStatus.OK)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

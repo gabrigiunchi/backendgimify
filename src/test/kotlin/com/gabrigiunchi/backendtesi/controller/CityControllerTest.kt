@@ -4,8 +4,8 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.dto.input.CityDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.service.MapsService
 import com.google.maps.model.LatLng

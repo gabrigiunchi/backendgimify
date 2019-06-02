@@ -5,8 +5,8 @@ import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 

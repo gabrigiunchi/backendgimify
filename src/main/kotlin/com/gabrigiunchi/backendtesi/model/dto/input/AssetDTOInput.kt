@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model.dto.input
 
-import com.gabrigiunchi.backendtesi.model.Asset
+import com.gabrigiunchi.backendtesi.model.entities.Asset
 
 
 class AssetDTOInput(

@@ -5,8 +5,8 @@ import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.dao.AvatarDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Avatar
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.entities.Avatar
+import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result

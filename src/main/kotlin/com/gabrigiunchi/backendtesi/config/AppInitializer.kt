@@ -2,7 +2,7 @@ package com.gabrigiunchi.backendtesi.config
 
 import com.gabrigiunchi.backendtesi.constants.Constants
 import com.gabrigiunchi.backendtesi.dao.*
-import com.gabrigiunchi.backendtesi.model.*
+import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
@@ -157,7 +157,9 @@ class AppInitializer {
 
     private fun initAssetKinds() {
         this.logger.info("Init asset kinds")
-        this.assetKindDAO.saveAll(AssetKindEnum.values().map { AssetKind(it, this.maxReservationTimes[it] ?: 20) })
+        this.assetKindDAO.saveAll(AssetKindEnum.values().map {
+            AssetKind(it, this.maxReservationTimes[it] ?: 20)
+        })
     }
 
     private fun initAssets() {

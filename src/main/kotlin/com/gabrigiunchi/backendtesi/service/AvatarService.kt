@@ -3,9 +3,9 @@ package com.gabrigiunchi.backendtesi.service
 import com.gabrigiunchi.backendtesi.dao.AvatarDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Avatar
-import com.gabrigiunchi.backendtesi.model.Image
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.entities.Avatar
+import com.gabrigiunchi.backendtesi.model.entities.Image
+import com.gabrigiunchi.backendtesi.model.entities.User
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile

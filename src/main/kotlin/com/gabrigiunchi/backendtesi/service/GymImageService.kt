@@ -4,8 +4,8 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.GymImageDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.GymImage
-import com.gabrigiunchi.backendtesi.model.Image
+import com.gabrigiunchi.backendtesi.model.entities.GymImage
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service

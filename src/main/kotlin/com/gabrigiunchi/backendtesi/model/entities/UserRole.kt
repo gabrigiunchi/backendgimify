@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.entities
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue

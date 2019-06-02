@@ -7,8 +7,8 @@ import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.GymImageDAO
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.GymImage
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.GymImage
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.GymImageService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
@@ -94,12 +94,12 @@ class GymImageControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get the metadata of an image`() {
-        val name = "a.png"
-        this.mockImage(name, "dsada")
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/$name/metadata")
+        val id = "a.png"
+        this.gymImageDAO.save(GymImage(id, ImageType.profile, this.mockGym()))
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/$id/metadata")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

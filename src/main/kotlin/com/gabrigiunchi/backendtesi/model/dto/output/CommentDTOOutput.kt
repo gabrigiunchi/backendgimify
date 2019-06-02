@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model.dto.output
 
-import com.gabrigiunchi.backendtesi.model.Comment
+import com.gabrigiunchi.backendtesi.model.entities.Comment
 import java.time.OffsetDateTime
 
 data class CommentDTOOutput(

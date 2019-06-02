@@ -4,8 +4,8 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.config.security.JwtTokenProvider
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.UserRole
 import com.gabrigiunchi.backendtesi.model.dto.input.ValidateUserDTO
+import com.gabrigiunchi.backendtesi.model.entities.UserRole
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers

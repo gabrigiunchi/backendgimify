@@ -5,6 +5,10 @@ import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
+import com.gabrigiunchi.backendtesi.model.entities.Asset
+import com.gabrigiunchi.backendtesi.model.entities.AssetKind
+import com.gabrigiunchi.backendtesi.model.entities.City
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions

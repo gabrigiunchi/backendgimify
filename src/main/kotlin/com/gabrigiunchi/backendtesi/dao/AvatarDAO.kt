@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.dao
 
-import com.gabrigiunchi.backendtesi.model.Avatar
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.entities.Avatar
+import com.gabrigiunchi.backendtesi.model.entities.User
 import org.springframework.data.repository.PagingAndSortingRepository
 import java.util.*
 

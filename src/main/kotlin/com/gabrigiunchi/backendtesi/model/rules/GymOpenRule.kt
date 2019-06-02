@@ -2,7 +2,7 @@ package com.gabrigiunchi.backendtesi.model.rules
 
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.exceptions.GymClosedException
-import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.time.ZonedInterval
 import org.springframework.stereotype.Service
 

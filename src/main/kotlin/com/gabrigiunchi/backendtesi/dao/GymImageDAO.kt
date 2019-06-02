@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.dao
 
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.GymImage
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.GymImage
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import org.springframework.data.repository.CrudRepository
 

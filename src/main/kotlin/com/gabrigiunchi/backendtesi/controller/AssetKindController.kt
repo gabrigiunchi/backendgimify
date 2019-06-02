@@ -4,7 +4,7 @@ import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.AssetKind
+import com.gabrigiunchi.backendtesi.model.entities.AssetKind
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

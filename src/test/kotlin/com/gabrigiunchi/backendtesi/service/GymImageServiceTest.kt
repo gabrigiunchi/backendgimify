@@ -8,8 +8,8 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.GymImageDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.GymImage
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.GymImage
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata

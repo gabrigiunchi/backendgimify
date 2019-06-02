@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.entities
 
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction

@@ -2,7 +2,7 @@ package com.gabrigiunchi.backendtesi.util
 
 import com.gabrigiunchi.backendtesi.config.security.SHA256PasswordEncoder
 import com.gabrigiunchi.backendtesi.dao.UserRoleDAO
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import org.springframework.stereotype.Service
 

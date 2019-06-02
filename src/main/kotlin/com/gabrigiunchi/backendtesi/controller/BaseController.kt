@@ -1,13 +1,14 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.UserDAO
+import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 
 open class BaseController(private val userDAO: UserDAO) {
 
-    protected fun getLoggedUser(): com.gabrigiunchi.backendtesi.model.User {
+    protected fun getLoggedUser(): User {
         return this.userDAO.findByUsername((SecurityContextHolder.getContext().authentication.principal as UserDetails).username).get()
     }
 

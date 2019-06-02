@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Image
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.PutObjectResult
 import com.ibm.cloud.objectstorage.services.s3.model.S3Object

@@ -3,8 +3,8 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.output.UserDTO
+import com.gabrigiunchi.backendtesi.model.entities.User
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest

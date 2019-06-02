@@ -3,8 +3,8 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Timetable
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.entities.Timetable
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

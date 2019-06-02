@@ -4,9 +4,9 @@ import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Comment
 import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.CommentDTOOutput
+import com.gabrigiunchi.backendtesi.model.entities.Comment
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest

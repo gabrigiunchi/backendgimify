@@ -7,10 +7,10 @@ import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.Comment
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.Comment
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers

@@ -7,11 +7,11 @@ import com.gabrigiunchi.backendtesi.dao.CommentDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.City
-import com.gabrigiunchi.backendtesi.model.Comment
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.User
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.City
+import com.gabrigiunchi.backendtesi.model.entities.Comment
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions

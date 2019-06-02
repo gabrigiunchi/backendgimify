@@ -2,8 +2,8 @@ package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.rules.*
 import com.gabrigiunchi.backendtesi.model.time.ZonedInterval
 import org.springframework.beans.factory.annotation.Value

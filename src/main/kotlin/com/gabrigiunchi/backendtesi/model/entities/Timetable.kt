@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.entities
 
 import com.gabrigiunchi.backendtesi.model.time.LocalInterval
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval

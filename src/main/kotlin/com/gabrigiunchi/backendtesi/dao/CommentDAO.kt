@@ -1,8 +1,8 @@
 package com.gabrigiunchi.backendtesi.dao
 
-import com.gabrigiunchi.backendtesi.model.Comment
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.User
+import com.gabrigiunchi.backendtesi.model.entities.Comment
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.User
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.PagingAndSortingRepository

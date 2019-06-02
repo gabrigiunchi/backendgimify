@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.model.dto.output
 
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.AssetKind
+import com.gabrigiunchi.backendtesi.model.entities.Asset
+import com.gabrigiunchi.backendtesi.model.entities.AssetKind
 
 data class AssetDTOOutput(
         val id: Int,

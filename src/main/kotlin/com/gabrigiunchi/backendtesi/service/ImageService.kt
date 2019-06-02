@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Image
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
@@ -27,17 +27,6 @@ open class ImageService(
                 .listObjectsV2(this.bucketName, prefix)
                 .objectSummaries
                 .map { summary -> Image(summary.key, summary.lastModified.time) }
-    }
-
-    fun getImageMetadata(id: String): Image {
-        val client = this.objectStorageService.createClient()
-
-        if (!client.doesObjectExist(this.bucketName, id)) {
-            throw ResourceNotFoundException("image $id does not exist")
-        }
-
-        val metadata = client.getObjectMetadata(this.bucketName, id)
-        return Image(id, metadata.lastModified.time)
     }
 
     fun download(id: String): ByteArray {

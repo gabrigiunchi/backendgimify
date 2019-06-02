@@ -1,8 +1,8 @@
 package com.gabrigiunchi.backendtesi.dao
 
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.AssetKind
-import com.gabrigiunchi.backendtesi.model.Gym
+import com.gabrigiunchi.backendtesi.model.entities.Asset
+import com.gabrigiunchi.backendtesi.model.entities.AssetKind
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.PagingAndSortingRepository

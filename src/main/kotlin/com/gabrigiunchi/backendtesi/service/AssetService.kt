@@ -5,9 +5,9 @@ import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.Gym
 import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.Asset
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import org.springframework.stereotype.Service
 
 @Service

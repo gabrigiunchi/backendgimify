@@ -3,8 +3,8 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.dto.input.CityDTOInput
+import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.service.MapsService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

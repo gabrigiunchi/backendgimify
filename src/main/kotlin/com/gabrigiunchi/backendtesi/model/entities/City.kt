@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.model
+package com.gabrigiunchi.backendtesi.model.entities
 
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import java.time.ZoneId

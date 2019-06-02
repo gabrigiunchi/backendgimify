@@ -61,24 +61,6 @@ class ImageServiceTest {
     }
 
     @Test
-    fun `Should get the metadata of a specific image`() {
-        val name = "jdnsajndksa.dnsajda"
-        this.createMockImage(name, "dnansda")
-
-        val result = this.imageService.getImageMetadata(name)
-        Assertions.assertThat(result.id).isEqualTo(name)
-        Assertions.assertThat(result.lastModified).isGreaterThan(0)
-    }
-
-    @Test(expected = ResourceNotFoundException::class)
-    fun `Should throw an exception when requesting the metadata of an image if it does not exist`() {
-        val name = "nonexistingimage.fake"
-        `when`(this.amazonS3.doesObjectExist(this.bucketName, name))
-                .thenReturn(this.mockObjectStorage.contains(name))
-        this.imageService.getImageMetadata(name)
-    }
-
-    @Test
     fun `Should get an image by name`() {
         val name = "njdajsnd.aaa"
         val content = "ndjansa"

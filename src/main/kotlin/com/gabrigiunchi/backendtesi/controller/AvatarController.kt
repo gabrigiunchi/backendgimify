@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.Image
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.service.AvatarService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

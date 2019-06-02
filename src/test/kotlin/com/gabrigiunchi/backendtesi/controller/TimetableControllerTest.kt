@@ -6,9 +6,9 @@ import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.Timetable
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.Timetable
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers

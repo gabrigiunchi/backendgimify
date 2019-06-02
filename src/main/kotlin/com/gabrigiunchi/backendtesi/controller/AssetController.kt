@@ -4,9 +4,9 @@ import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.Asset
 import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.AssetDTOOutput
+import com.gabrigiunchi.backendtesi.model.entities.Asset
 import com.gabrigiunchi.backendtesi.service.AssetService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page

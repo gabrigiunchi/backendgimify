@@ -3,6 +3,8 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
+import com.gabrigiunchi.backendtesi.model.entities.City
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions
 import org.junit.Before

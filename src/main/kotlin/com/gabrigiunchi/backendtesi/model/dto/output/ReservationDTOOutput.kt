@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.model.dto.output
 
-import com.gabrigiunchi.backendtesi.model.Asset
-import com.gabrigiunchi.backendtesi.model.Reservation
+import com.gabrigiunchi.backendtesi.model.entities.Asset
+import com.gabrigiunchi.backendtesi.model.entities.Reservation
 import java.time.OffsetDateTime
 
 data class ReservationDTOOutput(
