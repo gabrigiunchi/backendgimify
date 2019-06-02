@@ -15,20 +15,20 @@ class Timetable(
         val gym: Gym,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
-        val openings: Set<RepeatedInterval>,
+        val openings: Set<RepeatedLocalInterval>,
 
         @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
-        val closingDays: Set<RepeatedInterval>
+        val closingDays: Set<RepeatedLocalInterval>
 ) {
 
     constructor(gym: Gym) : this(-1, gym, emptySet(), emptySet())
 
-    constructor(gym: Gym, openings: Set<RepeatedInterval>) :
+    constructor(gym: Gym, openings: Set<RepeatedLocalInterval>) :
             this(-1, gym, openings, emptySet())
 
-    constructor(gym: Gym, openings: Set<RepeatedInterval>, closingDays: Set<RepeatedInterval>) :
+    constructor(gym: Gym, openings: Set<RepeatedLocalInterval>, closingDays: Set<RepeatedLocalInterval>) :
             this(-1, gym, openings, closingDays)
 
-    fun contains(interval: Interval): Boolean =
-            this.closingDays.none { it.overlaps(interval) } && this.openings.any { it.contains(interval) }
+    fun contains(localInterval: LocalInterval): Boolean =
+            this.closingDays.none { it.overlaps(localInterval) } && this.openings.any { it.contains(localInterval) }
 }

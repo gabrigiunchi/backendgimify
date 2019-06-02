@@ -3,7 +3,7 @@ package com.gabrigiunchi.backendtesi.model
 import java.time.OffsetDateTime
 import java.time.ZoneId
 
-class ZonedInterval(val start: OffsetDateTime, val end: OffsetDateTime) {
+class ZonedInterval(override val start: OffsetDateTime, override val end: OffsetDateTime) : Interval<OffsetDateTime> {
 
     constructor(start: String, end: String) : this(OffsetDateTime.parse(start), OffsetDateTime.parse(end))
 
@@ -13,14 +13,12 @@ class ZonedInterval(val start: OffsetDateTime, val end: OffsetDateTime) {
         }
     }
 
-    fun contains(date: OffsetDateTime): Boolean = date in this.start..this.end
+    override fun contains(instant: OffsetDateTime): Boolean = instant in this.start..this.end
+    override fun contains(interval: Interval<OffsetDateTime>): Boolean = this.contains(interval.start) && this.contains(interval.end)
+    override fun overlaps(interval: Interval<OffsetDateTime>): Boolean = !(this.end <= interval.start || interval.end <= this.start)
 
-    fun overlaps(interval: ZonedInterval): Boolean =
-            !((this.start <= interval.end && this.end <= interval.start) ||
-                    (interval.start <= this.end && interval.end <= this.start))
-
-    fun toInterval(zoneId: ZoneId): Interval =
-            Interval(this.start.atZoneSameInstant(zoneId).toLocalDateTime(),
+    fun toInterval(zoneId: ZoneId): LocalInterval =
+            LocalInterval(this.start.atZoneSameInstant(zoneId).toLocalDateTime(),
                     this.end.atZoneSameInstant(zoneId).toLocalDateTime())
 
 }

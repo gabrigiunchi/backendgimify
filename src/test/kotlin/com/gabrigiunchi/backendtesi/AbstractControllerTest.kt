@@ -3,7 +3,7 @@ package com.gabrigiunchi.backendtesi
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gabrigiunchi.backendtesi.model.City
 import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.RepeatedInterval
+import com.gabrigiunchi.backendtesi.model.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import org.junit.Assert
@@ -74,7 +74,7 @@ abstract class AbstractControllerTest {
         )
     }
 
-    fun toMap(repeatedInterval: RepeatedInterval): Map<String, String> {
+    fun toMap(repeatedInterval: RepeatedLocalInterval): Map<String, String> {
         val map = mutableMapOf(
                 Pair("id", repeatedInterval.id.toString()),
                 Pair("start", repeatedInterval.start.toString()),

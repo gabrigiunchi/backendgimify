@@ -7,7 +7,7 @@ import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.Gym
-import com.gabrigiunchi.backendtesi.model.RepeatedInterval
+import com.gabrigiunchi.backendtesi.model.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.Timetable
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import org.assertj.core.api.Assertions
@@ -258,16 +258,16 @@ class TimetableControllerTest : AbstractControllerTest() {
     private fun createTimetable(): Timetable {
         val gym = this.mockGym()
         val openings = setOf(
-                RepeatedInterval.create(DayOfWeek.MONDAY, "08:00", "12:00"),
-                RepeatedInterval.create(DayOfWeek.MONDAY, "13:00", "19:00"),
-                RepeatedInterval.create(DayOfWeek.WEDNESDAY, "08:00", "12:00"),
-                RepeatedInterval.create(DayOfWeek.WEDNESDAY, "13:00", "19:00"),
-                RepeatedInterval.create(DayOfWeek.FRIDAY, "08:00", "12:00"),
-                RepeatedInterval.create(DayOfWeek.FRIDAY, "13:00", "19:00")
+                RepeatedLocalInterval.create(DayOfWeek.MONDAY, "08:00", "12:00"),
+                RepeatedLocalInterval.create(DayOfWeek.MONDAY, "13:00", "19:00"),
+                RepeatedLocalInterval.create(DayOfWeek.WEDNESDAY, "08:00", "12:00"),
+                RepeatedLocalInterval.create(DayOfWeek.WEDNESDAY, "13:00", "19:00"),
+                RepeatedLocalInterval.create(DayOfWeek.FRIDAY, "08:00", "12:00"),
+                RepeatedLocalInterval.create(DayOfWeek.FRIDAY, "13:00", "19:00")
         )
         val closingDays = setOf(
                 // Monday 29 April 2019
-                RepeatedInterval("2019-04-29T00:00:00", "2019-04-30T00:00:00")
+                RepeatedLocalInterval("2019-04-29T00:00:00", "2019-04-30T00:00:00")
         )
         return this.timetableDAO.save(Timetable(gym = gym, openings = openings, closingDays = closingDays))
     }

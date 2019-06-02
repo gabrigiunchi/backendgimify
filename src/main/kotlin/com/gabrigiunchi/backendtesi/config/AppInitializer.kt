@@ -206,6 +206,6 @@ class AppInitializer {
         }
     }
 
-    private val openings: Set<RepeatedInterval>
-        get() = DayOfWeek.values().map { RepeatedInterval.create(it, LocalTime.parse("09:00"), LocalTime.parse("21:00")) }.toSet()
+    private val openings: Set<RepeatedLocalInterval>
+        get() = DayOfWeek.values().map { RepeatedLocalInterval.create(it, LocalTime.parse("09:00"), LocalTime.parse("21:00")) }.toSet()
 }

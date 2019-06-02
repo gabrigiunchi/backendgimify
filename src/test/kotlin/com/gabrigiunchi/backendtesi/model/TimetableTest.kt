@@ -45,23 +45,23 @@ class TimetableTest : AbstractControllerTest() {
     @Test
     fun `Should say if it contains a date interval`() {
         val timetable = this.createTimetable()
-        Assertions.assertThat(timetable.contains(Interval("2019-04-22T10:00:00", "2019-04-22T11:00:00"))).isTrue()
-        Assertions.assertThat(timetable.contains(Interval("2019-04-22T08:00:00", "2019-04-22T12:00:00"))).isTrue()
+        Assertions.assertThat(timetable.contains(LocalInterval("2019-04-22T10:00:00", "2019-04-22T11:00:00"))).isTrue()
+        Assertions.assertThat(timetable.contains(LocalInterval("2019-04-22T08:00:00", "2019-04-22T12:00:00"))).isTrue()
     }
 
     @Test
     fun `Should say if it does not contain a date interval`() {
         val timetable = this.createTimetable()
-        Assertions.assertThat(timetable.contains(Interval("2019-04-22T05:00:00", "2019-04-22T07:00:00"))).isFalse()
-        Assertions.assertThat(timetable.contains(Interval("2019-04-22T19:00:00", "2019-04-22T20:00:00"))).isFalse()
-        Assertions.assertThat(timetable.contains(Interval("2019-04-22T05:00:00", "2019-04-22T10:00:00"))).isFalse()
-        Assertions.assertThat(timetable.contains(Interval("2020-12-25T08:00:00", "2020-12-25T12:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(LocalInterval("2019-04-22T05:00:00", "2019-04-22T07:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(LocalInterval("2019-04-22T19:00:00", "2019-04-22T20:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(LocalInterval("2019-04-22T05:00:00", "2019-04-22T10:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(LocalInterval("2020-12-25T08:00:00", "2020-12-25T12:00:00"))).isFalse()
     }
 
     @Test
     fun `Should not contain an interval if the interval is not within the same day`() {
         val timetable = this.timetableDAO.save(Timetable(this.mockGym(), MockEntities.wildcardOpenings, emptySet()))
-        Assertions.assertThat(timetable.contains(Interval("2019-04-22T23:00:00", "2019-04-23T01:00:00"))).isFalse()
+        Assertions.assertThat(timetable.contains(LocalInterval("2019-04-22T23:00:00", "2019-04-23T01:00:00"))).isFalse()
     }
 
     /**************************************** UTILS *************************************************************************/
@@ -69,17 +69,17 @@ class TimetableTest : AbstractControllerTest() {
     private fun createTimetable(): Timetable {
         val gym = this.mockGym()
         val openings = setOf(
-                RepeatedInterval.create(DayOfWeek.MONDAY, "08:00", "12:00"),
-                RepeatedInterval.create(DayOfWeek.MONDAY, "13:00", "19:00"),
-                RepeatedInterval.create(DayOfWeek.WEDNESDAY, "08:00", "12:00"),
-                RepeatedInterval.create(DayOfWeek.WEDNESDAY, "13:00", "19:00"),
-                RepeatedInterval.create(DayOfWeek.FRIDAY, "08:00", "12:00"),
-                RepeatedInterval.create(DayOfWeek.FRIDAY, "13:00", "19:00")
+                RepeatedLocalInterval.create(DayOfWeek.MONDAY, "08:00", "12:00"),
+                RepeatedLocalInterval.create(DayOfWeek.MONDAY, "13:00", "19:00"),
+                RepeatedLocalInterval.create(DayOfWeek.WEDNESDAY, "08:00", "12:00"),
+                RepeatedLocalInterval.create(DayOfWeek.WEDNESDAY, "13:00", "19:00"),
+                RepeatedLocalInterval.create(DayOfWeek.FRIDAY, "08:00", "12:00"),
+                RepeatedLocalInterval.create(DayOfWeek.FRIDAY, "13:00", "19:00")
         )
         val closingDays = setOf(
                 // Christmas
-                RepeatedInterval("2019-12-25T00:00:00", "2019-12-25T23:59:59", RepetitionType.YEARLY),
-                RepeatedInterval("2019-01-01T00:00:00", "2019-01-01T23:59:59", RepetitionType.YEARLY)
+                RepeatedLocalInterval("2019-12-25T00:00:00", "2019-12-25T23:59:59", RepetitionType.YEARLY),
+                RepeatedLocalInterval("2019-01-01T00:00:00", "2019-01-01T23:59:59", RepetitionType.YEARLY)
         )
         return Timetable(gym = gym, openings = openings, closingDays = closingDays)
     }

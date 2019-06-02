@@ -83,7 +83,7 @@ class ReservationService(
         this.reservationLogDAO.save(ReservationLog(savedReservation))
 
         if (this.mailEnabled && user.notificationsEnabled) {
-            this.sendConfirmationEmail(savedReservation)
+            this.sendReservationConfirmationEmail(savedReservation)
         }
 
         return savedReservation
@@ -98,7 +98,7 @@ class ReservationService(
         this.reservationDAO.delete(reservation)
 
         if (this.mailEnabled && user.notificationsEnabled) {
-            this.sendCancellationConfirmation(reservation)
+            this.sendCancellationConfirmationEmail(reservation)
         }
 
         return reservation
@@ -225,7 +225,7 @@ class ReservationService(
 
     private fun isBeyondTheThreshold(date: OffsetDateTime) = date.toInstant().isAfter(OffsetDateTime.now().plusDays(this.reservationThresholdInDays.toLong()).toInstant())
 
-    private fun sendConfirmationEmail(reservation: Reservation) {
+    private fun sendReservationConfirmationEmail(reservation: Reservation) {
         val user = reservation.user
         val duration = Duration.between(reservation.start, reservation.end).toMinutes()
         val start = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm").format(reservation.start)
@@ -248,7 +248,7 @@ class ReservationService(
         Thread { this.mailService.sendEmail(user.email, "Reservation Confirmation", content) }.start()
     }
 
-    private fun sendCancellationConfirmation(reservation: Reservation) {
+    private fun sendCancellationConfirmationEmail(reservation: Reservation) {
         val user = reservation.user
         val duration = Duration.between(reservation.start, reservation.end).toMinutes()
         val start = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm").format(reservation.start)

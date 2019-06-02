@@ -5,7 +5,7 @@ import org.junit.Test
 import java.time.OffsetDateTime
 import java.time.ZoneId
 
-class ZoneIntervalTest {
+class ZonedIntervalTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `Should not create an interval with start after the end`() {
@@ -21,6 +21,19 @@ class ZoneIntervalTest {
         Assertions.assertThat(interval.contains(OffsetDateTime.parse("2019-10-10T10:30:00+00:00"))).isTrue()
         Assertions.assertThat(interval.contains(OffsetDateTime.parse("2019-10-10T10:30:01+00:00"))).isFalse()
         Assertions.assertThat(interval.contains(OffsetDateTime.parse("2019-10-10T12:00:00+02:00"))).isTrue()
+    }
+
+    @Test
+    fun `Should say if it contains a zoned interval`() {
+        val interval = ZonedInterval("2019-05-23T10:00:00+00:00", "2019-05-23T12:00:00+00:00")
+
+        Assertions.assertThat(interval.contains(ZonedInterval("2019-05-23T08:00:00+00:00", "2019-05-23T11:00:00+00:00"))).isFalse()
+        Assertions.assertThat(interval.contains(ZonedInterval("2019-05-23T10:00:00+00:00", "2019-05-23T12:00:00+00:00"))).isTrue()
+        Assertions.assertThat(interval.contains(ZonedInterval("2019-05-23T11:00:00+00:00", "2019-05-23T12:00:01+00:00"))).isFalse()
+        Assertions.assertThat(interval.contains(ZonedInterval("2019-05-23T08:00:00+00:00", "2019-05-23T16:00:10+00:00"))).isFalse()
+
+        Assertions.assertThat(interval.contains(ZonedInterval("2019-05-23T08:00:00+00:00", "2019-05-23T09:59:59+00:00"))).isFalse()
+        Assertions.assertThat(interval.contains(ZonedInterval("2019-05-23T12:00:10+00:00", "2019-05-23T16:00:00+00:00"))).isFalse()
     }
 
     @Test
