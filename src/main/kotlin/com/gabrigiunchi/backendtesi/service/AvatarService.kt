@@ -51,7 +51,7 @@ class AvatarService(private val userDAO: UserDAO,
         val user = this.getUser(username)
         this.avatarDAO.findByUser(user)
                 .map {
-                    this.deleteImage(it.id)
+                    this.delete(it.id)
                     this.avatarDAO.delete(it)
                 }
     }

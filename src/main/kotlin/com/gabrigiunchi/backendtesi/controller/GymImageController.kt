@@ -79,7 +79,7 @@ class GymImageController(private val gymImageService: GymImageService, private v
     @DeleteMapping("/photos/{image}")
     fun deletePhoto(@PathVariable image: String): ResponseEntity<Void> {
         this.logger.info("DELETE photo $image")
-        this.gymImageService.deleteImage(image)
+        this.gymImageService.delete(image)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

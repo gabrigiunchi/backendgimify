@@ -48,7 +48,7 @@ class AvatarController(
     @DeleteMapping("/{id}")
     fun deleteAvatar(@PathVariable id: String): ResponseEntity<Void> {
         this.logger.info("DELETE avatar $id")
-        this.avatarService.deleteImage(id)
+        this.avatarService.delete(id)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 

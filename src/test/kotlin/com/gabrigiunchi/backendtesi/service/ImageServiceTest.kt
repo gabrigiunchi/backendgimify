@@ -80,7 +80,7 @@ class ImageServiceTest {
         val name = "milano1.jpg"
         `when`(this.amazonS3.doesObjectExist(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.contains(name))
-        this.imageService.deleteImage(name)
+        this.imageService.delete(name)
     }
 
     @Test
@@ -89,7 +89,7 @@ class ImageServiceTest {
         val content = "ndjansa"
         this.createMockImage(name, content)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
-        this.imageService.deleteImage(name)
+        this.imageService.delete(name)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isFalse()
     }
 

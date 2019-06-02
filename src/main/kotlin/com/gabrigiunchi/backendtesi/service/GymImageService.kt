@@ -91,10 +91,10 @@ class GymImageService(
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
-    override fun deleteImage(id: String) {
+    override fun delete(id: String) {
         this.gymImageDAO.findById(id)
                 .map {
-                    super.deleteImage(id)
+                    super.delete(id)
                     this.gymImageDAO.delete(it)
                 }
                 .orElseThrow { ResourceNotFoundException("image $id does not exist") }

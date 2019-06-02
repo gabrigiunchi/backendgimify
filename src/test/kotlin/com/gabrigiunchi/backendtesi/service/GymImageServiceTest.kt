@@ -165,14 +165,14 @@ GymImageServiceTest : AbstractControllerTest() {
                 name, ImageType.profile)
         Assertions.assertThat(this.gymImageDAO.count()).isEqualTo(1)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
-        this.imageService.deleteImage(saved.id)
+        this.imageService.delete(saved.id)
         Assertions.assertThat(this.gymImageDAO.count()).isEqualTo(0)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isFalse()
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not delete an image if it does not exist`() {
-        this.imageService.deleteImage("jdnsakjnda")
+        this.imageService.delete("jdnsakjnda")
     }
 
     private fun createMockImage(name: String, content: String): MultipartFile {

@@ -8,26 +8,22 @@ import java.util.*
 
 open class ImageService(
         private val objectStorageService: ObjectStorageService,
-        private val bucketName: String
-) {
+        private val bucketName: String) {
 
-    fun contains(image: String): Boolean {
-        return this.objectStorageService.createClient().doesObjectExist(this.bucketName, image)
-    }
+    fun contains(image: String): Boolean = this.objectStorageService.createClient().doesObjectExist(this.bucketName, image)
 
-    fun getAllMetadata(): List<Image> {
-        return this.objectStorageService.createClient()
-                .listObjectsV2(this.bucketName)
-                .objectSummaries
-                .map { summary -> Image(summary.key, summary.lastModified.time) }
-    }
+    fun getAllMetadata(): List<Image> =
+            this.objectStorageService.createClient()
+                    .listObjectsV2(this.bucketName)
+                    .objectSummaries
+                    .map { summary -> Image(summary.key, summary.lastModified.time) }
 
-    fun getAllMetadataWithPrefix(prefix: String): List<Image> {
-        return this.objectStorageService.createClient()
-                .listObjectsV2(this.bucketName, prefix)
-                .objectSummaries
-                .map { summary -> Image(summary.key, summary.lastModified.time) }
-    }
+    fun getAllMetadataWithPrefix(prefix: String): List<Image> =
+            this.objectStorageService.createClient()
+                    .listObjectsV2(this.bucketName, prefix)
+                    .objectSummaries
+                    .map { summary -> Image(summary.key, summary.lastModified.time) }
+
 
     fun download(id: String): ByteArray {
         val client = this.objectStorageService.createClient()
@@ -49,7 +45,7 @@ open class ImageService(
         return Image(id, Date().time)
     }
 
-    open fun deleteImage(id: String) {
+    open fun delete(id: String) {
         val client = this.objectStorageService.createClient()
 
         if (!client.doesObjectExist(this.bucketName, id)) {
