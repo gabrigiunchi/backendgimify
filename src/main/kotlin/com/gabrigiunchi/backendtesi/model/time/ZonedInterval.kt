@@ -2,10 +2,21 @@ package com.gabrigiunchi.backendtesi.model.time
 
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
 
-class ZonedInterval(override val start: OffsetDateTime, override val end: OffsetDateTime) : Interval<OffsetDateTime> {
+@Entity
+open class ZonedInterval(
+        @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        val id: Int,
+        override val start: OffsetDateTime,
+        override val end: OffsetDateTime) : Interval<OffsetDateTime> {
 
-    constructor(start: String, end: String) : this(OffsetDateTime.parse(start), OffsetDateTime.parse(end))
+    constructor(start: OffsetDateTime, end: OffsetDateTime) : this(-1, start, end)
+    constructor(start: String, end: String) : this(-1, OffsetDateTime.parse(start), OffsetDateTime.parse(end))
 
     init {
         if (this.start >= this.end) {

@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.model
 import com.gabrigiunchi.backendtesi.model.time.LocalInterval
 import org.assertj.core.api.Assertions
 import org.junit.Test
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -61,8 +62,13 @@ class LocalIntervalTest {
 
     @Test
     fun `Should convert into a zoned interval`() {
-        val localInterval = LocalInterval("2019-05-23T00:00:00", "2019-05-23T23:59:59")
+        val localInterval = LocalInterval(
+                10,
+                LocalDateTime.parse("2019-05-23T00:00:00"),
+                LocalDateTime.parse("2019-05-23T23:59:59"))
+
         val zonedIntervalNewYork = localInterval.toZonedInterval(ZoneId.of("America/New_York"))
+        Assertions.assertThat(zonedIntervalNewYork.id).isEqualTo(localInterval.id)
         Assertions.assertThat(zonedIntervalNewYork.start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")))
                 .isEqualTo("2019-05-23 00:00:00-0400")
 

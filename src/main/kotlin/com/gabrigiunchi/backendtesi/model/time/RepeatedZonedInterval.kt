@@ -5,35 +5,39 @@ import java.time.*
 import javax.persistence.Entity
 
 @Entity
-class RepeatedLocalInterval(
+class RepeatedZonedInterval(
         id: Int,
-        start: LocalDateTime,
-        end: LocalDateTime,
+        start: OffsetDateTime,
+        end: OffsetDateTime,
         override val repetitionType: RepetitionType,
-        override val repetitionEnd: LocalDateTime?
-) : LocalInterval(id, start, end), RepeatedInterval<LocalDateTime> {
+        override val repetitionEnd: OffsetDateTime?
+) : ZonedInterval(id, start, end), RepeatedInterval<OffsetDateTime> {
 
     constructor(start: String, end: String) : this(start, end, RepetitionType.NONE)
 
     constructor(start: String, end: String, repetitionType: RepetitionType) :
-            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, null)
+            this(-1, OffsetDateTime.parse(start), OffsetDateTime.parse(end), repetitionType, null)
 
     constructor(start: String, end: String, repetitionType: RepetitionType, repetitionEnd: String) :
-            this(-1, LocalDateTime.parse(start), LocalDateTime.parse(end), repetitionType, LocalDateTime.parse(repetitionEnd))
-
+            this(-1, OffsetDateTime.parse(start), OffsetDateTime.parse(end), repetitionType, OffsetDateTime.parse(repetitionEnd))
 
     companion object {
-        fun create(dayOfWeek: DayOfWeek, start: String, end: String): RepeatedLocalInterval =
-                create(dayOfWeek, LocalTime.parse(start), LocalTime.parse(end))
-
-        fun create(dayOfWeek: DayOfWeek, start: LocalTime, end: LocalTime): RepeatedLocalInterval {
-            val startDate = LocalDateTime.from(dayOfWeek.adjustInto(start.atDate(LocalDate.ofYearDay(2019, 1))))
-            val endDate = LocalDateTime.from(dayOfWeek.adjustInto(end.atDate(LocalDate.ofYearDay(2019, 1))))
-            return RepeatedLocalInterval(-1, startDate, endDate, RepetitionType.WEEKLY, null)
+        fun create(dayOfWeek: DayOfWeek, start: LocalTime, end: LocalTime, zoneId: ZoneId): RepeatedZonedInterval {
+            val startDate =
+                    LocalDateTime
+                            .from(dayOfWeek.adjustInto(start.atDate(LocalDate.ofYearDay(2019, 1))))
+                            .atZone(zoneId)
+                            .toOffsetDateTime()
+            val endDate = LocalDateTime
+                    .from(dayOfWeek.adjustInto(end.atDate(LocalDate.ofYearDay(2019, 1))))
+                    .atZone(zoneId)
+                    .toOffsetDateTime()
+            return RepeatedZonedInterval(-1, startDate, endDate, RepetitionType.WEEKLY, null)
         }
     }
 
-    override fun contains(interval: Interval<LocalDateTime>): Boolean {
+
+    override fun contains(interval: Interval<OffsetDateTime>): Boolean {
         if (this.repetitionType == RepetitionType.NONE) {
             return super.contains(interval)
         }
@@ -42,7 +46,7 @@ class RepeatedLocalInterval(
         var e = this.end
 
         while (s <= interval.end && !this.isBeyondRepetitionEnd(interval.end)) {
-            if (LocalInterval(s, e).contains(interval)) {
+            if (ZonedInterval(s, e).contains(interval)) {
                 return true
             }
 
@@ -73,7 +77,7 @@ class RepeatedLocalInterval(
         return false
     }
 
-    override fun contains(instant: LocalDateTime): Boolean {
+    override fun contains(instant: OffsetDateTime): Boolean {
         if (this.repetitionType == RepetitionType.NONE) {
             return super.contains(instant)
         }
@@ -82,7 +86,7 @@ class RepeatedLocalInterval(
         var e = this.end
 
         while (s <= instant && !this.isBeyondRepetitionEnd(instant)) {
-            if (LocalInterval(s, e).contains(instant)) {
+            if (ZonedInterval(s, e).contains(instant)) {
                 return true
             }
 
@@ -113,7 +117,7 @@ class RepeatedLocalInterval(
         return false
     }
 
-    override fun overlaps(interval: Interval<LocalDateTime>): Boolean {
+    override fun overlaps(interval: Interval<OffsetDateTime>): Boolean {
         if (this.repetitionType == RepetitionType.NONE) {
             return super.overlaps(interval)
         }
@@ -122,7 +126,7 @@ class RepeatedLocalInterval(
         var e = this.end
 
         while (s <= interval.end && !this.isBeyondRepetitionEnd(interval.start)) {
-            if (LocalInterval(s, e).overlaps(interval)) {
+            if (ZonedInterval(s, e).overlaps(interval)) {
                 return true
             }
 
@@ -153,15 +157,7 @@ class RepeatedLocalInterval(
         return false
     }
 
-    override fun contains(date: String): Boolean = this.contains(LocalDateTime.parse(date))
+    fun contains(date: String): Boolean = this.contains(OffsetDateTime.parse(date))
 
-    fun toRepeatedZonedInterval(zoneId: ZoneId): RepeatedZonedInterval =
-            RepeatedZonedInterval(
-                    this.id,
-                    this.start.atZone(zoneId).toOffsetDateTime(),
-                    this.end.atZone(zoneId).toOffsetDateTime(),
-                    this.repetitionType,
-                    this.repetitionEnd?.atZone(zoneId)?.toOffsetDateTime())
-
-    private fun isBeyondRepetitionEnd(date: LocalDateTime) = this.repetitionEnd != null && date >= this.repetitionEnd
+    private fun isBeyondRepetitionEnd(date: OffsetDateTime) = this.repetitionEnd != null && date >= this.repetitionEnd
 }

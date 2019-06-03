@@ -5,9 +5,8 @@ import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.type.RepetitionType
 import org.assertj.core.api.Assertions
 import org.junit.Test
-import java.time.DayOfWeek
-import java.time.Duration
-import java.time.Instant
+import java.time.*
+import java.time.format.DateTimeFormatter
 
 class RepeatedLocalIntervalTest {
 
@@ -233,6 +232,35 @@ class RepeatedLocalIntervalTest {
 
         Assertions.assertThat(interval.overlaps(LocalInterval("2019-10-09T08:00:00", "2019-10-09T11:00:00"))).isTrue()
         Assertions.assertThat(interval.overlaps(LocalInterval("2019-10-10T08:00:00", "2019-10-10T11:00:00"))).isFalse()
+    }
+
+    @Test
+    fun `Should convert into a repeated zoned interval`() {
+        val localInterval = RepeatedLocalInterval(10,
+                LocalDateTime.parse("2019-05-23T00:00:00"),
+                LocalDateTime.parse("2019-05-23T23:59:59"),
+                RepetitionType.DAILY,
+                null)
+
+        val zonedIntervalNewYork = localInterval.toRepeatedZonedInterval(ZoneId.of("America/New_York"))
+        Assertions.assertThat(zonedIntervalNewYork.id).isEqualTo(localInterval.id)
+        Assertions.assertThat(zonedIntervalNewYork.start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")))
+                .isEqualTo("2019-05-23 00:00:00-0400")
+
+        Assertions.assertThat(zonedIntervalNewYork.end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")))
+                .isEqualTo("2019-05-23 23:59:59-0400")
+
+        Assertions.assertThat(zonedIntervalNewYork.repetitionType).isEqualTo(RepetitionType.DAILY)
+
+
+        val zonedIntervalRome = localInterval.toRepeatedZonedInterval(ZoneId.of("Europe/Rome"))
+        Assertions.assertThat(zonedIntervalRome.start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")))
+                .isEqualTo("2019-05-23 00:00:00+0200")
+
+        Assertions.assertThat(zonedIntervalRome.end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssZ")))
+                .isEqualTo("2019-05-23 23:59:59+0200")
+
+        Assertions.assertThat(zonedIntervalRome.repetitionType).isEqualTo(RepetitionType.DAILY)
     }
 
     @Test

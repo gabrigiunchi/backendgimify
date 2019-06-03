@@ -35,7 +35,10 @@ open class LocalInterval(
     override fun overlaps(interval: Interval<LocalDateTime>): Boolean = !(this.end <= interval.start || interval.end <= this.start)
 
     fun toZonedInterval(zoneId: ZoneId): ZonedInterval =
-            ZonedInterval(this.start.atZone(zoneId).toOffsetDateTime(), this.end.atZone(zoneId).toOffsetDateTime())
+            ZonedInterval(
+                    this.id,
+                    this.start.atZone(zoneId).toOffsetDateTime(),
+                    this.end.atZone(zoneId).toOffsetDateTime())
 
     @JsonIgnore
     open fun isWithinSameDay(): Boolean = this.start.toLocalDate() == this.end.toLocalDate()
