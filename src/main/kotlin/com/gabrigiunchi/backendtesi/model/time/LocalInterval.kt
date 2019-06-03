@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.model.time
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -32,6 +33,9 @@ open class LocalInterval(
     open fun contains(date: String): Boolean = this.contains(LocalDateTime.parse(date))
 
     override fun overlaps(interval: Interval<LocalDateTime>): Boolean = !(this.end <= interval.start || interval.end <= this.start)
+
+    fun toZonedInterval(zoneId: ZoneId): ZonedInterval =
+            ZonedInterval(this.start.atZone(zoneId).toOffsetDateTime(), this.end.atZone(zoneId).toOffsetDateTime())
 
     @JsonIgnore
     open fun isWithinSameDay(): Boolean = this.start.toLocalDate() == this.end.toLocalDate()
