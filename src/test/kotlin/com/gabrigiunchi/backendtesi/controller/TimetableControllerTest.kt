@@ -8,8 +8,8 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import com.gabrigiunchi.backendtesi.model.entities.Gym
-import com.gabrigiunchi.backendtesi.model.entities.Timetable
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
+import com.gabrigiunchi.backendtesi.model.time.Timetable
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before

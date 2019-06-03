@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.constants.Constants
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
+import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.ImageType

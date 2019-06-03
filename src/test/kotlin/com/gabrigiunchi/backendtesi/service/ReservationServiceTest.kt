@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.exceptions.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.*
+import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
@@ -237,12 +238,10 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test(expected = TooManyReservationsException::class)
     fun `Should not be possible to make 3 reservations per day`() {
         val asset = this.mockAsset()
-
-        this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:15:00+00:00")))
-
-        this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                OffsetDateTime.parse("2050-04-11T11:00:00+00:00"), OffsetDateTime.parse("2050-04-11T11:15:00+00:00")))
+        this.reservationDAO.saveAll((1..2).map {
+            Reservation(-1, asset, this.user!!, OffsetDateTime.now(), OffsetDateTime.now(),
+                    OffsetDateTime.now().minusMinutes(1), true)
+        })
 
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
                 OffsetDateTime.parse("2050-04-18T11:00:00+00:00"), OffsetDateTime.parse("2050-04-18T11:15:00+00:00")))
@@ -251,14 +250,11 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test(expected = TooManyReservationsException::class)
     fun `Should not be possible to make 3 reservations per day even if I delete one of them`() {
         val asset = this.mockAsset()
-
-        this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                OffsetDateTime.parse("2050-04-04T11:00:00+00:00"), OffsetDateTime.parse("2050-04-04T11:15:00+00:00")))
-
-        val savedReservation = this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
-                OffsetDateTime.parse("2050-04-11T11:00:00+00:00"), OffsetDateTime.parse("2050-04-11T11:15:00+00:00")))
-
-        this.reservationService.deleteReservation(savedReservation)
+        val reservations = this.reservationDAO.saveAll((1..2).map {
+            Reservation(-1, asset, this.user!!, OffsetDateTime.now(), OffsetDateTime.now(),
+                    OffsetDateTime.now().minusMinutes(1), true)
+        })
+        this.reservationService.deleteReservation(reservations.first())
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
                 OffsetDateTime.parse("2050-04-18T11:00:00+00:00"), OffsetDateTime.parse("2050-04-18T11:15:00+00:00")))
     }

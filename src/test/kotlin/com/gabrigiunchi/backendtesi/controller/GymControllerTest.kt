@@ -5,7 +5,11 @@ import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
-import com.gabrigiunchi.backendtesi.model.entities.*
+import com.gabrigiunchi.backendtesi.model.entities.City
+import com.gabrigiunchi.backendtesi.model.entities.Comment
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.User
+import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.service.MapsService
 import com.gabrigiunchi.backendtesi.util.UserFactory
