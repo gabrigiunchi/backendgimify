@@ -2,7 +2,8 @@ applications:
   - name: backendtesi
     routes:
       - route: backendtesi.eu-gb.mybluemix.net
-    buildpack: https://github.com/cloudfoundry/java-buildpack.git
+    buildpacks:
+      - https://github.com/cloudfoundry/java-buildpack.git
     path: build/libs/backendtesi-0.0.1.jar
     memory: 1024M
     instances: 1
