@@ -38,10 +38,6 @@ class RepeatedZonedInterval(
 
 
     override fun contains(interval: Interval<OffsetDateTime>): Boolean {
-        if (this.repetitionType == RepetitionType.NONE) {
-            return super.contains(interval)
-        }
-
         var s = this.start
         var e = this.end
 
@@ -51,8 +47,7 @@ class RepeatedZonedInterval(
             }
 
             when (this.repetitionType) {
-                RepetitionType.NONE -> {
-                }
+                RepetitionType.NONE -> return false
                 RepetitionType.DAILY -> {
                     s = s.plusDays(1)
                     e = e.plusDays(1)

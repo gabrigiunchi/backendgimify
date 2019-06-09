@@ -48,6 +48,7 @@ class LocalIntervalTest {
         Assertions.assertThat(interval.overlaps(LocalInterval("2019-05-23T11:00:00", "2019-05-23T12:00:01"))).isTrue()
         Assertions.assertThat(interval.overlaps(LocalInterval("2019-05-23T08:00:00", "2019-05-23T16:00:10"))).isTrue()
 
+        Assertions.assertThat(interval.overlaps(LocalInterval("2019-05-23T08:00:00", "2019-05-23T10:00:00"))).isFalse()
         Assertions.assertThat(interval.overlaps(LocalInterval("2019-05-23T08:00:00", "2019-05-23T09:59:59"))).isFalse()
         Assertions.assertThat(interval.overlaps(LocalInterval("2019-05-23T12:00:00", "2019-05-23T16:00:00"))).isFalse()
         Assertions.assertThat(interval.overlaps(LocalInterval("2019-05-23T12:00:01", "2019-05-23T16:00:00"))).isFalse()

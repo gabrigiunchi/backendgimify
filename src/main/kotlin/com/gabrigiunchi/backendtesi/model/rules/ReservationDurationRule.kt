@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model.rules
 
-import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
+import com.gabrigiunchi.backendtesi.exceptions.ReservationDurationException
 import com.gabrigiunchi.backendtesi.model.entities.Asset
 import com.gabrigiunchi.backendtesi.model.time.ZonedInterval
 import org.springframework.stereotype.Service
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class ReservationDurationRule : Rule<Pair<Asset, ZonedInterval>> {
     override fun validate(element: Pair<Asset, ZonedInterval>) {
         if (!this.test(element)) {
-            throw BadRequestException("reservation duration exceeds maximum (max=${element.first.kind.maxReservationTime} minutes)")
+            throw ReservationDurationException(element.first.kind.maxReservationTime)
         }
     }
 

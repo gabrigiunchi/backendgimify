@@ -34,29 +34,18 @@ class Timetable(
 
     /*********************** LOCAL *********************************************/
 
-    fun isClosedAt(date: LocalDateTime): Boolean =
-            this.closingDays.any { it.contains(date) }
+    fun isClosedAt(date: LocalDateTime): Boolean = this.closingDays.any { it.contains(date) }
 
-    fun isClosedAt(interval: LocalInterval): Boolean =
-            this.closingDays.any { it.overlaps(interval) }
-
-    fun isOpenAt(localInterval: LocalInterval): Boolean =
-            this.closingDays.none { it.overlaps(localInterval) } && this.openings.any { it.contains(localInterval) }
-
-    fun isOpenAt(date: LocalDateTime): Boolean =
-            this.closingDays.none { it.contains(date) } && this.openings.any { it.contains(date) }
+    fun isClosedAt(interval: LocalInterval): Boolean = this.closingDays.any { it.overlaps(interval) }
+    fun isOpenAt(localInterval: LocalInterval): Boolean = this.closingDays.none { it.overlaps(localInterval) } && this.openings.any { it.contains(localInterval) }
+    fun isOpenAt(date: LocalDateTime): Boolean = this.closingDays.none { it.contains(date) } && this.openings.any { it.contains(date) }
 
     /************************* ZONED ********************************************/
 
-    fun isClosedAt(date: OffsetDateTime): Boolean =
-            this.isClosedAt(date.atZoneSameInstant(this.gym.city.zoneId).toLocalDateTime())
+    fun isClosedAt(date: OffsetDateTime): Boolean = this.isClosedAt(date.atZoneSameInstant(this.gym.city.zoneId).toLocalDateTime())
 
-    fun isClosedAt(interval: ZonedInterval): Boolean =
-            this.isClosedAt(interval.toLocalInterval(this.gym.city.zoneId))
+    fun isClosedAt(interval: ZonedInterval): Boolean = this.isClosedAt(interval.toLocalInterval(this.gym.city.zoneId))
+    fun isOpenAt(date: OffsetDateTime): Boolean = this.isOpenAt(date.atZoneSameInstant(this.gym.city.zoneId).toLocalDateTime())
+    fun isOpenAt(interval: ZonedInterval): Boolean = this.isOpenAt(interval.toLocalInterval(this.gym.city.zoneId))
 
-    fun isOpenAt(date: ZonedInterval): Boolean =
-            this.isOpenAt(date.toLocalInterval(this.gym.city.zoneId))
-
-    fun isOpenAt(date: OffsetDateTime): Boolean =
-            this.isOpenAt(date.atZoneSameInstant(this.gym.city.zoneId).toLocalDateTime())
 }

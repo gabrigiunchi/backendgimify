@@ -78,4 +78,11 @@ public class ResourceControllerAdvice {
     VndErrors reservationThresholdExceededExceptionHandler(ReservationThresholdExceededException ex) {
         return new VndErrors("Reservation threshold exceeded", ex.getMessage());
     }
+
+    @ResponseBody
+    @ExceptionHandler(ReservationDurationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    VndErrors reservationDurationExceptionHandler(ReservationDurationException ex) {
+        return new VndErrors("Reservation duration exceeded", ex.getMessage());
+    }
 }

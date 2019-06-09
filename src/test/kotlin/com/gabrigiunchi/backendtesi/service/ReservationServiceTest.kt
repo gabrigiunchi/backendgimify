@@ -104,7 +104,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.reservationService.addReservation(reservationDTO)
     }
 
-    @Test(expected = BadRequestException::class)
+    @Test(expected = ReservationDurationException::class)
     fun `Should not create a reservation if the duration exceeds the maximum`() {
         val start = OffsetDateTime.now().plusMinutes(1)
         val end = start.plusMinutes(21)
@@ -162,7 +162,7 @@ class ReservationServiceTest : AbstractControllerTest() {
                 OffsetDateTime.parse("2050-04-04T14:00:00+00:00"), OffsetDateTime.parse("2050-04-04T16:00:00+00:00")))
     }
 
-    @Test(expected = BadRequestException::class)
+    @Test(expected = ReservationDurationException::class)
     fun `Should not create a reservation if interval is not within the same day`() {
         val asset = this.mockAsset(300)
         this.reservationService.addReservation(ReservationDTOInput(this.user!!.id, asset.id,
