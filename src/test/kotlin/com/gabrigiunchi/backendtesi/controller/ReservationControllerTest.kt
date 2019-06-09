@@ -186,7 +186,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 OffsetDateTime.parse("2050-04-04T11:10:00+00:00")))
 
         val reservation = ReservationDTOInput(
-                userID = this.mockUser().id,
+                userID = user.id,
                 assetID = asset.id,
                 start = OffsetDateTime.parse("2050-04-04T10:55:00+00:00"),
                 end = OffsetDateTime.parse("2050-04-04T11:05:00+00:00"))
@@ -199,6 +199,30 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should not create a reservation if the duration exceed the maximum for that kind`() {
+        this.userDAO.deleteAll()
+        val gym = this.mockGym()
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockOpenings))
+        val asset = this.mockAsset(gym)
+
+        val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
+        val end = start.plusMinutes((asset.kind.maxReservationTime + 1).toLong())
+        val reservation = ReservationDTOInput(
+                userID = this.mockUser().id,
+                assetID = asset.id,
+                start = start,
+                end = end)
+
+        val expectedMessage = "reservation duration exceeds maximum (max=${asset.kind.maxReservationTime} minutes)"
+        mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(reservation)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`(expectedMessage)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should not be able to make 3 reservations per day`() {
         this.userDAO.deleteAll()
         val gym = this.mockGym()
@@ -206,24 +230,15 @@ class ReservationControllerTest : AbstractControllerTest() {
         val asset = this.mockAsset(gym)
         val user = this.mockUser()
 
-        val reservations = listOf(
-                ReservationDTOInput(
-                        userID = user.id,
-                        assetID = asset.id,
-                        start = OffsetDateTime.parse("2050-04-04T10:55:00+00:00"),
-                        end = OffsetDateTime.parse("2050-04-04T11:05:00+00:00")),
-
-                ReservationDTOInput(
-                        userID = user.id,
-                        assetID = asset.id,
-                        start = OffsetDateTime.parse("2050-04-11T10:55:00+00:00"),
-                        end = OffsetDateTime.parse("2050-04-11T11:05:00+00:00")),
-
-                ReservationDTOInput(
-                        userID = user.id,
-                        assetID = asset.id,
-                        start = OffsetDateTime.parse("2050-04-18T10:55:00+00:00"),
-                        end = OffsetDateTime.parse("2050-04-18T11:05:00+00:00")))
+        // create 3 reservations for the same asset in different days
+        val start = OffsetDateTime.parse("2050-04-04T10:55:00+00:00")
+        val reservations = (1..3).map(Int::toLong).map {
+            ReservationDTOInput(
+                    userID = user.id,
+                    assetID = asset.id,
+                    start = start.plusDays(it),
+                    end = start.plusDays(it).plusMinutes(20))
+        }
 
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -248,9 +263,11 @@ class ReservationControllerTest : AbstractControllerTest() {
     fun `Should return bad request if the reservation is beyond the threshold`() {
         this.userDAO.deleteAll()
         val gym = this.mockGym()
-        this.timetableDAO.save(Timetable(gym, MockEntities.wildcardOpenings))
-        val asset = this.mockAsset(gym)
-        val user = this.mockUser()
+        this.timetableDAO.save(Timetable(gym, MockEntities.wildcardOpenings)) // create a gym that is always open
+        val asset = this.mockAsset(gym) // create an asset in the gym
+        val user = this.mockUser() // create a mock user
+
+        // create an interval beyond the threshold
         val start = OffsetDateTime.now().plusDays(this.reservationThresholdInDays).plusMinutes(10)
         val end = start.plusMinutes(5)
         val reservation = ReservationDTOInput(
@@ -259,6 +276,7 @@ class ReservationControllerTest : AbstractControllerTest() {
                 start = start,
                 end = end)
 
+        // make REST API call
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.RESERVATIONS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(reservation)))
@@ -550,12 +568,14 @@ class ReservationControllerTest : AbstractControllerTest() {
     }
 
     @Test
-    fun `Should get available assets and filter by gym`() {
+    fun `Should get the available assets in a gym`() {
         this.reservationDAO.deleteAll()
         val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("another gym", "address2", gym.city))
         this.timetableDAO.save(Timetable(gym, MockEntities.mockOpenings))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
+
+        // create 4 assets, 2 in the first gym and 2 in the second one
         val assets = this.assetDAO.saveAll((0..3).map { Asset("ciclette$it", kind, if (it % 2 == 0) gym else anotherGym) }).toList()
         Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
@@ -574,6 +594,28 @@ class ReservationControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", Matchers.`is`(assets[2].id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].gym.id", Matchers.`is`(gym.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[1].gym.id", Matchers.`is`(gym.id)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should return empty collection if the gym is closed in the interval provided when searching for free assets`() {
+        this.reservationDAO.deleteAll()
+        val gym = this.mockGym()
+
+        // timetable: from Monday to Friday from 08 to 12
+        this.timetableDAO.save(Timetable(gym, MockEntities.mockOpenings))
+        val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
+        this.assetDAO.saveAll((1..4).map { Asset("ciclette$it", kind, gym) }).toList()
+        Assertions.assertThat(this.assetDAO.count()).isEqualTo(4)
+        Assertions.assertThat(this.timetableDAO.count()).isEqualTo(1)
+
+        // search when the gym is closed
+        val from = OffsetDateTime.parse("2050-04-04T13:00:00+00:00")
+        val to = from.plusMinutes(10)
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/available/kind/${kind.id}/from/$from/to/$to")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(0)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

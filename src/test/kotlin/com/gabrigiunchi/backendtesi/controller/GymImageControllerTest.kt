@@ -104,6 +104,15 @@ class GymImageControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should not get the metadata of an image if it does not exist`() {
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/-1/metadata")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("image -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should get a photo`() {
         val name = "a.png"
         val content = "fdsda"
