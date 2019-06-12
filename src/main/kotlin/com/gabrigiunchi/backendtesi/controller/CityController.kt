@@ -48,6 +48,13 @@ class CityController(private val cityDAO: CityDAO, private val cityService: City
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    @PutMapping("/{id}")
+    fun modifyCity(@Valid @RequestBody city: CityDTOInput, @PathVariable id: Int): ResponseEntity<City> {
+        this.logger.info("Modify city $id")
+        return ResponseEntity(this.cityService.modifyCity(city, id), HttpStatus.OK)
+    }
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteCityById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE city #$id")

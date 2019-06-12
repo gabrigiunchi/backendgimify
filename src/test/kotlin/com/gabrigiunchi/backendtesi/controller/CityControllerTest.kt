@@ -133,6 +133,46 @@ class CityControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should modify a city`() {
+        val savedCity = this.cityDAO.save(City(CityEnum.LOS_ANGELES))
+        val cityDTO = CityDTOInput("New York")
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.CITIES}/${savedCity.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(cityDTO)))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`("New York")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.zoneId", Matchers.`is`("UTC"))) // because of mock
+                .andDo(MockMvcResultHandlers.print())
+
+        Assertions.assertThat(this.cityDAO.findById(savedCity.id).get().name).isEqualTo(cityDTO.name)
+    }
+
+    @Test
+    fun `Should not modify a city if it does not exist`() {
+        this.cityDAO.save(City(CityEnum.LOS_ANGELES))
+        val cityDTO = CityDTOInput("New York")
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.CITIES}/-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(cityDTO)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not modify a city if cannot be geocoded`() {
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(null)
+        val savedCity = this.cityDAO.save(City(CityEnum.LOS_ANGELES))
+        val cityDTO = CityDTOInput("dasjdnasjn")
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.CITIES}/${savedCity.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(cityDTO)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city ${cityDTO.name} not found")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should delete a city`() {
         val city = this.mockCity()
         Assertions.assertThat(this.cityDAO.findById(city.id).isPresent).isTrue()
