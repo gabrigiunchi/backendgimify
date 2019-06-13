@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.service.GymService
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -16,10 +17,10 @@ class GymController(private val gymService: GymService) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
 
-    @GetMapping
-    fun getAllGyms(): ResponseEntity<Iterable<Gym>> {
+    @GetMapping("/page/{page}/size/{size}")
+    fun getAllGyms(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Gym>> {
         this.logger.info("GET all gyms")
-        return ResponseEntity(this.gymService.getAllGyms(), HttpStatus.OK)
+        return ResponseEntity(this.gymService.getAllGyms(page, size), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")

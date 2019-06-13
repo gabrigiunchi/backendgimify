@@ -55,6 +55,7 @@ class GymControllerTest : AbstractControllerTest() {
     @Before
     fun clearDB() {
         Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(LatLng(10.0, 10.0))
+        this.gymDAO.deleteAll()
         this.timetableDAO.deleteAll()
         this.cityDAO.deleteAll()
         this.city = this.cityDAO.save(this.city)
@@ -69,14 +70,14 @@ class GymControllerTest : AbstractControllerTest() {
                 Gym("gym4", "address", this.city),
                 Gym("gym3", "address", this.city)
         ))
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.GYMS)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(4)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name", Matchers.`is`("gym1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name", Matchers.`is`("gym2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].name", Matchers.`is`("gym3")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[3].name", Matchers.`is`("gym4")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(4)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].name", Matchers.`is`("gym1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].name", Matchers.`is`("gym2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].name", Matchers.`is`("gym3")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[3].name", Matchers.`is`("gym4")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

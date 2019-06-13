@@ -10,7 +10,10 @@ import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.google.maps.model.LatLng
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
 @Service
@@ -21,7 +24,8 @@ class GymService(
         private val mapsService: MapsService,
         private val commentDAO: CommentDAO) {
 
-    fun getAllGyms(): Iterable<Gym> = this.gymDAO.findAll().sortedBy(Gym::name)
+    fun getAllGyms(page: Int, size: Int): Page<Gym> =
+            this.gymDAO.findAll(PageRequest.of(page, size, Sort.by("name")))
 
     fun getGymById(gymId: Int): Gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
 
