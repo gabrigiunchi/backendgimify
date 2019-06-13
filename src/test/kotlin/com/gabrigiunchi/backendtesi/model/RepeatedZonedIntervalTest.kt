@@ -252,6 +252,6 @@ class RepeatedZonedIntervalTest {
         Assertions.assertThat(result).isTrue()
         val duration = Duration.between(t1, t2)
         System.out.println(duration.toMillis())
-        Assertions.assertThat(duration).isLessThan(Duration.ofMillis(50))
+        Assertions.assertThat(duration).isLessThan(Duration.ofMillis(100))
     }
 }

@@ -10,14 +10,14 @@ class Gym(
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int,
         var name: String,
-        val address: String,
+        var address: String,
 
         @ManyToOne
         @OnDelete(action = OnDeleteAction.CASCADE)
-        val city: City,
+        var city: City,
 
-        val latitude: Double,
-        val longitude: Double
+        var latitude: Double,
+        var longitude: Double
 ) {
 
     constructor(name: String, address: String, city: City) :

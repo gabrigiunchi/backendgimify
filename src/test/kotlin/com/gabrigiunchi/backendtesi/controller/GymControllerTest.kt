@@ -156,24 +156,51 @@ class GymControllerTest : AbstractControllerTest() {
     fun `Should update a gym`() {
         val gym = this.gymDAO.save(Gym("gymaaa1", "Via Pacchioni 43", this.city))
         val savedGym = this.gymDAO.save(gym)
-        gym.name = "newName"
+        val dto = GymDTOInput("new name", "new address", gym.city.id)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/${savedGym.id}")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(json(dto)))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(gym.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(dto.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.address", Matchers.`is`(dto.address)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city.name", Matchers.`is`(gym.city.name)))
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
     fun `Should not update a gym if it does not exist`() {
-        val gym = this.gymDAO.save(Gym("gymnnnn1", "address", this.city))
+        this.gymDAO.save(Gym("gym", "address", this.city))
+        val gymDTO = GymDTOInput("dasa", "address", this.city.id)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/-1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(gym)))
+                .content(json(gymDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not update a gym if the city does not exist`() {
+        val gym = this.gymDAO.save(Gym("gymnnnn1", "address", this.city))
+        val dto = GymDTOInput(gym.name, gym.address, -1)
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/${gym.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(dto)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not update a gym if the address cannot be geocoded`() {
+        Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(null)
+        val gym = this.gymDAO.save(Gym("gymnnnn1", "address", this.city))
+        val dto = GymDTOInput(gym.name, "new address", gym.city.id)
+        mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.GYMS}/${gym.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(dto)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("cannot geocode address ${dto.address}")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -220,7 +247,7 @@ class GymControllerTest : AbstractControllerTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(gym)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("address $address does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("cannot geocode address $address")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

@@ -2,8 +2,6 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.service.GymService
@@ -18,7 +16,6 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/gyms")
 class GymController(private val gymDAO: GymDAO,
                     private val gymService: GymService,
-                    private val timetableDAO: TimetableDAO,
                     private val cityDAO: CityDAO) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
@@ -32,17 +29,13 @@ class GymController(private val gymDAO: GymDAO,
     @GetMapping("/{id}")
     fun getGymById(@PathVariable id: Int): ResponseEntity<Gym> {
         this.logger.info("GET gym #$id")
-        return this.gymDAO.findById(id)
-                .map { kind -> ResponseEntity(kind, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("gym $id does not exist") }
+        return ResponseEntity(this.gymService.getGymById(id), HttpStatus.OK)
     }
 
     @GetMapping("/by_city/{cityId}")
     fun getGymByCity(@PathVariable cityId: Int): ResponseEntity<List<Gym>> {
         this.logger.info("GET gym by city #$cityId")
-        return this.cityDAO.findById(cityId)
-                .map { ResponseEntity(this.gymDAO.findByCity(it), HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
+        return ResponseEntity(this.gymService.getGymsByCity(cityId), HttpStatus.OK)
     }
 
     @GetMapping("/{id}/rating")
@@ -60,29 +53,16 @@ class GymController(private val gymDAO: GymDAO,
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PutMapping("/{id}")
-    fun updateGym(@Valid @RequestBody gym: Gym, @PathVariable id: Int): ResponseEntity<Gym> {
-        this.logger.info("PUT gym #${gym.id}")
-
-        if (this.gymDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("gym $id does not exist")
-        }
-
-        return ResponseEntity(this.gymDAO.save(gym), HttpStatus.OK)
+    fun updateGym(@Valid @RequestBody gym: GymDTOInput, @PathVariable id: Int): ResponseEntity<Gym> {
+        this.logger.info("PUT gym #$id")
+        return ResponseEntity(this.gymService.updateGym(gym, id), HttpStatus.OK)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     fun deleteGym(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE gym #$id")
-        val gym = this.gymDAO.findById(id).orElseThrow { ResourceNotFoundException("gym $id does not exist") }
-        val timetable = this.timetableDAO.findByGym(gym)
-
-        if (timetable.isPresent) {
-            this.timetableDAO.delete(timetable.get())
-        }
-
-        this.gymDAO.delete(gym)
-
+        this.gymService.deleteGym(id)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }
