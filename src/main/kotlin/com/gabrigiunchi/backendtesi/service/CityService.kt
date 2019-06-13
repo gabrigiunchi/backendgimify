@@ -11,6 +11,8 @@ import java.time.ZoneId
 @Service
 class CityService(private val cityDAO: CityDAO, private val mapsService: MapsService) {
 
+    fun getAllCities(): Iterable<City> = this.cityDAO.findAll()
+
     fun getCityByName(name: String): City = this.cityDAO.findByName(name).orElseThrow { ResourceNotFoundException("city $name does not exist") }
     fun getCityById(cityId: Int): City = this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
 

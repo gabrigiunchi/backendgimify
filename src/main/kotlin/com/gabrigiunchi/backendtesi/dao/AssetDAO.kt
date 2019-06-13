@@ -10,7 +10,7 @@ import java.util.*
 
 interface AssetDAO : PagingAndSortingRepository<Asset, Int> {
     override fun findAll(pageable: Pageable): Page<Asset>
-    fun findByGymAndKind(gym: Gym, kind: AssetKind): Collection<Asset>
+    fun findByGymAndKind(gym: Gym, kind: AssetKind): List<Asset>
     fun findByName(name: String): Collection<Asset>
     fun findByGym(gym: Gym, pageable: Pageable): Page<Asset>
     fun findByGymAndName(gym: Gym, name: String): Optional<Asset>

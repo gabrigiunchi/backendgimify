@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.service.GymService
@@ -13,15 +12,14 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/gyms")
-class GymController(private val gymDAO: GymDAO,
-                    private val gymService: GymService) {
+class GymController(private val gymService: GymService) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
 
     @GetMapping
     fun getAllGyms(): ResponseEntity<Iterable<Gym>> {
         this.logger.info("GET all gyms")
-        return ResponseEntity(this.gymDAO.findAll().sortedBy(Gym::name), HttpStatus.OK)
+        return ResponseEntity(this.gymService.getAllGyms(), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")

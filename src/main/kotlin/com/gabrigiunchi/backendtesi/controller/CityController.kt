@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.CityDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.service.CityService
@@ -13,14 +12,14 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/cities")
-class CityController(private val cityDAO: CityDAO, private val cityService: CityService) {
+class CityController(private val cityService: CityService) {
 
     private val logger = LoggerFactory.getLogger(CityController::class.java)
 
     @GetMapping
     fun getAllCities(): ResponseEntity<Iterable<City>> {
         this.logger.info("GET all cities")
-        return ResponseEntity(this.cityDAO.findAll(), HttpStatus.OK)
+        return ResponseEntity(this.cityService.getAllCities(), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")

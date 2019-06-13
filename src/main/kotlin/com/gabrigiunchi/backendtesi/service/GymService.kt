@@ -21,6 +21,8 @@ class GymService(
         private val mapsService: MapsService,
         private val commentDAO: CommentDAO) {
 
+    fun getAllGyms(): Iterable<Gym> = this.gymDAO.findAll().sortedBy(Gym::name)
+
     fun getGymById(gymId: Int): Gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
 
     fun getGymsByCity(cityId: Int): List<Gym> =
