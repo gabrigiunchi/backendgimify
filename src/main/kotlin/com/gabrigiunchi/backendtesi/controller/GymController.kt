@@ -1,6 +1,5 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.Gym
@@ -15,8 +14,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/gyms")
 class GymController(private val gymDAO: GymDAO,
-                    private val gymService: GymService,
-                    private val cityDAO: CityDAO) {
+                    private val gymService: GymService) {
 
     private val logger = LoggerFactory.getLogger(GymController::class.java)
 
