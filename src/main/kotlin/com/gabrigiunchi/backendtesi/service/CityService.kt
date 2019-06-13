@@ -11,6 +11,9 @@ import java.time.ZoneId
 @Service
 class CityService(private val cityDAO: CityDAO, private val mapsService: MapsService) {
 
+    fun getCityByName(name: String): City = this.cityDAO.findByName(name).orElseThrow { ResourceNotFoundException("city $name does not exist") }
+    fun getCityById(cityId: Int): City = this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
+
     fun saveCity(city: CityDTOInput): City {
         if (this.cityDAO.findByName(city.name).isPresent) {
             throw ResourceAlreadyExistsException("city already exists")
@@ -23,6 +26,12 @@ class CityService(private val cityDAO: CityDAO, private val mapsService: MapsSer
         city.name = cityDTO.name
         city.zoneId = this.getTimezone(cityDTO.name)
         return this.cityDAO.save(city)
+    }
+
+
+    fun deleteCity(cityId: Int) {
+        val city = this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
+        this.cityDAO.delete(city)
     }
 
     private fun getTimezone(cityName: String): ZoneId {

@@ -1,7 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.CityDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.service.CityService
@@ -27,17 +26,13 @@ class CityController(private val cityDAO: CityDAO, private val cityService: City
     @GetMapping("/{id}")
     fun getCityById(@PathVariable id: Int): ResponseEntity<City> {
         this.logger.info("GET city #$id")
-        return this.cityDAO.findById(id)
-                .map { ResponseEntity(it, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("city $id does not exist") }
+        return ResponseEntity(this.cityService.getCityById(id), HttpStatus.OK)
     }
 
     @GetMapping("/by_name/{name}")
     fun getCityByName(@PathVariable name: String): ResponseEntity<City> {
         this.logger.info("GET city $name")
-        return this.cityDAO.findByName(name)
-                .map { ResponseEntity(it, HttpStatus.OK) }
-                .orElseThrow { ResourceNotFoundException("city $name does not exist") }
+        return ResponseEntity(this.cityService.getCityByName(name), HttpStatus.OK)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -58,8 +53,7 @@ class CityController(private val cityDAO: CityDAO, private val cityService: City
     @DeleteMapping("/{id}")
     fun deleteCityById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE city #$id")
-        val city = this.cityDAO.findById(id).orElseThrow { ResourceNotFoundException("city $id does not exist") }
-        this.cityDAO.delete(city)
+        this.cityService.deleteCity(id)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }
