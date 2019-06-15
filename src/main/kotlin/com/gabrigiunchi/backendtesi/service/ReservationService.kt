@@ -79,7 +79,7 @@ class ReservationService(
         val interval = ZonedInterval(start, end)
         val asset = this.getAsset(assetId)
         return this.reservationIntervalValidator.test(interval) &&
-                this.reservationDurationRule.test(Pair(asset, interval)) &&
+                this.reservationDurationRule.test(Pair(asset.kind, interval)) &&
                 this.gymOpenRule.test(Pair(asset.gym, interval)) &&
                 this.reservationOverlapRule.test(Pair(asset, interval))
     }
@@ -87,14 +87,13 @@ class ReservationService(
     fun getAvailableAssets(kindId: Int, start: OffsetDateTime, end: OffsetDateTime): Collection<Asset> {
         val kind = this.getAssetKind(kindId)
         val interval = ZonedInterval(start, end)
-        if (!this.reservationIntervalValidator.test(interval)) {
+        if (!this.reservationIntervalValidator.test(interval) || !this.reservationDurationRule.test(Pair(kind, interval))) {
             return emptyList()
         }
 
         return this.assetDAO.findByKind(kind, Pageable.unpaged())
                 .content
                 .filter { this.gymOpenRule.test(Pair(it.gym, interval)) }
-                .filter { this.reservationDurationRule.test(Pair(it, interval)) }
                 .filter { this.reservationOverlapRule.test(Pair(it, interval)) }
     }
 
@@ -102,7 +101,7 @@ class ReservationService(
         val kind = this.getAssetKind(kindId)
         val city = this.getCity(cityId)
         val interval = ZonedInterval(start, end)
-        if (!this.reservationIntervalValidator.test(interval)) {
+        if (!this.reservationIntervalValidator.test(interval) || !this.reservationDurationRule.test(Pair(kind, interval))) {
             return emptyList()
         }
 
@@ -110,7 +109,6 @@ class ReservationService(
                 .content
                 .filter { it.gym.city.id == city.id }
                 .filter { this.gymOpenRule.test(Pair(it.gym, interval)) }
-                .filter { this.reservationDurationRule.test(Pair(it, interval)) }
                 .filter { this.reservationOverlapRule.test(Pair(it, interval)) }
     }
 
@@ -119,13 +117,12 @@ class ReservationService(
         val gym = this.getGym(gymId)
         val interval = ZonedInterval(start, end)
 
-        if (!this.reservationIntervalValidator.test(interval)) {
+        if (!this.reservationIntervalValidator.test(interval) || !this.reservationDurationRule.test(Pair(kind, interval))) {
             return emptyList()
         }
 
         return this.assetDAO.findByGymAndKind(gym, kind)
                 .filter { this.gymOpenRule.test(Pair(it.gym, interval)) }
-                .filter { this.reservationDurationRule.test(Pair(it, interval)) }
                 .filter { this.reservationOverlapRule.test(Pair(it, interval)) }
     }
 

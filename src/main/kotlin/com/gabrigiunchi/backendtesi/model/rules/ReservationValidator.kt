@@ -23,7 +23,7 @@ class ReservationValidator(
     override fun test(element: Reservation): Boolean {
         val interval = ZonedInterval(element.start, element.end)
         return this.reservationIntervalValidator.test(interval) &&
-                this.reservationDurationRule.test(Pair(element.asset, interval)) &&
+                this.reservationDurationRule.test(Pair(element.asset.kind, interval)) &&
                 this.gymOpenRule.test(Pair(element.asset.gym, interval)) &&
                 this.reservationOverlapRule.test(Pair(element.asset, interval))
     }
@@ -31,7 +31,7 @@ class ReservationValidator(
     override fun validate(element: Reservation) {
         val interval = ZonedInterval(element.start, element.end)
         this.reservationIntervalValidator.validate(interval)
-        this.reservationDurationRule.validate(Pair(element.asset, interval))
+        this.reservationDurationRule.validate(Pair(element.asset.kind, interval))
         this.gymOpenRule.validate(Pair(element.asset.gym, interval))
         this.reservationOverlapRule.validate(Pair(element.asset, interval))
 
