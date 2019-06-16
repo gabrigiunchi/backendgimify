@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.util.*
 
 @Service
 class AvatarService(private val userDAO: UserDAO,
@@ -64,8 +63,6 @@ class AvatarService(private val userDAO: UserDAO,
 
     val defaultAvatar: ByteArray
         get() = super.download(DEFAULT_AVATAR_METADATA.id)
-
-    private fun randomName(): String = UUID.randomUUID().toString()
 
     private fun getUser(username: String): User =
             this.userDAO.findByUsername(username).orElseThrow { ResourceNotFoundException("user $username does not exist") }

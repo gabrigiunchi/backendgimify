@@ -54,4 +54,7 @@ open class ImageService(
 
         client.deleteObject(this.bucketName, id)
     }
+
+    protected fun randomName(): String = UUID.randomUUID().toString()
+
 }
