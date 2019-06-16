@@ -41,11 +41,12 @@ class TimetableControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all timetables`() {
-        this.createTimetable()
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.TIMETABLES)
+        val timetable = this.createTimetable()
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/page/0/size/100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`(timetable.id)))
                 .andDo(MockMvcResultHandlers.print())
     }
 

@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -21,10 +22,10 @@ class TimetableController(
 
     private val logger = LoggerFactory.getLogger(TimetableController::class.java)
 
-    @GetMapping
-    fun getAllTimetables(): ResponseEntity<Iterable<Timetable>> {
+    @GetMapping("/page/{page}/size/{size}")
+    fun getAllTimetables(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Iterable<Timetable>> {
         this.logger.info("GET all timetables")
-        return ResponseEntity(this.timetableDAO.findAll(), HttpStatus.OK)
+        return ResponseEntity(this.timetableDAO.findAll(PageRequest.of(page, size)), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
