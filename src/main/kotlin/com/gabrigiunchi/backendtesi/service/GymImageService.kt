@@ -8,6 +8,8 @@ import com.gabrigiunchi.backendtesi.model.entities.GymImage
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -24,6 +26,8 @@ class GymImageService(
     companion object {
         val DEFAULT_GYM_AVATAR = Image("gymdefault.jpg", 0)
     }
+
+    fun getAllMetadata(page: Int, size: Int): Page<Image> = this.gymImageDAO.findAll(PageRequest.of(page, size)).map { Image(it.id, it.lastModified) }
 
     fun getPhotosOfGym(gymId: Int): List<Image> {
         return this.gymDAO.findById(gymId)

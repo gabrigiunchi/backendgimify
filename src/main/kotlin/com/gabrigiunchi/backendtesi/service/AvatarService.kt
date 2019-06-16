@@ -7,6 +7,8 @@ import com.gabrigiunchi.backendtesi.model.entities.Avatar
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.entities.User
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
@@ -27,6 +29,8 @@ class AvatarService(private val userDAO: UserDAO,
 
     val presetAvatars: List<Image>
         get() = this.getAllMetadataWithPrefix(PRESET_PREFIX)
+
+    fun getAllMetadata(page: Int, size: Int): Page<Image> = this.avatarDAO.findAll(PageRequest.of(page, size)).map { Image(it.id, it.lastModified) }
 
     fun getAvatarMetadataOfUser(username: String): Image {
         val user = this.getUser(username)

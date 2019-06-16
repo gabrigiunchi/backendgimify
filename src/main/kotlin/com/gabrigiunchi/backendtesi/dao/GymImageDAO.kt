@@ -3,9 +3,9 @@ package com.gabrigiunchi.backendtesi.dao
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.entities.GymImage
 import com.gabrigiunchi.backendtesi.model.type.ImageType
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.PagingAndSortingRepository
 
-interface GymImageDAO : CrudRepository<GymImage, String> {
+interface GymImageDAO : PagingAndSortingRepository<GymImage, String> {
     fun findByGym(gym: Gym): List<GymImage>
     fun findByGymAndType(gym: Gym, type: ImageType): List<GymImage>
 }

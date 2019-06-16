@@ -6,6 +6,7 @@ import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.GymImageService
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -19,10 +20,10 @@ class GymImageController(private val gymImageService: GymImageService, private v
     private val logger = LoggerFactory.getLogger(GymImageController::class.java)
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @GetMapping("/photos")
-    fun getAllMetadata(): ResponseEntity<Collection<Image>> {
+    @GetMapping("/photos/page/{page}/size/{size}")
+    fun getAllMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Image>> {
         this.logger.info("GET all images")
-        return ResponseEntity(this.gymImageService.getAllMetadata(), HttpStatus.OK)
+        return ResponseEntity(this.gymImageService.getAllMetadata(page, size), HttpStatus.OK)
     }
 
     @GetMapping("/{id}/photos")

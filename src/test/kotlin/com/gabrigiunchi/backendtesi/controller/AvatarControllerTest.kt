@@ -5,6 +5,7 @@ import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.AvatarDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
+import com.gabrigiunchi.backendtesi.model.entities.Avatar
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.service.AvatarService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
@@ -65,25 +66,15 @@ class AvatarControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all avatars metadata`() {
-        (1..2).map { this.mockImage("$it.png", "jdnsajdas") }
-        val objectListing = ListObjectsV2Result()
-        objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata()
-                .map { metadata ->
-                    val summary = S3ObjectSummary()
-                    summary.key = metadata.id
-                    summary.lastModified = Date(metadata.lastModified)
-                    summary
-                })
+        val user = this.mockUser
+        (1..2).map { this.avatarDAO.save(Avatar("avatar$it", user)) }
 
-        Assertions.assertThat(this.mockObjectStorage.getAllMetadata().size).isEqualTo(2)
-        Mockito.`when`(this.amazonS3.listObjectsV2(this.bucketName)).thenReturn(objectListing)
-
-        this.mockMvc.perform(MockMvcRequestBuilders.get(ApiUrls.AVATARS)
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`("1.png")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`("2.png")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`("avatar1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`("avatar2")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

@@ -13,9 +13,7 @@ import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.GymImageService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
-import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
-import com.ibm.cloud.objectstorage.services.s3.model.S3ObjectSummary
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -70,25 +68,14 @@ class GymImageControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get all images metadata`() {
-        (1..2).map { this.mockImage("$it.png", "jdnsajdas") }
-        val objectListing = ListObjectsV2Result()
-        objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata()
-                .map { metadata ->
-                    val summary = S3ObjectSummary()
-                    summary.key = metadata.id
-                    summary.lastModified = Date(metadata.lastModified)
-                    summary
-                })
-
-        Assertions.assertThat(this.mockObjectStorage.getAllMetadata().size).isEqualTo(2)
-        Mockito.`when`(this.amazonS3.listObjectsV2(this.bucketName)).thenReturn(objectListing)
-
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos")
+        val gym = this.mockGym()
+        (1..2).map { this.gymImageDAO.save(GymImage("$it.png", ImageType.profile, gym)) }
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/page/0/size/100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.`is`("1.png")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.`is`("2.png")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`("1.png")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`("2.png")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

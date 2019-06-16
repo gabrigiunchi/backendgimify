@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.service.AvatarService
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -19,10 +20,10 @@ class AvatarController(
     private val logger = LoggerFactory.getLogger(AvatarController::class.java)
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @GetMapping
-    fun getAllAvatarsMetadata(): ResponseEntity<Collection<Image>> {
+    @GetMapping("/page/{page}/size/{size}")
+    fun getAllAvatarsMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Image>> {
         this.logger.info("GET all avatars metadata")
-        return ResponseEntity(this.avatarService.getAllMetadata(), HttpStatus.OK)
+        return ResponseEntity(this.avatarService.getAllMetadata(page, size), HttpStatus.OK)
     }
 
     @GetMapping("/{id}")
