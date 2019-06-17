@@ -129,18 +129,16 @@ class AvatarControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should add an avatar`() {
-        val name = "photo1.jpg"
-        this.mockImage(name, "jdnasjda")
-        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/$name")
-                .file(this.mockImage(name, "content")))
+        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/${this.mockUser.id}")
+                .file(this.mockImage("adsada", "content")))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(name)))
     }
 
     @Test
     fun `Should delete an avatar`() {
         val name = "photo1.jpg"
         this.mockImage(name, "dsjdas")
+        this.avatarDAO.save(Image(name, ImageType.avatar, this.mockUser, this.bucketName))
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.AVATARS}/$name"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
     }
@@ -208,6 +206,7 @@ class AvatarControllerTest : AbstractControllerTest() {
     @Test
     fun `Should delete my avatar`() {
         val name = mockUser.username
+        this.avatarDAO.save(Image(name, ImageType.avatar, this.mockUser, this.bucketName))
         this.mockImage(name, "dsjdas")
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.AVATARS}/me"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
@@ -224,7 +223,7 @@ class AvatarControllerTest : AbstractControllerTest() {
         Mockito.`when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(putObjectResult)
 
-        Mockito.`when`(this.amazonS3.getObjectMetadata(this.bucketName, name)).thenReturn(metadata)
+        Mockito.`when`(this.amazonS3.getObjectMetadata(Mockito.anyString(), Mockito.anyString())).thenReturn(metadata)
 
         Mockito.`when`(this.amazonS3.doesObjectExist(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.contains(name))

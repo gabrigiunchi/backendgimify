@@ -60,26 +60,18 @@ class GymImageController(private val gymImageService: GymImageService, private v
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @PostMapping("/{id}/photos/")
+    @RequestMapping("/{id}/photos/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
     fun addPhoto(@PathVariable id: Int,
+                 @PathVariable name: String,
                  @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
-        this.logger.info("POST photo of gym $id")
-        return ResponseEntity(this.gymImageService.addImage(id, image), HttpStatus.CREATED)
-    }
-
-    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @PutMapping("/{id}/photos/")
-    fun updatePhoto(@PathVariable id: Int,
-                    @PathVariable name: String,
-                    @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
         this.logger.info("POST photo of gym $id")
         return ResponseEntity(this.gymImageService.updateImage(id, image, name, ImageType.profile), HttpStatus.CREATED)
     }
 
+
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @RequestMapping("/{id}/avatar/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
+    @RequestMapping("/{id}/avatar", method = [RequestMethod.POST, RequestMethod.PUT])
     fun setAvatar(@PathVariable id: Int,
-                  @PathVariable name: String,
                   @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
         this.logger.info("POST avatar of gym $id")
         return ResponseEntity(this.gymImageService.setAvatar(id, image), HttpStatus.CREATED)
