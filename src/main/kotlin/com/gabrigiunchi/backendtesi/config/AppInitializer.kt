@@ -49,7 +49,7 @@ class AppInitializer {
     private lateinit var timetableDAO: TimetableDAO
 
     @Autowired
-    private lateinit var gymImageDAO: ImageDAO
+    private lateinit var imageDAO: ImageDAO
 
     @Autowired
     private lateinit var userFactory: UserFactory
@@ -60,8 +60,11 @@ class AppInitializer {
     @Value("\${application.initDB}")
     private var initDB = false
 
-    @Value("\${application.initDB}")
+    @Value("\${application.objectstorage.gymphotosbucket}")
     private var gymBucket = ""
+
+    @Value("\${application.objectstorage.avatarsbucket}")
+    private var userBucket = ""
 
     private var cities = listOf<City>()
     private var gyms = listOf<Gym>()
@@ -205,11 +208,18 @@ class AppInitializer {
     }
 
     private fun initImages() {
-        this.logger.info("Init gym images")
+        this.logger.info("Init gyms' images")
         for (i in 1..this.gyms.size) {
             val gym = this.gyms[i - 1]
-            this.gymImageDAO.saveAll(((1..4).map { Image("gym$i $it.jpg", ImageType.profile, gym, this.gymBucket) }))
-            this.gymImageDAO.save(Image("avatargym$i.jpg", ImageType.avatar, gym, this.gymBucket))
+            this.imageDAO.saveAll(((1..4).map { Image("gym$i $it.jpg", ImageType.profile, gym, this.gymBucket) }))
+            this.imageDAO.save(Image("avatargym$i.jpg", ImageType.avatar, gym, this.gymBucket))
+        }
+
+        this.logger.info("Init users' images")
+        for (i in 1..this.randomUsers.size) {
+            val user = this.randomUsers[i - 1]
+            val avatarId = "preset${i % 10}.png"
+            this.imageDAO.save(Image(avatarId, ImageType.avatar, user, this.userBucket))
         }
     }
 

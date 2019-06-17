@@ -8,7 +8,7 @@ import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.ImageType
-import com.gabrigiunchi.backendtesi.service.AvatarService
+import com.gabrigiunchi.backendtesi.service.ImageService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
@@ -155,7 +155,7 @@ class AvatarControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get my avatar`() {
-        val avatar = AvatarService.DEFAULT_AVATAR_METADATA
+        val avatar = ImageService.DEFAULT_AVATAR_METADATA
         val name = avatar.id
         val content = "dajndjsa"
         this.mockImage(name, content)
@@ -168,7 +168,7 @@ class AvatarControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should get my avatar metadata`() {
-        val avatar = AvatarService.DEFAULT_AVATAR_METADATA
+        val avatar = ImageService.DEFAULT_AVATAR_METADATA
         val name = avatar.id
         val content = "fdsda"
         this.mockImage(name, content)
