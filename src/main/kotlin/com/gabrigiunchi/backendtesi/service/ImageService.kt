@@ -23,7 +23,7 @@ open class ImageService(
         val DEFAULT_AVATAR_METADATA = ImageMetadata("default", 0)
     }
 
-    /*************************** AVATARS **************************************************/
+    /******************************* AVATARS *********************************************/
 
     fun getAvatarMetadata(entityId: Int): ImageMetadata {
         val images = this.imageDAO.findByDrawableAndBucket(this.getEntity(entityId), this.bucketName)
