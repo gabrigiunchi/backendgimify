@@ -6,9 +6,9 @@ import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.GymImageDAO
+import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.model.entities.Gym
-import com.gabrigiunchi.backendtesi.model.entities.GymImage
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.GymImageService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
@@ -54,7 +54,7 @@ class GymImageControllerTest : AbstractControllerTest() {
     private lateinit var context: ApplicationContext
 
     @Autowired
-    private lateinit var gymImageDAO: GymImageDAO
+    private lateinit var gymImageDAO: ImageDAO
 
     @Before
     fun init() {
@@ -69,7 +69,7 @@ class GymImageControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get all images metadata`() {
         val gym = this.mockGym()
-        (1..2).map { this.gymImageDAO.save(GymImage("$it.png", ImageType.profile, gym)) }
+        (1..2).map { this.gymImageDAO.save(Image("$it.png", ImageType.profile, gym, this.bucketName)) }
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/page/0/size/100")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -82,7 +82,7 @@ class GymImageControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get the metadata of an image`() {
         val id = "a.png"
-        this.gymImageDAO.save(GymImage(id, ImageType.profile, this.mockGym()))
+        this.gymImageDAO.save(Image(id, ImageType.profile, this.mockGym(), this.bucketName))
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/$id/metadata")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -154,7 +154,7 @@ class GymImageControllerTest : AbstractControllerTest() {
     @Test
     fun `Should delete a photo`() {
         val imageId = "photo1.jpg"
-        this.gymImageDAO.save(GymImage(imageId, ImageType.profile, this.mockGym()))
+        this.gymImageDAO.save(Image(imageId, ImageType.profile, this.mockGym(), this.bucketName))
         this.mockImage(imageId, "content")
         Assertions.assertThat(this.gymImageDAO.findById(imageId).isPresent).isTrue()
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/photos/$imageId"))
@@ -174,7 +174,7 @@ class GymImageControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get the avatar of a gym`() {
         val gym = this.mockGym()
-        val image = this.gymImageDAO.save(GymImage("avatar1.png", ImageType.avatar, gym))
+        val image = this.gymImageDAO.save(Image("avatar1.png", ImageType.avatar, gym, this.bucketName))
         val content = "dnasjndjk"
         this.mockImage(image.id, content)
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/avatar")
@@ -187,7 +187,7 @@ class GymImageControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get the avatar metadata of a gym`() {
         val gym = this.mockGym()
-        val metadata = this.gymImageDAO.save(GymImage("avatar1", ImageType.avatar, gym))
+        val metadata = this.gymImageDAO.save(Image("avatar1", ImageType.avatar, gym, this.bucketName))
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/${gym.id}/avatar/metadata")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)

@@ -2,6 +2,8 @@ package com.gabrigiunchi.backendtesi.service
 
 
 import com.gabrigiunchi.backendtesi.MockObjectStorage
+import com.gabrigiunchi.backendtesi.dao.DrawableDAO
+import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
@@ -12,6 +14,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mock.web.MockMultipartFile
 import java.util.*
@@ -25,12 +28,18 @@ class ImageServiceTest {
     private lateinit var imageService: ImageService
     private val mockObjectStorage = MockObjectStorage()
 
+    @Autowired
+    private lateinit var drawableDAO: DrawableDAO
+
+    @Autowired
+    private lateinit var imageDAO: ImageDAO
+
     @Before
     fun init() {
         this.mockObjectStorage.clear()
         this.amazonS3 = Mockito.mock(AmazonS3::class.java)
         this.objectStorageService = Mockito.mock(ObjectStorageService::class.java)
-        this.imageService = ImageService(this.objectStorageService, this.bucketName)
+        this.imageService = ImageService(drawableDAO, imageDAO, this.objectStorageService, this.bucketName)
         `when`(this.objectStorageService.createClient()).thenReturn(this.amazonS3)
     }
 
@@ -47,7 +56,7 @@ class ImageServiceTest {
         })
 
         `when`(this.amazonS3.listObjectsV2(this.bucketName)).thenReturn(objectListing)
-        val result = this.imageService.getAllMetadata()
+        val result = this.imageService.getAllMetadata(0, 100).content
         Assertions.assertThat(result.size).isEqualTo(1)
         Assertions.assertThat(result[0].id).isEqualTo(name)
     }
