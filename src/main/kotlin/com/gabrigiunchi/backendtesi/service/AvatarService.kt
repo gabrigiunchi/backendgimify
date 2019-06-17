@@ -17,7 +17,6 @@ class AvatarService(
 
 
     companion object {
-        val DEFAULT_AVATAR_METADATA = ImageMetadata("default", 0)
         const val PRESET_PREFIX = "preset"
     }
 
