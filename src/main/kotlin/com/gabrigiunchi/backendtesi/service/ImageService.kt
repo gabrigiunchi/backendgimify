@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.entities.Image
+import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
@@ -12,17 +12,17 @@ open class ImageService(
 
     fun contains(image: String): Boolean = this.objectStorageService.createClient().doesObjectExist(this.bucketName, image)
 
-    fun getAllMetadata(): List<Image> =
+    fun getAllMetadata(): List<ImageMetadata> =
             this.objectStorageService.createClient()
                     .listObjectsV2(this.bucketName)
                     .objectSummaries
-                    .map { summary -> Image(summary.key, summary.lastModified.time) }
+                    .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
 
-    fun getAllMetadataWithPrefix(prefix: String): List<Image> =
+    fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> =
             this.objectStorageService.createClient()
                     .listObjectsV2(this.bucketName, prefix)
                     .objectSummaries
-                    .map { summary -> Image(summary.key, summary.lastModified.time) }
+                    .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
 
 
     fun download(id: String): ByteArray {
@@ -37,12 +37,12 @@ open class ImageService(
                 .readAllBytes()
     }
 
-    fun upload(image: MultipartFile, id: String): Image {
+    fun upload(image: MultipartFile, id: String): ImageMetadata {
         val client = this.objectStorageService.createClient()
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
         client.putObject(this.bucketName, id, image.inputStream, metadata).metadata
-        return Image(id, Date().time)
+        return ImageMetadata(id, Date().time)
     }
 
     open fun delete(id: String) {

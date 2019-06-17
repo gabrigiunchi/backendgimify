@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.entities.Image
+import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.service.AvatarService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -21,7 +21,7 @@ class AvatarController(
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/page/{page}/size/{size}")
-    fun getAllAvatarsMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Image>> {
+    fun getAllAvatarsMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ImageMetadata>> {
         this.logger.info("GET all avatars metadata")
         return ResponseEntity(this.avatarService.getAllMetadata(page, size), HttpStatus.OK)
     }
@@ -40,7 +40,7 @@ class AvatarController(
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @RequestMapping("/{id}", method = [RequestMethod.POST, RequestMethod.PUT])
-    fun setAvatar(@PathVariable id: String, @RequestBody avatar: MultipartFile): ResponseEntity<Image> {
+    fun setAvatar(@PathVariable id: String, @RequestBody avatar: MultipartFile): ResponseEntity<ImageMetadata> {
         this.logger.info("PUT avatar #$id")
         return ResponseEntity(this.avatarService.upload(avatar, id), HttpStatus.CREATED)
     }
@@ -56,7 +56,7 @@ class AvatarController(
     /***************************** PRESETS ****************************************************/
 
     @GetMapping("/presets")
-    fun getAllPresetsAvatar(): ResponseEntity<Collection<Image>> {
+    fun getAllPresetsAvatar(): ResponseEntity<Collection<ImageMetadata>> {
         this.logger.info("GET all presets avatar")
         return ResponseEntity(this.avatarService.presetAvatars, HttpStatus.OK)
     }
@@ -71,14 +71,14 @@ class AvatarController(
     }
 
     @GetMapping("/me/metadata")
-    fun getMyAvatarMetadata(): ResponseEntity<Image> {
+    fun getMyAvatarMetadata(): ResponseEntity<ImageMetadata> {
         val user = this.getLoggedUser()
         this.logger.info("GET avatar metadata for logged user (#${user.id})")
         return ResponseEntity(this.avatarService.getAvatarMetadataOfUser(user.username), HttpStatus.OK)
     }
 
     @RequestMapping("/me", method = [RequestMethod.POST, RequestMethod.PUT])
-    fun changeMyAvatar(@RequestBody avatar: MultipartFile): ResponseEntity<Image> {
+    fun changeMyAvatar(@RequestBody avatar: MultipartFile): ResponseEntity<ImageMetadata> {
         val user = this.getLoggedUser()
         this.logger.info("PUT avatar for logged user (#${user.id})")
         return ResponseEntity(this.avatarService.setAvatarOfUser(user.username, avatar), HttpStatus.CREATED)

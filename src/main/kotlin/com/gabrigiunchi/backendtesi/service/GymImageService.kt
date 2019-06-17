@@ -5,7 +5,7 @@ import com.gabrigiunchi.backendtesi.dao.GymImageDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.entities.GymImage
-import com.gabrigiunchi.backendtesi.model.entities.Image
+import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
@@ -24,26 +24,26 @@ class GymImageService(
 
 
     companion object {
-        val DEFAULT_GYM_AVATAR = Image("gymdefault.jpg", 0)
+        val DEFAULT_GYM_AVATAR = ImageMetadata("gymdefault.jpg", 0)
     }
 
-    fun getAllMetadata(page: Int, size: Int): Page<Image> = this.gymImageDAO.findAll(PageRequest.of(page, size)).map { Image(it.id, it.lastModified) }
+    fun getAllMetadata(page: Int, size: Int): Page<ImageMetadata> = this.gymImageDAO.findAll(PageRequest.of(page, size)).map { ImageMetadata(it.id, it.lastModified) }
 
-    fun getPhotosOfGym(gymId: Int): List<Image> {
+    fun getPhotosOfGym(gymId: Int): List<ImageMetadata> {
         return this.gymDAO.findById(gymId)
                 .map {
                     this.gymImageDAO.findByGym(it).map { image ->
-                        Image(image.id, image.lastModified)
+                        ImageMetadata(image.id, image.lastModified)
                     }
                 }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
-    fun getAvatarMetadataOfGym(gymId: Int): Image {
+    fun getAvatarMetadataOfGym(gymId: Int): ImageMetadata {
         return this.gymDAO.findById(gymId)
                 .map {
                     val avatar = this.gymImageDAO.findByGymAndType(it, ImageType.avatar).map { image ->
-                        Image(image.id, image.lastModified)
+                        ImageMetadata(image.id, image.lastModified)
                     }
 
                     if (avatar.isNotEmpty()) avatar.first() else DEFAULT_GYM_AVATAR
@@ -55,7 +55,7 @@ class GymImageService(
         return this.download(this.getAvatarMetadataOfGym(gymId).id)
     }
 
-    fun setAvatar(gymId: Int, image: MultipartFile, imageId: String): Image {
+    fun setAvatar(gymId: Int, image: MultipartFile, imageId: String): ImageMetadata {
         return this.gymDAO.findById(gymId)
                 .map {
                     this.gymImageDAO.findById(imageId)
@@ -76,7 +76,7 @@ class GymImageService(
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
-    fun setImage(gymId: Int, image: MultipartFile, imageId: String, type: ImageType): Image {
+    fun setImage(gymId: Int, image: MultipartFile, imageId: String, type: ImageType): ImageMetadata {
         return this.gymDAO.findById(gymId)
                 .map {
                     this.gymImageDAO.findById(imageId)

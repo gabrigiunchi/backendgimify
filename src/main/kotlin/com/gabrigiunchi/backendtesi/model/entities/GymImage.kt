@@ -11,14 +11,14 @@ import javax.persistence.ManyToOne
 class GymImage(
         id: String,
 
-        val type: ImageType,
+        type: ImageType,
 
         @ManyToOne
         @OnDelete(action = OnDeleteAction.CASCADE)
         val gym: Gym,
 
         lastModified: Long
-) : Image(id, lastModified) {
+) : Image(id, type, lastModified) {
 
     constructor(id: String, type: ImageType, gym: Gym) : this(id, type, gym, Date().time)
 }

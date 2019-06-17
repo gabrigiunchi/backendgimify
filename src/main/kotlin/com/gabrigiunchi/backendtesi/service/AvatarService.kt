@@ -4,7 +4,7 @@ import com.gabrigiunchi.backendtesi.dao.AvatarDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.entities.Avatar
-import com.gabrigiunchi.backendtesi.model.entities.Image
+import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.model.entities.User
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
@@ -22,19 +22,19 @@ class AvatarService(private val userDAO: UserDAO,
 
 
     companion object {
-        val DEFAULT_AVATAR_METADATA = Image("default", 0)
+        val DEFAULT_AVATAR_METADATA = ImageMetadata("default", 0)
         const val PRESET_PREFIX = "preset"
     }
 
-    val presetAvatars: List<Image>
+    val presetAvatars: List<ImageMetadata>
         get() = this.getAllMetadataWithPrefix(PRESET_PREFIX)
 
-    fun getAllMetadata(page: Int, size: Int): Page<Image> = this.avatarDAO.findAll(PageRequest.of(page, size)).map { Image(it.id, it.lastModified) }
+    fun getAllMetadata(page: Int, size: Int): Page<ImageMetadata> = this.avatarDAO.findAll(PageRequest.of(page, size)).map { ImageMetadata(it.id, it.lastModified) }
 
-    fun getAvatarMetadataOfUser(username: String): Image {
+    fun getAvatarMetadataOfUser(username: String): ImageMetadata {
         val user = this.getUser(username)
         return this.avatarDAO.findByUser(user)
-                .map { Image(it.id, it.lastModified) }
+                .map { ImageMetadata(it.id, it.lastModified) }
                 .orElseGet { DEFAULT_AVATAR_METADATA }
     }
 
@@ -42,7 +42,7 @@ class AvatarService(private val userDAO: UserDAO,
         return this.download(this.getAvatarMetadataOfUser(username).id)
     }
 
-    fun setAvatarOfUser(username: String, image: MultipartFile): Image {
+    fun setAvatarOfUser(username: String, image: MultipartFile): ImageMetadata {
         val user = this.getUser(username)
         val avatarId = this.avatarDAO.findByUser(user).map { it.id }.orElseGet { "${randomName()}${user.id}" }
         val metadata = this.upload(image, avatarId)
