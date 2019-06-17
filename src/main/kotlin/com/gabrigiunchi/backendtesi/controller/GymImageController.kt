@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.dao.GymImageDAO
+import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/v1/gyms")
-class GymImageController(private val gymImageService: GymImageService, private val gymImageDAO: GymImageDAO) {
+class GymImageController(private val gymImageService: GymImageService, private val gymImageDAO: ImageDAO) {
 
     private val logger = LoggerFactory.getLogger(GymImageController::class.java)
 
@@ -30,19 +30,19 @@ class GymImageController(private val gymImageService: GymImageService, private v
     @GetMapping("/{id}/photos")
     fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
         this.logger.info("GET photos of gym $id")
-        return ResponseEntity(this.gymImageService.getPhotosOfGym(id), HttpStatus.OK)
+        return ResponseEntity(this.gymImageService.getImagesOfEntity(id), HttpStatus.OK)
     }
 
     @GetMapping("/{id}/avatar")
     fun getAvatarOfGym(@PathVariable id: Int): ResponseEntity<ByteArray> {
         this.logger.info("GET avatar of gym $id")
-        return ResponseEntity(this.gymImageService.getAvatarOfGym(id), HttpStatus.OK)
+        return ResponseEntity(this.gymImageService.getAvatar(id), HttpStatus.OK)
     }
 
     @GetMapping("/{id}/avatar/metadata")
     fun getAvatarMetadataOfGym(@PathVariable id: Int): ResponseEntity<ImageMetadata> {
         this.logger.info("GET avatar metadata of gym $id")
-        return ResponseEntity(this.gymImageService.getAvatarMetadataOfGym(id), HttpStatus.OK)
+        return ResponseEntity(this.gymImageService.getAvatarMetadata(id), HttpStatus.OK)
     }
 
     @GetMapping("/photos/{imageId}")
@@ -60,12 +60,20 @@ class GymImageController(private val gymImageService: GymImageService, private v
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @RequestMapping("/{id}/photos/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
+    @PostMapping("/{id}/photos/")
     fun addPhoto(@PathVariable id: Int,
-                 @PathVariable name: String,
                  @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
         this.logger.info("POST photo of gym $id")
-        return ResponseEntity(this.gymImageService.setImage(id, image, name, ImageType.profile), HttpStatus.CREATED)
+        return ResponseEntity(this.gymImageService.addImage(id, image), HttpStatus.CREATED)
+    }
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    @PutMapping("/{id}/photos/")
+    fun updatePhoto(@PathVariable id: Int,
+                    @PathVariable name: String,
+                    @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
+        this.logger.info("POST photo of gym $id")
+        return ResponseEntity(this.gymImageService.updateImage(id, image, name, ImageType.profile), HttpStatus.CREATED)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -74,14 +82,14 @@ class GymImageController(private val gymImageService: GymImageService, private v
                   @PathVariable name: String,
                   @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
         this.logger.info("POST avatar of gym $id")
-        return ResponseEntity(this.gymImageService.setAvatar(id, image, name), HttpStatus.CREATED)
+        return ResponseEntity(this.gymImageService.setAvatar(id, image), HttpStatus.CREATED)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/photos/{image}")
     fun deletePhoto(@PathVariable image: String): ResponseEntity<Void> {
         this.logger.info("DELETE photo $image")
-        this.gymImageService.delete(image)
+        this.gymImageService.deleteImage(image)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
 }

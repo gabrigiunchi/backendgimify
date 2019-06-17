@@ -3,10 +3,11 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.AvatarDAO
+import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.dao.UserDAO
-import com.gabrigiunchi.backendtesi.model.entities.Avatar
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.entities.User
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.AvatarService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
 import com.gabrigiunchi.backendtesi.util.UserFactory
@@ -54,7 +55,7 @@ class AvatarControllerTest : AbstractControllerTest() {
     private lateinit var userFactory: UserFactory
 
     @Autowired
-    private lateinit var avatarDAO: AvatarDAO
+    private lateinit var avatarDAO: ImageDAO
 
     @Before
     fun init() {
@@ -67,7 +68,7 @@ class AvatarControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get all avatars metadata`() {
         val user = this.mockUser
-        (1..2).map { this.avatarDAO.save(Avatar("avatar$it", user)) }
+        (1..2).map { this.avatarDAO.save(Image("avatar$it", ImageType.avatar, user, this.bucketName)) }
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -83,7 +84,7 @@ class AvatarControllerTest : AbstractControllerTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/of_user/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("entity -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -197,10 +198,10 @@ class AvatarControllerTest : AbstractControllerTest() {
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.lastModified", Matchers.greaterThanOrEqualTo(now)))
 
-        val optionalSavedAvatar = this.avatarDAO.findByUser(user)
-        Assertions.assertThat(optionalSavedAvatar.isPresent).isTrue()
-        val savedMetadata = optionalSavedAvatar.get()
-        Assertions.assertThat(savedMetadata.user.id).isEqualTo(user.id)
+        val optionalSavedAvatar = this.avatarDAO.findByDrawableAndTypeAndBucket(user, ImageType.avatar, this.bucketName)
+        Assertions.assertThat(optionalSavedAvatar.isNotEmpty()).isTrue()
+        val savedMetadata = optionalSavedAvatar.first()
+        Assertions.assertThat(savedMetadata.drawable.id).isEqualTo(user.id)
         Assertions.assertThat(savedMetadata.lastModified).isGreaterThanOrEqualTo(now)
     }
 

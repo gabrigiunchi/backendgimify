@@ -2,17 +2,16 @@ package com.gabrigiunchi.backendtesi.model.entities
 
 import com.gabrigiunchi.backendtesi.util.DateDecorator
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.ManyToMany
 
 @Entity
 class User(
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        val id: Int,
-
+        id: Int,
         val username: String,
         val password: String,
-        val name: String,
+        name: String,
         val surname: String,
         val email: String,
 
@@ -20,7 +19,7 @@ class User(
         val roles: MutableCollection<UserRole>,
 
         val validFrom: Date,
-        val expireDate: Date) {
+        val expireDate: Date) : Drawable(id, name) {
 
     var notificationsEnabled = true
     var isActive = true

@@ -49,7 +49,7 @@ class AppInitializer {
     private lateinit var timetableDAO: TimetableDAO
 
     @Autowired
-    private lateinit var gymImageDAO: GymImageDAO
+    private lateinit var gymImageDAO: ImageDAO
 
     @Autowired
     private lateinit var userFactory: UserFactory
@@ -59,6 +59,9 @@ class AppInitializer {
 
     @Value("\${application.initDB}")
     private var initDB = false
+
+    @Value("\${application.initDB}")
+    private var gymBucket = ""
 
     private var cities = listOf<City>()
     private var gyms = listOf<Gym>()
@@ -205,8 +208,8 @@ class AppInitializer {
         this.logger.info("Init gym images")
         for (i in 1..this.gyms.size) {
             val gym = this.gyms[i - 1]
-            this.gymImageDAO.saveAll(((1..4).map { GymImage("gym$i $it.jpg", ImageType.profile, gym) }))
-            this.gymImageDAO.save(GymImage("avatargym$i.jpg", ImageType.avatar, gym))
+            this.gymImageDAO.saveAll(((1..4).map { Image("gym$i $it.jpg", ImageType.profile, gym, this.gymBucket) }))
+            this.gymImageDAO.save(Image("avatargym$i.jpg", ImageType.avatar, gym, this.gymBucket))
         }
     }
 
