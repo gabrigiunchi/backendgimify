@@ -39,9 +39,7 @@ open class ImageService(
         val images = this.imageDAO.findByDrawableAndBucket(entity, this.bucketName).filter { it.type == ImageType.avatar }
 
         if (images.isNotEmpty()) {
-            val avatar = images.first()
-            this.deleteImage(avatar.id)
-            this.imageDAO.delete(avatar)
+            this.deleteImage(images.first().id)
         }
     }
 
@@ -50,7 +48,7 @@ open class ImageService(
                 .map {
                     this.delete(it.id)
                     this.imageDAO.delete(it)
-                }
+                }.orElseThrow { ResourceNotFoundException("image $imageId does not exist") }
     }
 
     fun getAvatar(entityId: Int): ByteArray = this.download(this.getAvatarMetadata(entityId).id)
@@ -62,7 +60,8 @@ open class ImageService(
         return if (images.isEmpty()) DEFAULT_AVATAR_METADATA else ImageMetadata(images.first().id, images.first().lastModified)
     }
 
-    fun getAllMetadata(page: Int, size: Int): Page<ImageMetadata> = this.imageDAO.findAll(PageRequest.of(page, size)).map { ImageMetadata(it.id, it.lastModified) }
+    fun getAllMetadata(page: Int, size: Int): Page<ImageMetadata> =
+            this.imageDAO.findByBucket(this.bucketName, PageRequest.of(page, size)).map { ImageMetadata(it.id, it.lastModified) }
 
     fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> =
             this.objectStorageService.createClient()
@@ -120,10 +119,9 @@ open class ImageService(
     }
 
     fun upload(image: MultipartFile, id: String): ImageMetadata {
-        val client = this.objectStorageService.createClient()
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
-        client.putObject(this.bucketName, id, image.inputStream, metadata).metadata
+        this.objectStorageService.createClient().putObject(this.bucketName, id, image.inputStream, metadata).metadata
         return ImageMetadata(id, Date().time)
     }
 
