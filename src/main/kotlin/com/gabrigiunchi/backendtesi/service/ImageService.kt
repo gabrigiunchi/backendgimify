@@ -23,7 +23,16 @@ open class ImageService(
         val DEFAULT_AVATAR_METADATA = ImageMetadata("default", 0)
     }
 
-    fun contains(image: String): Boolean = this.objectStorageService.createClient().doesObjectExist(this.bucketName, image)
+    /*************************** AVATARS **************************************************/
+
+    fun getAvatarMetadata(entityId: Int): ImageMetadata {
+        val images = this.imageDAO.findByDrawableAndBucket(this.getEntity(entityId), this.bucketName)
+                .filter { it.type == ImageType.avatar }
+
+        return if (images.isEmpty()) DEFAULT_AVATAR_METADATA else ImageMetadata(images.first().id, images.first().lastModified)
+    }
+
+    fun getAvatar(entityId: Int): ByteArray = this.download(this.getAvatarMetadata(entityId).id)
 
     fun setAvatar(entityId: Int, image: MultipartFile): ImageMetadata {
         val entity = this.getEntity(entityId)
@@ -43,31 +52,16 @@ open class ImageService(
         }
     }
 
-    fun deleteImage(imageId: String) {
-        this.imageDAO.findById(imageId)
-                .map {
-                    this.delete(it.id)
-                    this.imageDAO.delete(it)
-                }.orElseThrow { ResourceNotFoundException("image $imageId does not exist") }
-    }
+    /**************************** IMAGES *******************************************/
 
-    fun getAvatar(entityId: Int): ByteArray = this.download(this.getAvatarMetadata(entityId).id)
-
-    fun getAvatarMetadata(entityId: Int): ImageMetadata {
-        val images = this.imageDAO.findByDrawableAndBucket(this.getEntity(entityId), this.bucketName)
-                .filter { it.type == ImageType.avatar }
-
-        return if (images.isEmpty()) DEFAULT_AVATAR_METADATA else ImageMetadata(images.first().id, images.first().lastModified)
-    }
-
-    fun getAllMetadata(page: Int, size: Int): Page<ImageMetadata> =
-            this.imageDAO.findByBucket(this.bucketName, PageRequest.of(page, size)).map { ImageMetadata(it.id, it.lastModified) }
-
-    fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> =
-            this.objectStorageService.createClient()
-                    .listObjectsV2(this.bucketName, prefix)
-                    .objectSummaries
-                    .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
+    fun getImagesOfEntity(entityId: Int): List<ImageMetadata> =
+            this.drawableDAO.findById(entityId)
+                    .map {
+                        this.imageDAO.findByDrawableAndBucket(it, this.bucketName).map { image ->
+                            ImageMetadata(image.id, image.lastModified)
+                        }
+                    }
+                    .orElseThrow { ResourceNotFoundException("entity $entityId does not exist") }
 
 
     fun addImage(entityId: Int, image: MultipartFile): ImageMetadata {
@@ -97,14 +91,26 @@ open class ImageService(
                 .orElseThrow { ResourceNotFoundException("entity $entityId does not exist") }
     }
 
-    fun getImagesOfEntity(entityId: Int): List<ImageMetadata> =
-            this.drawableDAO.findById(entityId)
-                    .map {
-                        this.imageDAO.findByDrawableAndBucket(it, this.bucketName).map { image ->
-                            ImageMetadata(image.id, image.lastModified)
-                        }
-                    }
-                    .orElseThrow { ResourceNotFoundException("entity $entityId does not exist") }
+    fun deleteImage(imageId: String) {
+        this.imageDAO.findById(imageId)
+                .map {
+                    this.delete(it.id)
+                    this.imageDAO.delete(it)
+                }.orElseThrow { ResourceNotFoundException("image $imageId does not exist") }
+    }
+
+    /******************************** UTILS *******************************************/
+
+    fun contains(image: String): Boolean = this.objectStorageService.createClient().doesObjectExist(this.bucketName, image)
+
+    fun getAllMetadata(page: Int, size: Int): Page<ImageMetadata> =
+            this.imageDAO.findByBucket(this.bucketName, PageRequest.of(page, size)).map { ImageMetadata(it.id, it.lastModified) }
+
+    fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> =
+            this.objectStorageService.createClient()
+                    .listObjectsV2(this.bucketName, prefix)
+                    .objectSummaries
+                    .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
 
     fun download(id: String): ByteArray {
         val client = this.objectStorageService.createClient()
@@ -136,6 +142,5 @@ open class ImageService(
     }
 
     private fun randomName(): String = UUID.randomUUID().toString()
-
     private fun getEntity(id: Int) = this.drawableDAO.findById(id).orElseThrow { ResourceNotFoundException("entity $id does not exist") }
 }
