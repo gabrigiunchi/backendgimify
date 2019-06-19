@@ -56,7 +56,7 @@ class TimetableController(
         val gym = this.gymDAO.findById(timetable.gymId)
                 .orElseThrow { ResourceNotFoundException("gym ${timetable.gymId} does not exist") }
 
-        return ResponseEntity(this.timetableDAO.save(Timetable(-1, gym, timetable.openings, timetable.closingDays)), HttpStatus.CREATED)
+        return ResponseEntity(this.timetableDAO.save(Timetable(-1, gym, timetable)), HttpStatus.CREATED)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -71,7 +71,7 @@ class TimetableController(
         val gym = this.gymDAO.findById(timetableDTO.gymId)
                 .orElseThrow { ResourceNotFoundException("gym ${timetableDTO.gymId} does not exist") }
 
-        return ResponseEntity(this.timetableDAO.save(Timetable(id, gym, timetableDTO.openings, timetableDTO.closingDays)), HttpStatus.OK)
+        return ResponseEntity(this.timetableDAO.save(Timetable(id, gym, timetableDTO)), HttpStatus.OK)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

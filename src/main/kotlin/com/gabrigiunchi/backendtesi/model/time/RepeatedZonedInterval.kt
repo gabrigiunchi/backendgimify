@@ -80,7 +80,7 @@ class RepeatedZonedInterval(
         var s = this.start
         var e = this.end
 
-        while (s <= instant && !this.isBeyondRepetitionEnd(instant)) {
+        while (s.toInstant() <= instant.toInstant() && !this.isBeyondRepetitionEnd(instant)) {
             if (ZonedInterval(s, e).contains(instant)) {
                 return true
             }
@@ -120,7 +120,7 @@ class RepeatedZonedInterval(
         var s = this.start
         var e = this.end
 
-        while (s <= interval.end && !this.isBeyondRepetitionEnd(interval.start)) {
+        while (s.toInstant() <= interval.end.toInstant() && !this.isBeyondRepetitionEnd(interval.start)) {
             if (ZonedInterval(s, e).overlaps(interval)) {
                 return true
             }

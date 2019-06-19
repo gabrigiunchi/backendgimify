@@ -24,9 +24,10 @@ open class ZonedInterval(
         }
     }
 
-    override fun contains(instant: OffsetDateTime): Boolean = instant in this.start..this.end
+    override fun contains(instant: OffsetDateTime): Boolean = instant.toInstant() in this.start.toInstant()..this.end.toInstant()
     override fun contains(interval: Interval<OffsetDateTime>): Boolean = this.contains(interval.start) && this.contains(interval.end)
-    override fun overlaps(interval: Interval<OffsetDateTime>): Boolean = !(this.end <= interval.start || interval.end <= this.start)
+    override fun overlaps(interval: Interval<OffsetDateTime>): Boolean =
+            !(this.end.toInstant() <= interval.start.toInstant() || interval.end.toInstant() <= this.start.toInstant())
 
     fun toLocalInterval(zoneId: ZoneId): LocalInterval =
             LocalInterval(this.start.atZoneSameInstant(zoneId).toLocalDateTime(),
