@@ -9,7 +9,6 @@ import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
-import com.gabrigiunchi.backendtesi.util.DateDecorator
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -91,18 +90,11 @@ class AppInitializer {
             Pair(AssetKindEnum.TREADMILLS, 60))
 
     fun initApp() {
-        this.initTimezone()
-
         if (this.initDB) {
             this.initDB()
         } else {
             this.initUsers()
         }
-    }
-
-    private fun initTimezone() {
-        this.logger.info("Setting timezone to $zoneId")
-        DateDecorator.DEFAULT_TIMEZONE = this.zoneId
     }
 
     private fun initDB() {
@@ -216,9 +208,9 @@ class AppInitializer {
         }
 
         this.logger.info("Init users' images")
-        for (i in 1..this.randomUsers.size) {
-            val user = this.randomUsers[i - 1]
-            val avatarId = "preset${i % 10}.png"
+        for (i in 0 until this.randomUsers.size) {
+            val user = this.randomUsers[i]
+            val avatarId = "preset${(i % 17) + 1}.png"
             this.imageDAO.save(Image(avatarId, ImageType.avatar, user, this.userBucket))
         }
     }

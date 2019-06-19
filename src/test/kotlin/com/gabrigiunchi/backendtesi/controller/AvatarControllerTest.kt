@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
@@ -37,7 +38,7 @@ class AvatarControllerTest : AbstractControllerTest() {
     @Value("\${application.objectstorage.avatarsbucket}")
     private var bucketName = ""
 
-    @MockBean
+    @SpyBean
     private lateinit var objectStorageService: ObjectStorageService
 
     @MockBean

@@ -22,13 +22,11 @@ import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.mock.web.MockMultipartFile
 import java.util.*
 
 class ImageServiceTest : AbstractControllerTest() {
-    @Value("\${application.objectstorage.gymphotosbucket}")
-    private var bucketName = ""
+    private val bucketName = "bucket"
 
     @Autowired
     private lateinit var drawableDAO: DrawableDAO
@@ -42,6 +40,7 @@ class ImageServiceTest : AbstractControllerTest() {
     @Autowired
     private lateinit var gymDAO: GymDAO
 
+    @Autowired
     private lateinit var objectStorageService: ObjectStorageService
     private lateinit var amazonS3: AmazonS3
     private lateinit var imageService: ImageService
@@ -51,7 +50,7 @@ class ImageServiceTest : AbstractControllerTest() {
     fun init() {
         this.mockObjectStorage.clear()
         this.amazonS3 = Mockito.mock(AmazonS3::class.java)
-        this.objectStorageService = Mockito.mock(ObjectStorageService::class.java)
+        this.objectStorageService = Mockito.spy(this.objectStorageService)
         this.imageService = ImageService(drawableDAO, imageDAO, this.objectStorageService, this.bucketName)
         `when`(this.objectStorageService.createClient()).thenReturn(this.amazonS3)
     }
@@ -92,7 +91,7 @@ class ImageServiceTest : AbstractControllerTest() {
         val name = "milano1.jpg"
         `when`(this.amazonS3.doesObjectExist(this.bucketName, name))
                 .thenReturn(this.mockObjectStorage.contains(name))
-        this.imageService.delete(name)
+        this.objectStorageService.delete(name, this.bucketName)
     }
 
     @Test
@@ -101,7 +100,7 @@ class ImageServiceTest : AbstractControllerTest() {
         val content = "ndjansa"
         this.createMockImage(name, content)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
-        this.imageService.delete(name)
+        this.objectStorageService.delete(name, this.bucketName)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isFalse()
     }
 
@@ -213,7 +212,7 @@ class ImageServiceTest : AbstractControllerTest() {
         val gym = this.mockGym
         val name = "name"
         this.imageService.addImage(gym.id, this.createMockImage(name, "content"))
-        Assertions.assertThat(this.imageService.contains(name)).isTrue()
+        Assertions.assertThat(this.objectStorageService.contains(name, this.bucketName)).isTrue()
     }
 
     @Test
@@ -221,9 +220,9 @@ class ImageServiceTest : AbstractControllerTest() {
         val gym = this.mockGym
         val name = "name"
         this.imageService.updateImage(gym.id, this.createMockImage(name, "content"), name, ImageType.profile)
-        Assertions.assertThat(this.imageService.contains(name)).isTrue()
+        Assertions.assertThat(this.objectStorageService.contains(name, this.bucketName)).isTrue()
         this.imageService.updateImage(gym.id, this.createMockImage(name, "content"), name, ImageType.profile)
-        Assertions.assertThat(this.imageService.contains(name)).isTrue()
+        Assertions.assertThat(this.objectStorageService.contains(name, this.bucketName)).isTrue()
     }
 
     @Test(expected = ResourceAlreadyExistsException::class)
@@ -259,7 +258,7 @@ class ImageServiceTest : AbstractControllerTest() {
         `when`(this.amazonS3.deleteObject(this.bucketName, name))
                 .then { this.mockObjectStorage.delete(name) }
 
-        this.imageService.upload(image, name)
+        this.objectStorageService.upload(image, name, this.bucketName)
         return image
     }
 
