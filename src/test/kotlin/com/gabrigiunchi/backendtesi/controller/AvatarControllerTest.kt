@@ -81,6 +81,41 @@ class AvatarControllerTest : AbstractControllerTest() {
     }
 
     @Test
+    fun `Should get the avatar metadata of a user`() {
+        val user = this.mockUser
+        this.avatarDAO.save(Image("avatar1", ImageType.avatar, user, this.bucketName))
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/metadata/of_user/${user.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`("avatar1")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should get the default avatar metadata if the user does not have an avatar`() {
+        val user = this.mockUser
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/metadata/of_user/${user.id}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`("default")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.lastModified", Matchers.`is`(0)))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not get the avatar metadata of a user if the user does not exist`() {
+        val user = this.mockUser
+        this.avatarDAO.save(Image("avatar1", ImageType.avatar, user, this.bucketName))
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/metadata/of_user/-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("entity -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should not get the avatar of a user if the user does not exist`() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/of_user/-1")
                 .contentType(MediaType.APPLICATION_JSON))

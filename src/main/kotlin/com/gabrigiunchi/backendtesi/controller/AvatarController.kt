@@ -32,6 +32,12 @@ class AvatarController(
         return ResponseEntity(this.avatarService.download(id), HttpStatus.OK)
     }
 
+    @GetMapping("/metadata/of_user/{id}")
+    fun getAvatarMetadataOfuser(@PathVariable id: Int): ResponseEntity<ImageMetadata> {
+        this.logger.info("GET avatar metadata of user #$id")
+        return ResponseEntity(this.avatarService.getAvatarMetadata(id), HttpStatus.OK)
+    }
+
     @GetMapping("/of_user/{id}")
     fun getAvatarOfuser(@PathVariable id: Int): ResponseEntity<ByteArray> {
         this.logger.info("GET avatar of user #$id")
