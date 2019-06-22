@@ -123,6 +123,7 @@ class AppInitializer {
         this.userDAO.saveAll(listOf(
                 this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com"),
                 this.userFactory.createAdminUser("tonan", "pinguino", "Antonella", "Tondi", "giutondi@alice.it"),
+                this.userFactory.createAdminUser("martinonfermarti", "aaaa", "Martina", "Bandini", "bandins95m@gmail.com"),
                 this.userFactory.createRegularUser("baseuser", "bbbb", "User", "Anonimo", "prova@gmail.com"))
         )
         this.randomUsers = this.userDAO.saveAll(
