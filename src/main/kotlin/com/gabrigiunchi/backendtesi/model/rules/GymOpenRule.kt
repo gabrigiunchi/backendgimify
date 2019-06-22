@@ -16,7 +16,9 @@ class GymOpenRule(private val timetableDAO: TimetableDAO) : Rule<Pair<Gym, Zoned
 
     override fun test(element: Pair<Gym, ZonedInterval>): Boolean {
         val timetable = this.timetableDAO.findByGym(element.first)
-        return timetable.isPresent && timetable.get().isOpenAt(ZonedInterval(element.second.start, element.second.end))
+        return timetable.isPresent && timetable.get()
+                .isOpenAt(ZonedInterval(element.second.start, element.second.end)
+                        .toLocalInterval(element.first.city.zoneId))
     }
 
 
