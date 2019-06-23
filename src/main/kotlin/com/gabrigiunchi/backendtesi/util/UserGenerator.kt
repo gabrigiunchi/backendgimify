@@ -18,7 +18,7 @@ object UserGenerator {
         val random = Random()
         val name = names[random.nextInt(names.size)]
         val surname = surnames[random.nextInt(surnames.size)]
-        val username = "${name.substring(0, 3)}${surname.substring(0, 3)}"
+        val username = "${name.substring(0, 3)}${surname.substring(0, 3)}".toLowerCase()
         val email = "$name.$surname@mail.com"
         return SimpleUser(name, surname, username, email)
     }
