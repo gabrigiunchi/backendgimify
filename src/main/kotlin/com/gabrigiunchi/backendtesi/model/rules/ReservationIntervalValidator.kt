@@ -14,9 +14,8 @@ class ReservationIntervalValidator : Rule<ZonedInterval> {
     @Value("\${application.reservationThresholdInDays}")
     private var reservationThresholdInDays: Int = 0
 
-    override fun test(element: ZonedInterval): Boolean {
-        return !this.isBeyondTheThreshold(element.start) && !this.isInThePast(element.start)
-    }
+    override fun test(element: ZonedInterval): Boolean =
+            !this.isBeyondTheThreshold(element.start) && !this.isInThePast(element.start)
 
     override fun validate(element: ZonedInterval) {
         if (this.isInThePast(element.start)) {

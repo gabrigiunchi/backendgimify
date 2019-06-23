@@ -10,6 +10,7 @@ import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.util.UserGenerator
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -122,13 +123,15 @@ class AppInitializer {
         this.initUserRole()
         this.userDAO.saveAll(listOf(
                 this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com"),
-                this.userFactory.createAdminUser("tonan", "pinguino", "Antonella", "Tondi", "giutondi@alice.it"),
-                this.userFactory.createAdminUser("martinonfermarti", "aaaa", "Martina", "Bandini", "bandins95m@gmail.com"),
+                this.userFactory.createRegularUser("tonan", "pinguino", "Antonella", "Tondi", "giutondi@alice.it"),
+                this.userFactory.createRegularUser("martinonfermarti", "aaaa", "Martina", "Bandini", "bandins95m@gmail.com"),
                 this.userFactory.createRegularUser("baseuser", "bbbb", "User", "Anonimo", "prova@gmail.com"))
         )
         this.randomUsers = this.userDAO.saveAll(
                 (1..15).map {
-                    this.userFactory.createRegularUser("user$it", "password", "Name", "Surname")
+                    val simpleUser = UserGenerator.generateRandomUser()
+                    this.userFactory.createRegularUser(simpleUser.username,
+                            "password", simpleUser.name, simpleUser.surname, simpleUser.email)
                 }
         ).toList()
     }

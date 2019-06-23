@@ -29,13 +29,14 @@ class ReservationValidator(
     }
 
     override fun validate(element: Reservation) {
+        val user = element.user
         val interval = ZonedInterval(element.start, element.end)
         this.reservationIntervalValidator.validate(interval)
         this.reservationDurationRule.validate(Pair(element.asset.kind, interval))
         this.gymOpenRule.validate(Pair(element.asset.gym, interval))
         this.reservationOverlapRule.validate(Pair(element.asset, interval))
 
-        if (this.numberOfReservationsMadeByUserInDate(element.user, OffsetDateTime.now()) >= this.maxReservationsPerDay) {
+        if (this.numberOfReservationsMadeByUserInDate(user, OffsetDateTime.now()) >= this.maxReservationsPerDay) {
             throw TooManyReservationsException()
         }
     }
