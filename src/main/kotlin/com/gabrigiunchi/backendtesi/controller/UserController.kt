@@ -78,10 +78,10 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
     /*************************************** ME ********************************************************************/
 
     @GetMapping("/me")
-    fun getMyDetails(): ResponseEntity<User> {
+    fun getMyDetails(): ResponseEntity<UserDTO> {
         val loggedUser = this.getLoggedUser()
         this.logger.info("GET logged user (#${loggedUser.id})")
-        return ResponseEntity(loggedUser, HttpStatus.OK)
+        return ResponseEntity(UserDTO(loggedUser), HttpStatus.OK)
     }
 
     @PatchMapping("/me/notifications/active/{active}")
