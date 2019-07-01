@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -122,10 +121,10 @@ class ReservationController(
     /********************************* MY RESERVATIONS *****************************************************/
 
     @GetMapping("/me/count")
-    fun countMyReservations(): ResponseEntity<Int> {
+    fun countMyReservations(): ResponseEntity<Long> {
         val user = this.getLoggedUser()
         this.logger.info("GET number of reservations made by logged user (#${user.id})")
-        return ResponseEntity(this.reservationDAO.findByUserAndActive(user, true, Pageable.unpaged()).count(), HttpStatus.OK)
+        return ResponseEntity(this.reservationDAO.findByUser(user, PageRequest.of(0, 1)).totalElements, HttpStatus.OK)
     }
 
     @GetMapping("/me/page/{page}/size/{size}")

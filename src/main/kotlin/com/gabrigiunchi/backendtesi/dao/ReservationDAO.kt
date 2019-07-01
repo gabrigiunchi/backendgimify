@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 import java.util.*
 
 interface ReservationDAO : PagingAndSortingRepository<Reservation, Int> {
-    override fun findAll(pageable: Pageable): Page<Reservation>
+    fun findByUser(user: User, pageable: Pageable): Page<Reservation>
     fun findByIdAndUser(id: Int, user: User): Optional<Reservation>
     fun findByUserAndEndAfterAndActive(user: User, date: OffsetDateTime, active: Boolean): Collection<Reservation>
     fun findByAssetAndEndAfter(asset: Asset, date: OffsetDateTime): Collection<Reservation>

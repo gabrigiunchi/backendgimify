@@ -348,7 +348,13 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         val user = this.mockUser("gabrigiunchi")
         val asset = this.mockAsset(this.mockGym())
-        this.reservationDAO.saveAll((1..4).map { Reservation(asset, user, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(1)) })
+        val reservations = this.reservationDAO.saveAll(
+                (1..4).map { Reservation(asset, user, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(1)) })
+
+        val inactive = reservations.first()
+        inactive.active = false
+        this.reservationDAO.save(inactive)
+        Assertions.assertThat(this.reservationDAO.findById(inactive.id).get().active).isFalse()
 
         mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/me/count")
                 .contentType(MediaType.APPLICATION_JSON))
