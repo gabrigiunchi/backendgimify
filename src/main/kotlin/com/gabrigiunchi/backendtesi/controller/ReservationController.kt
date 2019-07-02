@@ -37,14 +37,14 @@ class ReservationController(
     @GetMapping("/page/{page}/size/{size}")
     fun getAllReservations(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {
         this.logger.info("GET all reservations, page=$page size=$size")
-        return ResponseEntity(this.reservationDAO.findAll(this.pageRequest(page, size)).map { ReservationDTOOutput(it) }, HttpStatus.OK)
+        return ResponseEntity.ok(this.reservationDAO.findAll(this.pageRequest(page, size)).map { ReservationDTOOutput(it) })
     }
 
     @GetMapping("/{id}")
     fun getReservationById(@PathVariable id: Int): ResponseEntity<Reservation> {
         this.logger.info("GET reservation #$id")
         return this.reservationDAO.findById(id)
-                .map { ResponseEntity(it, HttpStatus.OK) }
+                .map { ResponseEntity.ok(it) }
                 .orElseThrow { ResourceNotFoundException("reservation $id does not exist") }
     }
 
@@ -52,7 +52,7 @@ class ReservationController(
     fun getAllReservationsByAsset(@PathVariable assetId: Int): ResponseEntity<List<ReservationDTOOutput>> {
         this.logger.info("GET all reservations of asset #$assetId")
         return this.assetDAO.findById(assetId)
-                .map { ResponseEntity(this.reservationDAO.findByAsset(it).map { r -> ReservationDTOOutput(r) }, HttpStatus.OK) }
+                .map { ResponseEntity.ok(this.reservationDAO.findByAsset(it).map { r -> ReservationDTOOutput(r) }) }
                 .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
     }
 
@@ -62,8 +62,7 @@ class ReservationController(
                            @PathVariable to: String): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to")
-        return ResponseEntity(this.reservationService.getAvailableAssets(
-                kindId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
+        return ResponseEntity.ok(this.reservationService.getAvailableAssets(kindId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)))
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/gym/{gymId}")
@@ -73,8 +72,7 @@ class ReservationController(
                                 @PathVariable gymId: Int): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to in gym $gymId")
-        return ResponseEntity(this.reservationService.getAvailableAssetsInGym(
-                kindId, gymId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
+        return ResponseEntity.ok(this.reservationService.getAvailableAssetsInGym(kindId, gymId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)))
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}/city/{cityId}")
@@ -84,8 +82,7 @@ class ReservationController(
                                  @PathVariable cityId: Int): ResponseEntity<Collection<Asset>> {
 
         this.logger.info("GET available assets of kind $kindId from $from to $to in city $cityId")
-        return ResponseEntity(this.reservationService.getAvailableAssetsInCity(
-                kindId, cityId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
+        return ResponseEntity.ok(this.reservationService.getAvailableAssetsInCity(kindId, cityId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)))
     }
 
     @GetMapping("/available/asset/{assetId}/from/{from}/to/{to}")
@@ -94,8 +91,7 @@ class ReservationController(
                          @PathVariable to: String): ResponseEntity<Boolean> {
 
         this.logger.info("GET availability of asset $assetId in interval: from $from to $to")
-        return ResponseEntity(this.reservationService.isAssetAvailable(
-                assetId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)), HttpStatus.OK)
+        return ResponseEntity.ok(this.reservationService.isAssetAvailable(assetId, OffsetDateTime.parse(from), OffsetDateTime.parse(to)))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -124,36 +120,34 @@ class ReservationController(
     fun countMyReservations(): ResponseEntity<Long> {
         val user = this.getLoggedUser()
         this.logger.info("GET number of reservations made by logged user (#${user.id})")
-        return ResponseEntity(this.reservationDAO.findByUser(user, PageRequest.of(0, 1)).totalElements, HttpStatus.OK)
+        return ResponseEntity.ok(this.reservationDAO.findByUser(user, PageRequest.of(0, 1)).totalElements)
     }
 
     @GetMapping("/me/page/{page}/size/{size}")
     fun getAllReservationsOfLoggedUser(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ReservationDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all reservations of user #${user.id}")
-        return ResponseEntity(
+        return ResponseEntity.ok(
                 this.reservationDAO
                         .findByUserAndActive(user, true, PageRequest.of(page, size, Sort.by("start").descending()))
-                        .map { ReservationDTOOutput(it) },
-                HttpStatus.OK)
+                        .map { ReservationDTOOutput(it) })
     }
 
     @GetMapping("/me/future")
     fun getAllFutureReservationsOfLoggedUser(): ResponseEntity<Collection<ReservationDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all future reservations of user #${user.id}")
-        return ResponseEntity(
+        return ResponseEntity.ok(
                 this.reservationDAO
                         .findByUserAndEndAfterAndActive(user, OffsetDateTime.now(), true)
-                        .map { ReservationDTOOutput(it) },
-                HttpStatus.OK)
+                        .map { ReservationDTOOutput(it) })
     }
 
     @GetMapping("/me/{id}")
     fun getReservationOfUserById(@PathVariable id: Int): ResponseEntity<ReservationDTOOutput> {
         val user = this.getLoggedUser()
         this.logger.info("GET reservations #$id of user #${user.id}")
-        return ResponseEntity(ReservationDTOOutput(this.reservationService.getReservationOfUser(user, id)), HttpStatus.OK)
+        return ResponseEntity.ok(ReservationDTOOutput(this.reservationService.getReservationOfUser(user, id)))
     }
 
     @PostMapping("/me")

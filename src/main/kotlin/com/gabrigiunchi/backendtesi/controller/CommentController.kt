@@ -29,16 +29,14 @@ class CommentController(
     @GetMapping("/page/{page}/size/{size}")
     fun getAllComments(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<CommentDTOOutput>> {
         this.logger.info("GET all comments, page $page and size $size")
-        return ResponseEntity(
-                this.commentDAO.findAll(this.pageRequest(page, size)).map { CommentDTOOutput(it) },
-                HttpStatus.OK)
+        return ResponseEntity.ok(this.commentDAO.findAll(this.pageRequest(page, size)).map { CommentDTOOutput(it) })
     }
 
     @GetMapping("/{id}")
     fun getCommentById(@PathVariable id: Int): ResponseEntity<CommentDTOOutput> {
         this.logger.info("GET comment $id")
         return this.commentDAO.findById(id)
-                .map { ResponseEntity(CommentDTOOutput(it), HttpStatus.OK) }
+                .map { ResponseEntity.ok(CommentDTOOutput(it)) }
                 .orElseThrow { ResourceNotFoundException("comment $id does not exist") }
     }
 
@@ -47,9 +45,7 @@ class CommentController(
         this.logger.info("GET comments of gym $gymId")
         return this.gymDAO.findById(gymId)
                 .map { gym ->
-                    ResponseEntity(
-                            this.commentDAO.findByGym(gym, this.pageRequest(page, size)).map { CommentDTOOutput(it) },
-                            HttpStatus.OK)
+                    ResponseEntity.ok(this.commentDAO.findByGym(gym, this.pageRequest(page, size)).map { CommentDTOOutput(it) })
                 }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
@@ -59,8 +55,7 @@ class CommentController(
         this.logger.info("GET comments of user $userId")
         return this.userDAO.findById(userId)
                 .map { user ->
-                    ResponseEntity(this.commentDAO.findByUser(user, this.pageRequest(page, size))
-                            .map { CommentDTOOutput(it) }, HttpStatus.OK)
+                    ResponseEntity.ok(this.commentDAO.findByUser(user, this.pageRequest(page, size)).map { CommentDTOOutput(it) })
                 }
                 .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
     }
@@ -70,7 +65,7 @@ class CommentController(
         this.logger.info("GET comments of user $userId of gym $gymId")
         val user = this.userDAO.findById(userId).orElseThrow { ResourceNotFoundException("user $userId does not exist") }
         val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
-        return ResponseEntity(this.commentDAO.findByUserAndGym(user, gym).map { CommentDTOOutput(it) }, HttpStatus.OK)
+        return ResponseEntity.ok(this.commentDAO.findByUserAndGym(user, gym).map { CommentDTOOutput(it) })
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -99,22 +94,20 @@ class CommentController(
     fun getAllMyComments(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<CommentDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET all comments of logged user (${user.id}), page=$page size=$size")
-        return ResponseEntity(
-                this.commentDAO.findByUser(user, this.pageRequest(page, size)).map { CommentDTOOutput(it) },
-                HttpStatus.OK)
+        return ResponseEntity.ok(this.commentDAO.findByUser(user, this.pageRequest(page, size)).map { CommentDTOOutput(it) })
     }
 
     @GetMapping("/me/count")
     fun countMyComments(): ResponseEntity<Long> {
         val user = this.getLoggedUser()
         this.logger.info("GET number of comments made by logged user (#${user.id})")
-        return ResponseEntity(this.commentDAO.findByUser(user, this.pageRequest(0, 1)).totalElements, HttpStatus.OK)
+        return ResponseEntity.ok(this.commentDAO.findByUser(user, this.pageRequest(0, 1)).totalElements)
     }
 
     @GetMapping("/me/{id}")
     fun getMyCommentById(@PathVariable id: Int): ResponseEntity<CommentDTOOutput> {
         return this.commentDAO.findByIdAndUser(id, this.getLoggedUser())
-                .map { ResponseEntity(CommentDTOOutput(it), HttpStatus.OK) }
+                .map { ResponseEntity.ok(CommentDTOOutput(it)) }
                 .orElseThrow { ResourceNotFoundException("comment $id of user ${this.getLoggedUser().id} does not exist") }
     }
 

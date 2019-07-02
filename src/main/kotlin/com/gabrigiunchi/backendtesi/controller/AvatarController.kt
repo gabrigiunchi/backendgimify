@@ -23,25 +23,25 @@ class AvatarController(
     @GetMapping("/page/{page}/size/{size}")
     fun getAllAvatarsMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ImageMetadata>> {
         this.logger.info("GET all avatars metadata")
-        return ResponseEntity(this.avatarService.getAllMetadata(page, size), HttpStatus.OK)
+        return ResponseEntity.ok(this.avatarService.getAllMetadata(page, size))
     }
 
     @GetMapping("/{id}")
     fun getAvatar(@PathVariable id: String): ResponseEntity<ByteArray> {
         this.logger.info("GET avatar #$id")
-        return ResponseEntity(this.avatarService.download(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.avatarService.download(id))
     }
 
     @GetMapping("/metadata/of_user/{id}")
     fun getAvatarMetadataOfuser(@PathVariable id: Int): ResponseEntity<ImageMetadata> {
         this.logger.info("GET avatar metadata of user #$id")
-        return ResponseEntity(this.avatarService.getAvatarMetadata(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.avatarService.getAvatarMetadata(id))
     }
 
     @GetMapping("/of_user/{id}")
     fun getAvatarOfuser(@PathVariable id: Int): ResponseEntity<ByteArray> {
         this.logger.info("GET avatar of user #$id")
-        return ResponseEntity(this.avatarService.getAvatar(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.avatarService.getAvatar(id))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -64,7 +64,7 @@ class AvatarController(
     @GetMapping("/presets")
     fun getAllPresetsAvatar(): ResponseEntity<Collection<ImageMetadata>> {
         this.logger.info("GET all presets avatar")
-        return ResponseEntity(this.avatarService.presetAvatars, HttpStatus.OK)
+        return ResponseEntity.ok(this.avatarService.presetAvatars)
     }
 
     /***************************** MY AVATAR **************************************************/
@@ -73,14 +73,14 @@ class AvatarController(
     fun getMyAvatar(): ResponseEntity<ByteArray> {
         val user = this.getLoggedUser()
         this.logger.info("GET avatar for logged user (#${user.id})")
-        return ResponseEntity(this.avatarService.getAvatar(user.id), HttpStatus.OK)
+        return ResponseEntity.ok(this.avatarService.getAvatar(user.id))
     }
 
     @GetMapping("/me/metadata")
     fun getMyAvatarMetadata(): ResponseEntity<ImageMetadata> {
         val user = this.getLoggedUser()
         this.logger.info("GET avatar metadata for logged user (#${user.id})")
-        return ResponseEntity(this.avatarService.getAvatarMetadata(user.id), HttpStatus.OK)
+        return ResponseEntity.ok(this.avatarService.getAvatarMetadata(user.id))
     }
 
     @RequestMapping("/me", method = [RequestMethod.POST, RequestMethod.PUT])

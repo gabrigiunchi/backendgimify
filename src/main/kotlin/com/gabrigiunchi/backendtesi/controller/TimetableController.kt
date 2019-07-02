@@ -26,14 +26,14 @@ class TimetableController(
     @GetMapping("/page/{page}/size/{size}")
     fun getAllTimetables(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Timetable>> {
         this.logger.info("GET all timetables")
-        return ResponseEntity(this.timetableDAO.findAll(PageRequest.of(page, size)), HttpStatus.OK)
+        return ResponseEntity.ok(this.timetableDAO.findAll(PageRequest.of(page, size)))
     }
 
     @GetMapping("/{id}")
     fun getTimetableById(@PathVariable id: Int): ResponseEntity<Timetable> {
         this.logger.info("GET timetable #$id")
         return this.timetableDAO.findById(id)
-                .map { ResponseEntity(it, HttpStatus.OK) }
+                .map { ResponseEntity.ok(it) }
                 .orElseThrow { ResourceNotFoundException("timetable $id does not exist") }
     }
 
@@ -43,7 +43,7 @@ class TimetableController(
         return this.gymDAO.findById(gymId)
                 .map { gym ->
                     this.timetableDAO.findByGym(gym)
-                            .map { timetable -> ResponseEntity(timetable, HttpStatus.OK) }
+                            .map { timetable -> ResponseEntity.ok(timetable) }
                             .orElseThrow { ResourceNotFoundException("timetable does not exist for gym $gymId") }
                 }
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
@@ -71,7 +71,7 @@ class TimetableController(
         val gym = this.gymDAO.findById(timetableDTO.gymId)
                 .orElseThrow { ResourceNotFoundException("gym ${timetableDTO.gymId} does not exist") }
 
-        return ResponseEntity(this.timetableDAO.save(Timetable(id, gym, timetableDTO.openings, timetableDTO.closingDays)), HttpStatus.OK)
+        return ResponseEntity.ok(this.timetableDAO.save(Timetable(id, gym, timetableDTO.openings, timetableDTO.closingDays)))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

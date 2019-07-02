@@ -19,19 +19,19 @@ class CityController(private val cityService: CityService) {
     @GetMapping
     fun getAllCities(): ResponseEntity<Iterable<City>> {
         this.logger.info("GET all cities")
-        return ResponseEntity(this.cityService.getAllCities(), HttpStatus.OK)
+        return ResponseEntity.ok(this.cityService.getAllCities())
     }
 
     @GetMapping("/{id}")
     fun getCityById(@PathVariable id: Int): ResponseEntity<City> {
         this.logger.info("GET city #$id")
-        return ResponseEntity(this.cityService.getCityById(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.cityService.getCityById(id))
     }
 
     @GetMapping("/by_name/{name}")
     fun getCityByName(@PathVariable name: String): ResponseEntity<City> {
         this.logger.info("GET city $name")
-        return ResponseEntity(this.cityService.getCityByName(name), HttpStatus.OK)
+        return ResponseEntity.ok(this.cityService.getCityByName(name))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -45,7 +45,7 @@ class CityController(private val cityService: CityService) {
     @PutMapping("/{id}")
     fun modifyCity(@Valid @RequestBody city: CityDTOInput, @PathVariable id: Int): ResponseEntity<City> {
         this.logger.info("Modify city $id")
-        return ResponseEntity(this.cityService.modifyCity(city, id), HttpStatus.OK)
+        return ResponseEntity.ok(this.cityService.modifyCity(city, id))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

@@ -23,14 +23,14 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
     @GetMapping("/page/{page}/size/{size}")
     fun getAllUsers(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<UserDTO>> {
         this.logger.info("GET all users, page=$page size=$size")
-        return ResponseEntity(this.userDAO.findAll(PageRequest.of(page, size)).map { e -> UserDTO(e) }, HttpStatus.OK)
+        return ResponseEntity.ok(this.userDAO.findAll(PageRequest.of(page, size)).map { e -> UserDTO(e) })
     }
 
     @GetMapping("/{id}")
     fun getUserByid(@PathVariable id: Int): ResponseEntity<User> {
         this.logger.info("GET user #$id")
         return this.userDAO.findById(id)
-                .map { ResponseEntity(it, HttpStatus.OK) }
+                .map { ResponseEntity.ok(it) }
                 .orElseThrow { ResourceNotFoundException("user $id does not exist") }
     }
 
@@ -72,7 +72,7 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
         this.logger.info("PATCH to set user #$id notifications=$active")
         val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
         user.notificationsEnabled = active
-        return ResponseEntity(UserDTO(this.userDAO.save(user)), HttpStatus.OK)
+        return ResponseEntity.ok(UserDTO(this.userDAO.save(user)))
     }
 
     /*************************************** ME ********************************************************************/
@@ -81,7 +81,7 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
     fun getMyDetails(): ResponseEntity<UserDTO> {
         val loggedUser = this.getLoggedUser()
         this.logger.info("GET logged user (#${loggedUser.id})")
-        return ResponseEntity(UserDTO(loggedUser), HttpStatus.OK)
+        return ResponseEntity.ok(UserDTO(loggedUser))
     }
 
     @PatchMapping("/me/notifications/active/{active}")
@@ -89,6 +89,6 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
         val user = this.getLoggedUser()
         this.logger.info("PATCH to set logged user #${user.id} notifications=$active")
         user.notificationsEnabled = active
-        return ResponseEntity(UserDTO(this.userDAO.save(user)), HttpStatus.OK)
+        return ResponseEntity.ok(UserDTO(this.userDAO.save(user)))
     }
 }

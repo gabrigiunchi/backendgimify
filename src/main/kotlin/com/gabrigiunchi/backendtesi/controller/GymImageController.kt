@@ -24,39 +24,37 @@ class GymImageController(private val gymImageService: GymImageService, private v
     @GetMapping("/photos/page/{page}/size/{size}")
     fun getAllMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ImageMetadata>> {
         this.logger.info("GET all images")
-        return ResponseEntity(this.gymImageService.getAllMetadata(page, size), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymImageService.getAllMetadata(page, size))
     }
 
     @GetMapping("/{id}/photos")
     fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
         this.logger.info("GET photos of gym $id")
-        return ResponseEntity(this.gymImageService.getImagesOfEntity(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymImageService.getImagesOfEntity(id))
     }
 
     @GetMapping("/{id}/avatar")
     fun getAvatarOfGym(@PathVariable id: Int): ResponseEntity<ByteArray> {
         this.logger.info("GET avatar of gym $id")
-        return ResponseEntity(this.gymImageService.getAvatar(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymImageService.getAvatar(id))
     }
 
     @GetMapping("/{id}/avatar/metadata")
     fun getAvatarMetadataOfGym(@PathVariable id: Int): ResponseEntity<ImageMetadata> {
         this.logger.info("GET avatar metadata of gym $id")
-        return ResponseEntity(this.gymImageService.getAvatarMetadata(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymImageService.getAvatarMetadata(id))
     }
 
     @GetMapping("/photos/{imageId}")
     fun getPhoto(@PathVariable imageId: String): ResponseEntity<ByteArray> {
         this.logger.info("GET image $imageId")
-        return ResponseEntity(this.gymImageService.download(imageId), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymImageService.download(imageId))
     }
 
     @GetMapping("/photos/{imageId}/metadata")
     fun getMetadataOfPhoto(@PathVariable imageId: String): ResponseEntity<Image> {
         this.logger.info("GET metadata of image $imageId")
-        return ResponseEntity(
-                this.gymImageDAO.findById(imageId).orElseThrow { ResourceNotFoundException("image $imageId does not exist") },
-                HttpStatus.OK)
+        return ResponseEntity.ok(this.gymImageDAO.findById(imageId).orElseThrow { ResourceNotFoundException("image $imageId does not exist") })
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

@@ -22,14 +22,14 @@ class AssetKindController(
     @GetMapping
     fun getAssetKinds(): ResponseEntity<Iterable<AssetKind>> {
         this.logger.info("GET all asset kinds")
-        return ResponseEntity(this.assetKindDAO.findAll(), HttpStatus.OK)
+        return ResponseEntity.ok(this.assetKindDAO.findAll())
     }
 
     @GetMapping("/{id}")
     fun getAssetKindByInd(@PathVariable id: Int): ResponseEntity<AssetKind> {
         this.logger.info("GET asset kind #$id")
         return this.assetKindDAO.findById(id)
-                .map { ResponseEntity(it, HttpStatus.OK) }
+                .map { ResponseEntity.ok(it) }
                 .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }
 
@@ -49,7 +49,7 @@ class AssetKindController(
     fun updateAssetkind(@Valid @RequestBody assetKind: AssetKind, @PathVariable id: Int): ResponseEntity<AssetKind> {
         this.logger.info("PUT asset kind: ${assetKind.name}")
         return this.assetKindDAO.findById(id)
-                .map { ResponseEntity(this.assetKindDAO.save(assetKind), HttpStatus.OK) }
+                .map { ResponseEntity.ok(this.assetKindDAO.save(assetKind)) }
                 .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }
 
@@ -65,7 +65,7 @@ class AssetKindController(
         return this.assetKindDAO.findById(id)
                 .map {
                     it.maxReservationTime = time
-                    ResponseEntity(this.assetKindDAO.save(it), HttpStatus.OK)
+                    ResponseEntity.ok(this.assetKindDAO.save(it))
                 }
                 .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
     }

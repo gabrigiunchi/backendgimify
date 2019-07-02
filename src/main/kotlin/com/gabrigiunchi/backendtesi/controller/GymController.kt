@@ -20,25 +20,25 @@ class GymController(private val gymService: GymService) {
     @GetMapping("/page/{page}/size/{size}")
     fun getAllGyms(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Gym>> {
         this.logger.info("GET all gyms")
-        return ResponseEntity(this.gymService.getAllGyms(page, size), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymService.getAllGyms(page, size))
     }
 
     @GetMapping("/{id}")
     fun getGymById(@PathVariable id: Int): ResponseEntity<Gym> {
         this.logger.info("GET gym #$id")
-        return ResponseEntity(this.gymService.getGymById(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymService.getGymById(id))
     }
 
     @GetMapping("/by_city/{cityId}")
     fun getGymByCity(@PathVariable cityId: Int): ResponseEntity<List<Gym>> {
         this.logger.info("GET gym by city #$cityId")
-        return ResponseEntity(this.gymService.getGymsByCity(cityId), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymService.getGymsByCity(cityId))
     }
 
     @GetMapping("/{id}/rating")
     fun getRatingOfGym(@PathVariable id: Int): ResponseEntity<Double> {
         this.logger.info("GET rating of gym $id")
-        return ResponseEntity(this.gymService.calculateRatingOfGym(id), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymService.calculateRatingOfGym(id))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -52,7 +52,7 @@ class GymController(private val gymService: GymService) {
     @PutMapping("/{id}")
     fun updateGym(@Valid @RequestBody gym: GymDTOInput, @PathVariable id: Int): ResponseEntity<Gym> {
         this.logger.info("PUT gym #$id")
-        return ResponseEntity(this.gymService.updateGym(gym, id), HttpStatus.OK)
+        return ResponseEntity.ok(this.gymService.updateGym(gym, id))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
