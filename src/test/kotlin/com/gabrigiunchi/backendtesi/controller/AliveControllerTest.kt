@@ -6,6 +6,7 @@ import org.hamcrest.Matchers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.context.support.WithMockUser
@@ -25,10 +26,15 @@ class AliveControllerTest {
     @Autowired
     protected lateinit var mockMvc: MockMvc
 
+    @Value("\${application.version}")
+    private var version: String = ""
+
     @Test
     fun `Should return OK and be accessible to anyone`() {
         this.mockMvc.perform(get(ApiUrls.ALIVE))
                 .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", Matchers.`is`("Everything's fine")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.version", Matchers.`is`(this.version)))
     }
 
     @Test
