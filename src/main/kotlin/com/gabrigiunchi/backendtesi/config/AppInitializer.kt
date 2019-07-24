@@ -94,12 +94,12 @@ class AppInitializer {
             Pair(AssetKindEnum.TREADMILLS, 60))
 
     fun initApp() {
-        if (this.initDB) {
-            this.initDB()
-        } else if (this.initUsers){
-            this.initUsers()
-        } else {
-            this.logger.info("DB not initialized")
+        TimeZone.setDefault(TimeZone.getTimeZone(this.zoneId))
+        when
+        {
+            this.initDB -> this.initDB()
+            this.initUsers -> this.initUsers()
+            else -> this.logger.info("DB not initialized")
         }
     }
 
