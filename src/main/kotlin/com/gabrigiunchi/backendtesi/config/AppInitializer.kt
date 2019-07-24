@@ -60,6 +60,9 @@ class AppInitializer {
     @Value("\${application.initDB}")
     private var initDB = false
 
+    @Value("\${application.initUsers}")
+    private var initUsers = false
+
     @Value("\${application.objectstorage.gymphotosbucket}")
     private var gymBucket = ""
 
@@ -93,8 +96,10 @@ class AppInitializer {
     fun initApp() {
         if (this.initDB) {
             this.initDB()
-        } else {
+        } else if (this.initUsers){
             this.initUsers()
+        } else {
+            this.logger.info("DB not initialized")
         }
     }
 

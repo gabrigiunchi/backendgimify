@@ -160,46 +160,40 @@ class ReservationService(
     private fun sendReservationConfirmationEmail(reservation: Reservation) {
         val user = reservation.user
         val duration = Duration.between(reservation.start, reservation.end).toMinutes()
-        val start = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm").format(reservation.start)
-        val end = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm").format(reservation.end)
+        val start = DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm").format(reservation.start)
+        val end = DateTimeFormatter.ofPattern("HH:mm").format(reservation.end)
 
         val content = StringBuilder()
-                .appendln("Hi ${user.name} ${user.surname}, here's the details of your reservation:")
-                .appendln()
-                .appendln("Gym: ${reservation.asset.gym.name}")
-                .appendln()
-                .appendln("Address: ${reservation.asset.gym.address}")
-                .appendln()
-                .appendln("Asset: ${reservation.asset.name}")
-                .appendln()
-                .appendln("Date: $start-$end")
-                .appendln()
-                .appendln("Duration: $duration minutes")
+                .appendln("<!DOCTYPE html><html><body>")
+                .appendln("<p>Hi <b>${user.name} ${user.surname}</b>, here's the details of your reservation:</p>")
+                .appendln("<p><b>Asset</b>: ${reservation.asset.name}</p>")
+                .appendln("<p><b>Gym</b>: ${reservation.asset.gym.name}</p>")
+                .appendln("<p><b>Address</b>: ${reservation.asset.gym.address}</p>")
+                .appendln("<p><b>Date</b>: $start-$end</p>")
+                .appendln("<p><b>Duration</b>: $duration minutes</p>")
+                .appendln("</body></html>")
                 .toString()
 
-        Thread { this.mailService.sendEmail(user.email, "Reservation Confirmation", content) }.start()
+        Thread { this.mailService.sendEmail(user.email, "Reservation Confirmation", content, "text/html") }.start()
     }
 
     private fun sendCancellationConfirmationEmail(reservation: Reservation) {
         val user = reservation.user
         val duration = Duration.between(reservation.start, reservation.end).toMinutes()
-        val start = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm").format(reservation.start)
-        val end = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm").format(reservation.end)
+        val start = DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm").format(reservation.start)
+        val end = DateTimeFormatter.ofPattern("HH:mm").format(reservation.end)
 
         val content = StringBuilder()
-                .appendln("Hi ${user.name} ${user.surname}, you just cancelled the reservation:")
-                .appendln()
-                .appendln("Gym: ${reservation.asset.gym.name}")
-                .appendln()
-                .appendln("Address: ${reservation.asset.gym.address}")
-                .appendln()
-                .appendln("Asset: ${reservation.asset.name}")
-                .appendln()
-                .appendln("Date: $start-$end")
-                .appendln()
-                .appendln("Duration: $duration minutes")
+                .appendln("<!DOCTYPE html><html><body>")
+                .appendln("<p>Hi <b>${user.name} ${user.surname}</b>, you just cancelled the reservation:</p>")
+                .appendln("<p><b>Asset</b>: ${reservation.asset.name}</p>")
+                .appendln("<p><b>Gym</b>: ${reservation.asset.gym.name}</p>")
+                .appendln("<p><b>Address</b>: ${reservation.asset.gym.address}</p>")
+                .appendln("<p><b>Date</b>: $start-$end</p>")
+                .appendln("<p><b>Duration</b>: $duration minutes</p>")
+                .appendln("</body></html>")
                 .toString()
 
-        Thread { this.mailService.sendEmail(user.email, "Cancellation Confirmation", content) }.start()
+        Thread { this.mailService.sendEmail(user.email, "Cancellation Confirmation", content, "text/html") }.start()
     }
 }
