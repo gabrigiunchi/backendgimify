@@ -10,10 +10,10 @@ import javax.persistence.ManyToMany
 class User(
         id: Int,
         val username: String,
-        val password: String,
+        var password: String,
         name: String,
-        val surname: String,
-        val email: String,
+        var surname: String,
+        var email: String,
 
         @ManyToMany(fetch = FetchType.EAGER)
         val roles: MutableCollection<UserRole>,

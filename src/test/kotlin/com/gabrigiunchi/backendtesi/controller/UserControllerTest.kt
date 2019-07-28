@@ -4,7 +4,9 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.dao.UserRoleDAO
+import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.User
+import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -70,25 +72,12 @@ class UserControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should create a user`() {
-        val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        val user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", roles.toMutableList())
+        val user = UserDTOInput("giggi", "ddnsakjn", "", "", "mail@mail.com", mutableListOf(UserRoleEnum.ADMINISTRATOR.name))
         mockMvc.perform(post(ApiUrls.USERS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(user)))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(user.username)))
-                .andDo(MockMvcResultHandlers.print())
-    }
-
-    @Test
-    fun `Should not create a user if it already exists`() {
-        val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        val user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", roles.toMutableList())
-        userDAO.save(user)
-        mockMvc.perform(post(ApiUrls.USERS)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json(user)))
-                .andExpect(MockMvcResultMatchers.status().isConflict)
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -99,15 +88,26 @@ class UserControllerTest : AbstractControllerTest() {
         Assertions.assertThat(user.id).isNotEqualTo(saved.id)
         mockMvc.perform(post(ApiUrls.USERS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(user)))
+                .content(json(UserDTOInput(user))))
                 .andExpect(MockMvcResultMatchers.status().isConflict)
                 .andDo(MockMvcResultHandlers.print())
     }
 
     @Test
+    fun `Should not create a user if one of his roles does not exist`() {
+        val user = UserDTOInput("gab", "aaaa", "Gab", "Giunchi", "mail@a.com", listOf(UserRoleEnum.USER.name, "dansda"))
+        mockMvc.perform(post(ApiUrls.USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(user)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user role dansda does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
     fun `Should delete a user`() {
-        val roles = this.userRoleDAO.findByName("ADMINISTRATOR")
-        var user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", roles.toMutableList())
+        val role = this.userRoleDAO.findByName(UserRoleEnum.ADMINISTRATOR.name).get()
+        var user = User("giggi", "ddnsakjn", "", "", "mail@mail.com", mutableListOf(role))
         user = this.userDAO.save(user)
         mockMvc.perform(delete("${ApiUrls.USERS}/${user.id}")
                 .contentType(MediaType.APPLICATION_JSON))

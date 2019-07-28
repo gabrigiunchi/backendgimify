@@ -3,8 +3,10 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.dto.output.UserDTO
+import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
+import com.gabrigiunchi.backendtesi.model.dto.output.UserDTOOutput
 import com.gabrigiunchi.backendtesi.model.entities.User
+import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -16,14 +18,14 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/users")
-class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
+class UserController(private val userDAO: UserDAO, private val userFactory: UserFactory) : BaseController(userDAO) {
 
     val logger = LoggerFactory.getLogger(UserController::class.java)!!
 
     @GetMapping("/page/{page}/size/{size}")
-    fun getAllUsers(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<UserDTO>> {
+    fun getAllUsers(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<UserDTOOutput>> {
         this.logger.info("GET all users, page=$page size=$size")
-        return ResponseEntity.ok(this.userDAO.findAll(PageRequest.of(page, size)).map { e -> UserDTO(e) })
+        return ResponseEntity.ok(this.userDAO.findAll(PageRequest.of(page, size)).map { e -> UserDTOOutput(e) })
     }
 
     @GetMapping("/{id}")
@@ -36,15 +38,22 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PostMapping
-    fun createUser(@Valid @RequestBody user: User): ResponseEntity<UserDTO> {
+    fun createUser(@Valid @RequestBody user: UserDTOInput): ResponseEntity<UserDTOOutput> {
         this.logger.info("POST a new user")
         this.logger.info(user.toString())
 
-        if (this.userDAO.findById(user.id).isPresent || this.userDAO.findByUsername(user.username).isPresent) {
-            throw ResourceAlreadyExistsException("user ${user.id} with username ${user.username} already exists")
+        if (this.userDAO.findByUsername(user.username).isPresent) {
+            throw ResourceAlreadyExistsException("user with username ${user.username} already exists")
         }
 
-        return ResponseEntity(UserDTO(this.userDAO.save(user)), HttpStatus.CREATED)
+        return ResponseEntity(UserDTOOutput(this.userDAO.save(this.userFactory.createUser(user))), HttpStatus.CREATED)
+    }
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    @PutMapping("/{id}")
+    fun modifyUser(@Valid @RequestBody user: UserDTOInput, @PathVariable id: Int): ResponseEntity<UserDTOOutput> {
+        this.logger.info("PUT user $id")
+        return ResponseEntity.ok(UserDTOOutput(this.userFactory.modifyUser(user, id)))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -68,27 +77,27 @@ class UserController(val userDAO: UserDAO) : BaseController(userDAO) {
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PatchMapping("/{id}/notifications/active/{active}")
-    fun enableUserNotifications(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<UserDTO> {
+    fun enableUserNotifications(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<UserDTOOutput> {
         this.logger.info("PATCH to set user #$id notifications=$active")
         val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
         user.notificationsEnabled = active
-        return ResponseEntity.ok(UserDTO(this.userDAO.save(user)))
+        return ResponseEntity.ok(UserDTOOutput(this.userDAO.save(user)))
     }
 
     /*************************************** ME ********************************************************************/
 
     @GetMapping("/me")
-    fun getMyDetails(): ResponseEntity<UserDTO> {
+    fun getMyDetails(): ResponseEntity<UserDTOOutput> {
         val loggedUser = this.getLoggedUser()
         this.logger.info("GET logged user (#${loggedUser.id})")
-        return ResponseEntity.ok(UserDTO(loggedUser))
+        return ResponseEntity.ok(UserDTOOutput(loggedUser))
     }
 
     @PatchMapping("/me/notifications/active/{active}")
-    fun enableMyNotifications(@PathVariable active: Boolean): ResponseEntity<UserDTO> {
+    fun enableMyNotifications(@PathVariable active: Boolean): ResponseEntity<UserDTOOutput> {
         val user = this.getLoggedUser()
         this.logger.info("PATCH to set logged user #${user.id} notifications=$active")
         user.notificationsEnabled = active
-        return ResponseEntity.ok(UserDTO(this.userDAO.save(user)))
+        return ResponseEntity.ok(UserDTOOutput(this.userDAO.save(user)))
     }
 }

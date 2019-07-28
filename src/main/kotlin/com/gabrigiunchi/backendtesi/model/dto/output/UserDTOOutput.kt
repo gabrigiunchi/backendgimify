@@ -2,7 +2,7 @@ package com.gabrigiunchi.backendtesi.model.dto.output
 
 import com.gabrigiunchi.backendtesi.model.entities.User
 
-data class UserDTO(
+data class UserDTOOutput(
         val id: Int,
         val username: String,
         val name: String,

@@ -5,7 +5,7 @@ import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.AccessDeniedException
 import com.gabrigiunchi.backendtesi.model.dto.input.ValidateUserDTO
 import com.gabrigiunchi.backendtesi.model.dto.output.Token
-import com.gabrigiunchi.backendtesi.model.dto.output.UserDTO
+import com.gabrigiunchi.backendtesi.model.dto.output.UserDTOOutput
 import com.gabrigiunchi.backendtesi.model.entities.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -46,7 +46,7 @@ class LoginController(
             val roles = user.roles.map(UserRole::name)
             val token = this.jwtTokenProvider.createToken(username, roles)
 
-            return ResponseEntity.ok(Token(UserDTO(user), token))
+            return ResponseEntity.ok(Token(UserDTOOutput(user), token))
         } catch (e: AuthenticationException) {
             throw BadCredentialsException("Invalid username/password supplied")
         }

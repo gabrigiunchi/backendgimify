@@ -5,7 +5,7 @@ import java.time.OffsetDateTime
 
 data class CommentDTOOutput(
         val id: Int,
-        val user: UserDTO,
+        val user: UserDTOOutput,
         val gymId: Int,
         val title: String,
         val message: String,
@@ -13,5 +13,5 @@ data class CommentDTOOutput(
         val date: OffsetDateTime) {
 
     constructor(comment: Comment) :
-            this(comment.id, UserDTO(comment.user), comment.gym.id, comment.title, comment.message, comment.rating, comment.date)
+            this(comment.id, UserDTOOutput(comment.user), comment.gym.id, comment.title, comment.message, comment.rating, comment.date)
 }

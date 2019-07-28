@@ -1,3 +1,3 @@
 package com.gabrigiunchi.backendtesi.model.dto.output
 
-data class Token(val user: UserDTO, val token: String)
+data class Token(val user: UserDTOOutput, val token: String)

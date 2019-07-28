@@ -6,12 +6,12 @@ import java.time.OffsetDateTime
 
 data class ReservationDTOOutput(
         val id: Int,
-        val user: UserDTO,
+        val user: UserDTOOutput,
         val asset: Asset,
         val start: OffsetDateTime,
         val end: OffsetDateTime) {
 
     constructor(reservation: Reservation) :
-            this(reservation.id, UserDTO(reservation.user), reservation.asset, reservation.start, reservation.end)
+            this(reservation.id, UserDTOOutput(reservation.user), reservation.asset, reservation.start, reservation.end)
 
 }
