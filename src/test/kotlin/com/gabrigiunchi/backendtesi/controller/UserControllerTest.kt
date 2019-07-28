@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.dao.UserRoleDAO
+import com.gabrigiunchi.backendtesi.model.dto.input.ChangePasswordDTO
 import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
@@ -101,6 +102,54 @@ class UserControllerTest : AbstractControllerTest() {
                 .content(json(user)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user role dansda does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should modify a user`() {
+        val existing = this.userDAO.save(this.userFactory.createRegularUser("gab", "aaaa", "Gab", "Giunchi"))
+        val oldPassword = existing.password
+        val modified = UserDTOInput("username", "password", "User", "Surname",
+                "newmail", isActive = false, notificationsEnabled = false, roles = listOf(UserRoleEnum.ADMINISTRATOR.name))
+
+        mockMvc.perform(put("${ApiUrls.USERS}/${existing.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(modified)))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username", Matchers.`is`(modified.username)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.`is`(modified.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.surname", Matchers.`is`(modified.surname)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", Matchers.`is`(modified.email)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.notificationsEnabled", Matchers.`is`(modified.notificationsEnabled)))
+                .andDo(MockMvcResultHandlers.print())
+
+        val result = this.userDAO.findById(existing.id).get()
+        Assertions.assertThat(result.isActive).isFalse()
+        Assertions.assertThat(result.password).isNotEqualTo(oldPassword)
+    }
+
+    @Test
+    fun `Should not modify a user if it does not exist`() {
+        val modified = UserDTOInput("username", "password", "User", "Surname",
+                "newmail", isActive = false, notificationsEnabled = false, roles = listOf(UserRoleEnum.ADMINISTRATOR.name))
+        mockMvc.perform(put("${ApiUrls.USERS}/-1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(modified)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    fun `Should not modify a user if one of his roles does not exist`() {
+        val existing = this.userDAO.save(this.userFactory.createRegularUser("gab", "aaaa", "Gab", "Giunchi"))
+        val modified = UserDTOInput("username", "password", "User", "Surname",
+                "newmail", isActive = false, notificationsEnabled = false, roles = listOf("aaaa"))
+        mockMvc.perform(put("${ApiUrls.USERS}/${existing.id}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(modified)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user role aaaa does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -212,6 +261,39 @@ class UserControllerTest : AbstractControllerTest() {
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.userDAO.findById(user.id).get().notificationsEnabled).isFalse()
+    }
+
+    @Test
+    fun `Should change my password`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser
+        val oldPassword = user.password
+        val dto = ChangePasswordDTO("aaaa", "bbbb")
+        mockMvc.perform(post("${ApiUrls.USERS}/me/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(dto)))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andDo(MockMvcResultHandlers.print())
+
+        val result = this.userDAO.findById(user.id).get()
+        Assertions.assertThat(oldPassword).isNotEqualTo(result.password)
+    }
+
+    @Test
+    fun `Should not change my password if the old password is incorrect`() {
+        this.userDAO.deleteAll()
+        val user = this.mockUser
+        val oldPassword = user.password
+        val dto = ChangePasswordDTO("acvd", "bbbb")
+        mockMvc.perform(post("${ApiUrls.USERS}/me/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(dto)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Old password is incorrect")))
+                .andDo(MockMvcResultHandlers.print())
+
+        val result = this.userDAO.findById(user.id).get()
+        Assertions.assertThat(oldPassword).isEqualTo(result.password)
     }
 
 

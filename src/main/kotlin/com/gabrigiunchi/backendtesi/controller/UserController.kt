@@ -3,6 +3,7 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.dto.input.ChangePasswordDTO
 import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.UserDTOOutput
 import com.gabrigiunchi.backendtesi.model.entities.User
@@ -99,5 +100,12 @@ class UserController(private val userDAO: UserDAO, private val userFactory: User
         this.logger.info("PATCH to set logged user #${user.id} notifications=$active")
         user.notificationsEnabled = active
         return ResponseEntity.ok(UserDTOOutput(this.userDAO.save(user)))
+    }
+
+    @PostMapping("/me/password")
+    fun changeMyPassword(@Valid @RequestBody dto: ChangePasswordDTO): ResponseEntity<UserDTOOutput> {
+        val user = this.getLoggedUser()
+        this.logger.info("POST to change password of #${user.id}")
+        return ResponseEntity.ok(UserDTOOutput(this.userFactory.modifyPasswordOfUser(user, dto)))
     }
 }

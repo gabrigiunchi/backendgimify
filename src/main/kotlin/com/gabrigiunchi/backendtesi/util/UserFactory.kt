@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.dao.UserRoleDAO
 import com.gabrigiunchi.backendtesi.exceptions.BadRequestException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.dto.input.ChangePasswordDTO
 import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
@@ -36,6 +37,7 @@ class UserFactory(
     fun modifyUser(dto: UserDTOInput, id: Int): User {
         val roles = dto.roles.map { this.userRoleDAO.findByName(it).orElseThrow { BadRequestException("user role $it does not exist") } }
         val savedUser = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        savedUser.username = dto.username
         savedUser.notificationsEnabled = dto.notificationsEnabled
         savedUser.isActive = dto.isActive
         savedUser.email = dto.email
@@ -45,5 +47,15 @@ class UserFactory(
         savedUser.roles.clear()
         savedUser.roles.addAll(roles)
         return this.userDAO.save(savedUser)
+    }
+
+    fun modifyPasswordOfUser(user: User, dto: ChangePasswordDTO): User {
+        val encoder = BCryptPasswordEncoder()
+        if (!encoder.matches(dto.oldPassword, user.password)) {
+            throw BadRequestException("Old password is incorrect")
+        }
+
+        user.password = encoder.encode(dto.newPassword)
+        return this.userDAO.save(user)
     }
 }

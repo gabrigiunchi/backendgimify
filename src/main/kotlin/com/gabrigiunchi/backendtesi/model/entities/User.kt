@@ -9,7 +9,7 @@ import javax.persistence.ManyToMany
 @Entity
 class User(
         id: Int,
-        val username: String,
+        var username: String,
         var password: String,
         name: String,
         var surname: String,
