@@ -12,7 +12,6 @@ import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.entities.Comment
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.entities.User
-import com.gabrigiunchi.backendtesi.util.UserFactory
 import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions
 import org.junit.Before
@@ -36,7 +35,7 @@ class GymServiceTest : AbstractControllerTest() {
     private lateinit var gymService: GymService
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var userDAO: UserDAO
@@ -87,7 +86,7 @@ class GymServiceTest : AbstractControllerTest() {
     }
 
     private fun mockUser(): User {
-        return this.userDAO.save(this.userFactory.createRegularUser("adsa", "jns", "jnj", "njnj"))
+        return this.userDAO.save(this.userService.createRegularUser("adsa", "jns", "jnj", "njnj"))
     }
 
     private fun mockGym(): Gym {

@@ -8,7 +8,6 @@ import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
-import com.gabrigiunchi.backendtesi.util.UserFactory
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -40,7 +39,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     private lateinit var reservationDAO: ReservationDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
@@ -59,7 +58,7 @@ class ReservationServiceTest : AbstractControllerTest() {
         this.userDAO.deleteAll()
         this.reservationDAO.deleteAll()
 
-        this.user = this.userDAO.save(this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi"))
+        this.user = this.userDAO.save(this.userService.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi"))
         this.gym = this.mockGym()
         this.mockTimetable()
     }
@@ -190,7 +189,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test
     fun `Two users should create reservations`() {
         val user1 = this.user!!
-        val user2 = this.userDAO.save(this.userFactory.createRegularUser("jnj", "sss", "kmk", "kk"))
+        val user2 = this.userDAO.save(this.userService.createRegularUser("jnj", "sss", "kmk", "kk"))
         val asset1 = this.mockAsset(300)
         val asset2 = this.assetDAO.save(Asset("ciclette2", asset1.kind, this.gym!!))
 
@@ -666,7 +665,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test(expected = ResourceNotFoundException::class)
     fun `Should check if a user own a reservation and throws an exception if the reservation belongs to another user`() {
         val r = this.reservationDAO.save(Reservation(this.mockAsset(), this.user!!, OffsetDateTime.now(), OffsetDateTime.now().plusMinutes(20)))
-        val anotherUser = this.userDAO.save(this.userFactory.createAdminUser("dasdaas", "aaaa", "Gabriele", "Giunchi"))
+        val anotherUser = this.userDAO.save(this.userService.createAdminUser("dasdaas", "aaaa", "Gabriele", "Giunchi"))
 
         this.reservationService.getReservationOfUser(anotherUser, r.id)
     }
@@ -702,7 +701,7 @@ class ReservationServiceTest : AbstractControllerTest() {
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not delete the reservation of a user if the reservation is not of the user`() {
         val user1 = this.user!!
-        val user2 = this.userDAO.save(this.userFactory.createRegularUser("dnjasda", "nj", "s", "", ""))
+        val user2 = this.userDAO.save(this.userService.createRegularUser("dnjasda", "nj", "s", "", ""))
         val start = OffsetDateTime.parse("2050-04-04T11:00:00+00:00")
         val end = start.plusMinutes(20)
         val reservationDTO = ReservationDTOInput(user2.id, this.mockAsset().id, start, end)

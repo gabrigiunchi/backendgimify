@@ -7,7 +7,7 @@ import com.gabrigiunchi.backendtesi.model.dto.input.ChangePasswordDTO
 import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.UserDTOOutput
 import com.gabrigiunchi.backendtesi.model.entities.User
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -19,7 +19,7 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/users")
-class UserController(private val userDAO: UserDAO, private val userFactory: UserFactory) : BaseController(userDAO) {
+class UserController(private val userDAO: UserDAO, private val userService: UserService) : BaseController(userDAO) {
 
     val logger = LoggerFactory.getLogger(UserController::class.java)!!
 
@@ -47,14 +47,14 @@ class UserController(private val userDAO: UserDAO, private val userFactory: User
             throw ResourceAlreadyExistsException("user with username ${user.username} already exists")
         }
 
-        return ResponseEntity(UserDTOOutput(this.userDAO.save(this.userFactory.createUser(user))), HttpStatus.CREATED)
+        return ResponseEntity(UserDTOOutput(this.userDAO.save(this.userService.createUser(user))), HttpStatus.CREATED)
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PutMapping("/{id}")
     fun modifyUser(@Valid @RequestBody user: UserDTOInput, @PathVariable id: Int): ResponseEntity<UserDTOOutput> {
         this.logger.info("PUT user $id")
-        return ResponseEntity.ok(UserDTOOutput(this.userFactory.modifyUser(user, id)))
+        return ResponseEntity.ok(UserDTOOutput(this.userService.modifyUser(user, id)))
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -106,6 +106,6 @@ class UserController(private val userDAO: UserDAO, private val userFactory: User
     fun changeMyPassword(@Valid @RequestBody dto: ChangePasswordDTO): ResponseEntity<UserDTOOutput> {
         val user = this.getLoggedUser()
         this.logger.info("POST to change password of #${user.id}")
-        return ResponseEntity.ok(UserDTOOutput(this.userFactory.modifyPasswordOfUser(user, dto)))
+        return ResponseEntity.ok(UserDTOOutput(this.userService.modifyPasswordOfUser(user, dto)))
     }
 }

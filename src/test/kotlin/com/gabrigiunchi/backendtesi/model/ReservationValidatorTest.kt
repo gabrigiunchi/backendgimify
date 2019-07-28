@@ -9,7 +9,7 @@ import com.gabrigiunchi.backendtesi.model.rules.ReservationValidator
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.service.ReservationService
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -45,7 +45,7 @@ class ReservationValidatorTest : AbstractControllerTest() {
     private lateinit var reservationDAO: ReservationDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
@@ -194,7 +194,7 @@ class ReservationValidatorTest : AbstractControllerTest() {
     /**************************************** UTILS ***********************************************************/
 
     private val mockUser: User
-        get() = this.userDAO.save(this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi"))
+        get() = this.userDAO.save(this.userService.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi"))
 
     private fun mockTimetable(): Timetable =
             this.timetableDAO.save(Timetable(gym = this.gym!!, openings = MockEntities.mockOpenings, closingDays = emptySet()))

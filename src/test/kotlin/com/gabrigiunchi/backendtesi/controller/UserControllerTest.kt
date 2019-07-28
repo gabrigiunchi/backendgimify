@@ -8,7 +8,7 @@ import com.gabrigiunchi.backendtesi.model.dto.input.ChangePasswordDTO
 import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -29,7 +29,7 @@ class UserControllerTest : AbstractControllerTest() {
     private lateinit var userRoleDAO: UserRoleDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Before
     fun clearDB() {
@@ -84,7 +84,7 @@ class UserControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not create a user if its username already exists`() {
-        val user = this.userFactory.createRegularUser("gab", "aaaa", "Gab", "Giunchi")
+        val user = this.userService.createRegularUser("gab", "aaaa", "Gab", "Giunchi")
         val saved = this.userDAO.save(user)
         Assertions.assertThat(user.id).isNotEqualTo(saved.id)
         mockMvc.perform(post(ApiUrls.USERS)
@@ -107,7 +107,7 @@ class UserControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should modify a user`() {
-        val existing = this.userDAO.save(this.userFactory.createRegularUser("gab", "aaaa", "Gab", "Giunchi"))
+        val existing = this.userDAO.save(this.userService.createRegularUser("gab", "aaaa", "Gab", "Giunchi"))
         val oldPassword = existing.password
         val modified = UserDTOInput("username", "password", "User", "Surname",
                 "newmail", isActive = false, notificationsEnabled = false, roles = listOf(UserRoleEnum.ADMINISTRATOR.name))
@@ -142,7 +142,7 @@ class UserControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not modify a user if one of his roles does not exist`() {
-        val existing = this.userDAO.save(this.userFactory.createRegularUser("gab", "aaaa", "Gab", "Giunchi"))
+        val existing = this.userDAO.save(this.userService.createRegularUser("gab", "aaaa", "Gab", "Giunchi"))
         val modified = UserDTOInput("username", "password", "User", "Surname",
                 "newmail", isActive = false, notificationsEnabled = false, roles = listOf("aaaa"))
         mockMvc.perform(put("${ApiUrls.USERS}/${existing.id}")
@@ -298,6 +298,6 @@ class UserControllerTest : AbstractControllerTest() {
 
 
     private val mockUser: User
-        get() = this.userDAO.save(this.userFactory.createRegularUser(
+        get() = this.userDAO.save(this.userService.createRegularUser(
                 "gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabri@gmail.com"))
 }

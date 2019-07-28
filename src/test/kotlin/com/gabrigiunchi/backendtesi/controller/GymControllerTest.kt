@@ -12,7 +12,7 @@ import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.service.MapsService
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -38,7 +38,7 @@ class GymControllerTest : AbstractControllerTest() {
     private lateinit var userDAO: UserDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var commentDAO: CommentDAO
@@ -320,7 +320,7 @@ class GymControllerTest : AbstractControllerTest() {
     /******************************** UTILS ****************************************************/
 
     private fun mockUser(): User {
-        return this.userDAO.save(this.userFactory.createRegularUser("adsa", "jns", "jnj", "njnj"))
+        return this.userDAO.save(this.userService.createRegularUser("adsa", "jns", "jnj", "njnj"))
     }
 
     private fun mockGym(): Gym {

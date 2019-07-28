@@ -1,4 +1,4 @@
-package com.gabrigiunchi.backendtesi.util
+package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.dao.UserRoleDAO
@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class UserFactory(
+class UserService(
         private val userDAO: UserDAO,
         private val userRoleDAO: UserRoleDAO) {
 

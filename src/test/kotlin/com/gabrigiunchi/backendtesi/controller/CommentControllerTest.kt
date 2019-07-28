@@ -11,7 +11,7 @@ import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.Comment
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.entities.User
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -38,7 +38,7 @@ class CommentControllerTest : AbstractControllerTest() {
     private lateinit var cityDAO: CityDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Before
     fun clearDB() {
@@ -129,7 +129,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should get the comments of a user`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
+        val anotherUser = this.userDAO.save(this.userService.createRegularUser("mmm", "m", "A", "B"))
         val d = OffsetDateTime.now()
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1, d),
@@ -165,7 +165,7 @@ class CommentControllerTest : AbstractControllerTest() {
         val user = this.mockUser()
         val gym = this.mockGym()
         val anotherGym = this.gymDAO.save(Gym("gym2", "another address", gym.city))
-        val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
+        val anotherUser = this.userDAO.save(this.userService.createRegularUser("mmm", "m", "A", "B"))
         val comments = this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
                 Comment(anotherUser, gym, "title2", "message2", 2),
@@ -189,7 +189,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should not get the comments filtered by user and gym if the user does not exist`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
+        val anotherUser = this.userDAO.save(this.userService.createRegularUser("mmm", "m", "A", "B"))
         this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
                 Comment(anotherUser, gym, "title2", "message2", 2),
@@ -209,7 +209,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should not get the comments filtered by user and gym if the gym does not exist`() {
         val user = this.mockUser()
         val gym = this.mockGym()
-        val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("mmm", "m", "A", "B"))
+        val anotherUser = this.userDAO.save(this.userService.createRegularUser("mmm", "m", "A", "B"))
         this.commentDAO.saveAll(listOf(
                 Comment(user, gym, "title1", "message1", 1),
                 Comment(anotherUser, gym, "title2", "message2", 2),
@@ -352,7 +352,7 @@ class CommentControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get all my comments`() {
         val user = this.mockUser()
-        val anotherUser = this.userDAO.save(this.userFactory.createRegularUser("jn", "Jn", "j", "km"))
+        val anotherUser = this.userDAO.save(this.userService.createRegularUser("jn", "Jn", "j", "km"))
         val gym = this.mockGym()
         val d = OffsetDateTime.now()
         val comments = this.commentDAO.saveAll(listOf(
@@ -420,7 +420,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should not get one of my comment by id if it does not belong to me`() {
         val gym = this.mockGym()
         this.mockUser("gabrigiunchi")
-        val user2 = this.userDAO.save(this.userFactory.createRegularUser("another user", "aaaa", "n", "m"))
+        val user2 = this.userDAO.save(this.userService.createRegularUser("another user", "aaaa", "n", "m"))
         val comment = this.commentDAO.save(Comment(user2, gym, "", "", 1))
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/me/${comment.id}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -520,7 +520,7 @@ class CommentControllerTest : AbstractControllerTest() {
     fun `Should not delete one of my comment by id if it does not belong to me`() {
         val gym = this.mockGym()
         this.mockUser("gabrigiunchi")
-        val user2 = this.userDAO.save(this.userFactory.createRegularUser("another user", "aaaa", "n", "m"))
+        val user2 = this.userDAO.save(this.userService.createRegularUser("another user", "aaaa", "n", "m"))
         val comment = this.commentDAO.save(Comment(user2, gym, "", "", 1))
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/me/${comment.id}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -531,7 +531,7 @@ class CommentControllerTest : AbstractControllerTest() {
     /************************************** UTILS *********************************************************************/
 
     private fun mockUser(username: String = "gabrigiunchi"): User {
-        return this.userDAO.save(this.userFactory.createRegularUser(username, "aaaa", "Gabriele", "Giunchi"))
+        return this.userDAO.save(this.userService.createRegularUser(username, "aaaa", "Gabriele", "Giunchi"))
     }
 
     private fun mockGym(): Gym {

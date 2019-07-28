@@ -4,7 +4,7 @@ import com.gabrigiunchi.backendtesi.AbstractControllerTest
 import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -29,7 +29,7 @@ class ReservationDAOTest : AbstractControllerTest() {
     private lateinit var assetKindDAO: AssetKindDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var cityDAO: CityDAO
@@ -117,6 +117,6 @@ class ReservationDAOTest : AbstractControllerTest() {
     }
 
     private fun mockUser(username: String): User {
-        return this.userDAO.save(this.userFactory.createRegularUser(username, "pass", "Gabriele", "Giunchi"))
+        return this.userDAO.save(this.userService.createRegularUser(username, "pass", "Gabriele", "Giunchi"))
     }
 }

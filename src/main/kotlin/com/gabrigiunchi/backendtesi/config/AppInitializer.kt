@@ -9,7 +9,7 @@ import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import com.gabrigiunchi.backendtesi.util.UserGenerator
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,7 +52,7 @@ class AppInitializer {
     private lateinit var imageDAO: ImageDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Value("\${application.zoneId}")
     private var zoneId: String = "UTC"
@@ -127,16 +127,16 @@ class AppInitializer {
         this.userRoleDAO.deleteAll()
         this.initUserRole()
         this.userDAO.saveAll(listOf(
-                this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com"),
-                this.userFactory.createRegularUser("tonan", "pinguino", "Antonella", "Tondi", "giutondi@alice.it"),
-                this.userFactory.createRegularUser("martinonfermarti", "aaaa", "Martina", "Bandini", "bandins95m@gmail.com"),
-				this.userFactory.createRegularUser("mattistrong", "aaaa", "Mattia", "Francisconi", "mattiafrancisconi@yahoo.it"),
-                this.userFactory.createRegularUser("baseuser", "bbbb", "User", "Anonimo", "prova@gmail.com"))
+                this.userService.createAdminUser("gabrigiunchi", "aaaa", "Gabriele", "Giunchi", "gabriele.giunchi1994@gmail.com"),
+                this.userService.createRegularUser("tonan", "pinguino", "Antonella", "Tondi", "giutondi@alice.it"),
+                this.userService.createRegularUser("martinonfermarti", "aaaa", "Martina", "Bandini", "bandins95m@gmail.com"),
+                this.userService.createRegularUser("mattistrong", "aaaa", "Mattia", "Francisconi", "mattiafrancisconi@yahoo.it"),
+                this.userService.createRegularUser("baseuser", "bbbb", "User", "Anonimo", "prova@gmail.com"))
         )
         this.randomUsers = this.userDAO.saveAll(
                 (1..15).map {
                     val simpleUser = UserGenerator.generateRandomUser()
-                    this.userFactory.createRegularUser(simpleUser.username,
+                    this.userService.createRegularUser(simpleUser.username,
                             "password", simpleUser.name, simpleUser.surname, simpleUser.email)
                 }
         ).toList()

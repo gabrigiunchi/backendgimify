@@ -10,7 +10,7 @@ import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.ImageService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
-import com.gabrigiunchi.backendtesi.util.UserFactory
+import com.gabrigiunchi.backendtesi.service.UserService
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
@@ -53,7 +53,7 @@ class AvatarControllerTest : AbstractControllerTest() {
     private lateinit var userDAO: UserDAO
 
     @Autowired
-    private lateinit var userFactory: UserFactory
+    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var avatarDAO: ImageDAO
@@ -276,6 +276,6 @@ class AvatarControllerTest : AbstractControllerTest() {
     val mockUser: User
         get() {
             this.userDAO.deleteAll()
-            return this.userDAO.save(this.userFactory.createAdminUser("gabrigiunchi", "aaaa", "", ""))
+            return this.userDAO.save(this.userService.createAdminUser("gabrigiunchi", "aaaa", "", ""))
         }
 }
