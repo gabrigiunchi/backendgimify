@@ -51,8 +51,8 @@ class ImageServiceTest : AbstractControllerTest() {
         this.mockObjectStorage.clear()
         this.amazonS3 = Mockito.mock(AmazonS3::class.java)
         this.objectStorageService = Mockito.spy(this.objectStorageService)
-        this.imageService = ImageService(drawableDAO, imageDAO, this.objectStorageService, this.bucketName)
         `when`(this.objectStorageService.createClient()).thenReturn(this.amazonS3)
+        this.imageService = ImageService(drawableDAO, imageDAO, this.objectStorageService, this.bucketName)
     }
 
     @Test
