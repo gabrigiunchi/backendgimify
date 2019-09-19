@@ -33,8 +33,10 @@ class ObjectStorageService {
     @Value("\${application.objectstorage.cos.location}")
     private lateinit var cosLocation: String
 
+    private val client = this.createClient()
+
     fun getAllMetadataWithPrefix(prefix: String, bucket: String): List<ImageMetadata> =
-            this.createClient()
+            this.client
                     .listObjectsV2(bucket, prefix)
                     .objectSummaries
                     .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
@@ -42,28 +44,28 @@ class ObjectStorageService {
     fun contains(image: String, bucket: String): Boolean = this.createClient().doesObjectExist(bucket, image)
 
     fun download(id: String, bucket: String): ByteArray {
-        val client = this.createClient()
-        if (!client.doesObjectExist(bucket, id)) {
+        if (!this.client.doesObjectExist(bucket, id))
+        {
             throw ResourceNotFoundException("image $id does not exist")
         }
 
-        return client.getObject(bucket, id).objectContent.readAllBytes()
+        return this.client.getObject(bucket, id).objectContent.readAllBytes()
     }
 
     fun upload(image: MultipartFile, id: String, bucket: String): ImageMetadata {
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
-        this.createClient().putObject(bucket, id, image.inputStream, metadata).metadata
+        this.client.putObject(bucket, id, image.inputStream, metadata).metadata
         return ImageMetadata(id, Date().time)
     }
 
     fun delete(id: String, bucket: String) {
-        val client = this.createClient()
-        if (!client.doesObjectExist(bucket, id)) {
+        if (!this.client.doesObjectExist(bucket, id))
+        {
             throw ResourceNotFoundException("image $id does not exist")
         }
 
-        client.deleteObject(bucket, id)
+        this.client.deleteObject(bucket, id)
     }
 
     fun createClient(): AmazonS3 {
