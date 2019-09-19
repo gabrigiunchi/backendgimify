@@ -89,7 +89,7 @@ class ReservationControllerTest : AbstractControllerTest() {
         this.reservationDAO.save(reservations[0])
         val asset = reservations[0].asset
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/${asset.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/asset/${asset.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
@@ -99,7 +99,7 @@ class ReservationControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should return 404 when requesting the reservations of an asset that does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/of_asset/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.RESERVATIONS}/asset/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset -1 does not exist")))

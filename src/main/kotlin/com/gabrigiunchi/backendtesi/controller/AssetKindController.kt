@@ -54,7 +54,7 @@ class AssetKindController(
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @PatchMapping("/{id}/max_time/{time}")
+    @PatchMapping("/{id}/maxTime/{time}")
     fun updateAssetKindMaxReservationTime(@PathVariable id: Int, @PathVariable time: Int): ResponseEntity<AssetKind> {
         this.logger.info("PATCH max reservation time of asset kind #$id")
 

@@ -105,7 +105,7 @@ class GymControllerTest : AbstractControllerTest() {
                 Gym("gym3", "Via3", cities[1]),
                 Gym("gym4", "Via4", cities[2]))).toList()
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/by_city/${cities[0].id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/city/${cities[0].id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.`is`(2)))
@@ -125,7 +125,7 @@ class GymControllerTest : AbstractControllerTest() {
                 Gym("gym3", "Via3", cities[1]),
                 Gym("gym4", "Via4", cities[2]))).toList()
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/by_city/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/city/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))

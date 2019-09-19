@@ -62,7 +62,7 @@ class CityControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get a city by its name`() {
         val city = this.mockCity()
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/by_name/${city.name}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/name/${city.name}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(city.id)))
@@ -83,7 +83,7 @@ class CityControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not get a city by name if it does not exist`() {
         val name = "dbasdasd"
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/by_name/$name")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/name/$name")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city $name does not exist")))

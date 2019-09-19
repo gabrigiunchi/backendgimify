@@ -37,7 +37,7 @@ class TimetableController(
                 .orElseThrow { ResourceNotFoundException("timetable $id does not exist") }
     }
 
-    @GetMapping("/by_gym/{gymId}")
+    @GetMapping("/gym/{gymId}")
     fun getTimetableByGym(@PathVariable gymId: Int): ResponseEntity<Timetable> {
         this.logger.info("GET timetable of gym #$gymId")
         return this.gymDAO.findById(gymId)
@@ -84,7 +84,7 @@ class TimetableController(
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
-    @DeleteMapping("/by_gym/{gymId}")
+    @DeleteMapping("/gym/{gymId}")
     fun deleteTimetableByGymId(@PathVariable gymId: Int): ResponseEntity<Void> {
         this.logger.info("DELETE timetable of gym #$gymId")
         val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }

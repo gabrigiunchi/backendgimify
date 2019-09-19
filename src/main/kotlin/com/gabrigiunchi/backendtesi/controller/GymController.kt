@@ -29,7 +29,7 @@ class GymController(private val gymService: GymService) {
         return ResponseEntity.ok(this.gymService.getGymById(id))
     }
 
-    @GetMapping("/by_city/{cityId}")
+    @GetMapping("/city/{cityId}")
     fun getGymByCity(@PathVariable cityId: Int): ResponseEntity<List<Gym>> {
         this.logger.info("GET gym by city #$cityId")
         return ResponseEntity.ok(this.gymService.getGymsByCity(cityId))

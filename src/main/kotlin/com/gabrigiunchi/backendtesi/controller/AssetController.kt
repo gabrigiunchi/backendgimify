@@ -30,19 +30,19 @@ class AssetController(private val assetService: AssetService) {
         return ResponseEntity.ok(this.assetService.getAssetById(id))
     }
 
-    @GetMapping("/by_gym/{gymId}/page/{page}/size/{size}")
+    @GetMapping("/gym/{gymId}/page/{page}/size/{size}")
     fun getAssetsByGym(@PathVariable gymId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<AssetDTOOutput>> {
         this.logger.info("GET all assets in gym $gymId, page=$page size=$size")
         return ResponseEntity.ok(this.assetService.getAssetsByGym(gymId, page, size).map { asset -> AssetDTOOutput(asset) })
     }
 
-    @GetMapping("/by_gym/{gymId}/by_kind/{kindId}")
+    @GetMapping("/gym/{gymId}/kind/{kindId}")
     fun getAssetsByGymAndKind(@PathVariable gymId: Int, @PathVariable kindId: Int): ResponseEntity<Collection<AssetDTOOutput>> {
         this.logger.info("GET all assets in gym $gymId of kind $kindId")
         return ResponseEntity.ok(this.assetService.getAssetsByGymAndKind(gymId, kindId).map { AssetDTOOutput(it) })
     }
 
-    @GetMapping("/by_kind/{kindId}/page/{page}/size/{size}")
+    @GetMapping("/kind/{kindId}/page/{page}/size/{size}")
     fun getAssetsByKind(@PathVariable kindId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<AssetDTOOutput>> {
         this.logger.info("GET all assets of kind $kindId")
         return ResponseEntity.ok(this.assetService.getAssetsByKind(kindId, page, size).map { AssetDTOOutput(it) })

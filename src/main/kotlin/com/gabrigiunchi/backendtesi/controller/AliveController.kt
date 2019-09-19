@@ -23,8 +23,8 @@ class AliveController(userDAO: UserDAO) : BaseController(userDAO) {
     @GetMapping("/me")
     fun whoAmI(): ResponseEntity<User> = ResponseEntity.ok(this.getLoggedUser())
 
-    @GetMapping("/me/am_I_admin")
-    fun amIdAmin(): ResponseEntity<Boolean> = ResponseEntity.ok(this.isAdmin())
+    @GetMapping("/me/admin")
+    fun amIAdmin(): ResponseEntity<Boolean> = ResponseEntity.ok(this.isAdmin())
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/secret")

@@ -95,7 +95,7 @@ class AssetControllerTest : AbstractControllerTest() {
                 Asset("a5", kind, gym1)
         )).toList()
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/${gym1.id}/page/0/size/10")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/gym/${gym1.id}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
@@ -117,7 +117,7 @@ class AssetControllerTest : AbstractControllerTest() {
                 Asset("a5", kinds[0], gym)
         )).toList()
 
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/${assets[0].kind.id}/page/0/size/10")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/kind/${assets[0].kind.id}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()", Matchers.`is`(3)))
@@ -140,7 +140,7 @@ class AssetControllerTest : AbstractControllerTest() {
                 Asset("a5", kinds[0], gym2)
         )).toList()
 
-        val url = "${ApiUrls.ASSETS}/by_gym/${gym1.id}/by_kind/${assets[0].kind.id}"
+        val url = "${ApiUrls.ASSETS}/gym/${gym1.id}/kind/${assets[0].kind.id}"
         this.mockMvc.perform(MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -161,7 +161,7 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get an asset gym if the gym does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1/page/0/size/10")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/gym/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
@@ -170,7 +170,7 @@ class AssetControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get an asset by kind if the kind does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_kind/-1/page/0/size/10")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/kind/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
@@ -180,7 +180,7 @@ class AssetControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not get an asset by gym and kind if the kind does not exist`() {
         val gym = this.createGym()
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/${gym.id}/by_kind/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/gym/${gym.id}/kind/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
@@ -190,7 +190,7 @@ class AssetControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not get an asset by gym and kind if the gym does not exist`() {
         val kind = this.createAssetKind()
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/by_gym/-1/by_kind/${kind.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/gym/-1/kind/${kind.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))

@@ -48,7 +48,7 @@ class ReservationController(
                 .orElseThrow { ResourceNotFoundException("reservation $id does not exist") }
     }
 
-    @GetMapping("/of_asset/{assetId}")
+    @GetMapping("/asset/{assetId}")
     fun getAllReservationsByAsset(@PathVariable assetId: Int): ResponseEntity<List<ReservationDTOOutput>> {
         this.logger.info("GET all reservations of asset #$assetId")
         return this.assetDAO.findById(assetId)

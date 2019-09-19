@@ -40,7 +40,7 @@ class CommentController(
                 .orElseThrow { ResourceNotFoundException("comment $id does not exist") }
     }
 
-    @GetMapping("/by_gym/{gymId}/page/{page}/size/{size}")
+    @GetMapping("/gym/{gymId}/page/{page}/size/{size}")
     fun getCommentsByGym(@PathVariable gymId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<CommentDTOOutput>> {
         this.logger.info("GET comments of gym $gymId")
         return this.gymDAO.findById(gymId)
@@ -50,7 +50,7 @@ class CommentController(
                 .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
     }
 
-    @GetMapping("/by_user/{userId}/page/{page}/size/{size}")
+    @GetMapping("/user/{userId}/page/{page}/size/{size}")
     fun getCommentsByUser(@PathVariable userId: Int, @PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<CommentDTOOutput>> {
         this.logger.info("GET comments of user $userId")
         return this.userDAO.findById(userId)
@@ -60,7 +60,7 @@ class CommentController(
                 .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
     }
 
-    @GetMapping("/by_user/{userId}/by_gym/{gymId}")
+    @GetMapping("/user/{userId}/gym/{gymId}")
     fun getCommentsByUserAndGym(@PathVariable userId: Int, @PathVariable gymId: Int): ResponseEntity<Collection<CommentDTOOutput>> {
         this.logger.info("GET comments of user $userId of gym $gymId")
         val user = this.userDAO.findById(userId).orElseThrow { ResourceNotFoundException("user $userId does not exist") }
@@ -111,7 +111,7 @@ class CommentController(
                 .orElseThrow { ResourceNotFoundException("comment $id of user ${this.getLoggedUser().id} does not exist") }
     }
 
-    @GetMapping("/me/by_gym/{gymId}")
+    @GetMapping("/me/gym/{gymId}")
     fun getMyCommentsByGym(@PathVariable gymId: Int): ResponseEntity<Collection<CommentDTOOutput>> {
         val user = this.getLoggedUser()
         this.logger.info("GET comments of gym $gymId of logged user ${user.id})")

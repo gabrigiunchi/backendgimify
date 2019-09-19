@@ -65,7 +65,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     @Test
     fun `Should get a timetable by its gym id`() {
         val timetable = this.createTimetable()
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/${timetable.gym.id}")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/gym/${timetable.gym.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.openings.length()", Matchers.`is`(timetable.openings.size)))
@@ -87,7 +87,7 @@ class TimetableControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not get a timetable by gym if the gym does not exist`() {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/-1")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
@@ -98,7 +98,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not get a timetable by gym if the gym exists but the timetable does not`() {
         val gymId = this.mockGym().id
-        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/by_gym/$gymId")
+        this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.TIMETABLES}/gym/$gymId")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
@@ -215,7 +215,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     @Test
     fun `Should delete a timetable by its gym id`() {
         val saved = this.createTimetable()
-        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/${saved.gym.id}")
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/gym/${saved.gym.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
                 .andDo(MockMvcResultHandlers.print())
@@ -225,7 +225,7 @@ class TimetableControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should NOT delete a timetable by its gym id if the gym does not exist`() {
-        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/-1")
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
@@ -236,7 +236,7 @@ class TimetableControllerTest : AbstractControllerTest() {
     @Test
     fun `Should NOT delete a timetable by its gym id if the timetable does not exist`() {
         val gymId = this.mockGym().id
-        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/by_gym/$gymId")
+        mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.TIMETABLES}/gym/$gymId")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(

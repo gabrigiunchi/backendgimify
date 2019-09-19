@@ -134,7 +134,7 @@ class AssetKindControllerTest : AbstractControllerTest() {
     @Test
     fun `Should update max time reservation for an asset kind`() {
         val assetKind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CRUNCH_BENCH, 20))
-        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/${assetKind.id}/max_time/10")
+        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/${assetKind.id}/maxTime/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(assetKind.id)))
@@ -145,7 +145,7 @@ class AssetKindControllerTest : AbstractControllerTest() {
 
     @Test
     fun `Should not update max time reservation for an asset kind if it does not exist`() {
-        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/-1/max_time/10")
+        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/-1/maxTime/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
@@ -155,7 +155,7 @@ class AssetKindControllerTest : AbstractControllerTest() {
     @Test
     fun `Should not update max time reservation for an asset kind if the time is negative`() {
         val assetKind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
-        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/${assetKind.id}/max_time/-1")
+        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/${assetKind.id}/maxTime/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
                 .andDo(MockMvcResultHandlers.print())
@@ -165,7 +165,7 @@ class AssetKindControllerTest : AbstractControllerTest() {
     fun `Should not update max time reservation for an asset kind if the time is 0`() {
         val assetKind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
-        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/${assetKind.id}/max_time/0")
+        mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/${assetKind.id}/maxTime/0")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest)
                 .andDo(MockMvcResultHandlers.print())

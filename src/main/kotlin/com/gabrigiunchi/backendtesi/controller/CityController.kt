@@ -28,7 +28,7 @@ class CityController(private val cityService: CityService) {
         return ResponseEntity.ok(this.cityService.getCityById(id))
     }
 
-    @GetMapping("/by_name/{name}")
+    @GetMapping("/name/{name}")
     fun getCityByName(@PathVariable name: String): ResponseEntity<City> {
         this.logger.info("GET city $name")
         return ResponseEntity.ok(this.cityService.getCityByName(name))

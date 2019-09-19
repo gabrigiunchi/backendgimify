@@ -48,7 +48,7 @@ class AliveControllerTest {
     @Test
     @WithMockUser(username = "gabrigiunchi", password = "aaaa", authorities = ["ADMINISTRATOR"])
     fun `Should say if I am an admin`() {
-        this.mockMvc.perform(get("${ApiUrls.ALIVE}/me/am_I_admin"))
+        this.mockMvc.perform(get("${ApiUrls.ALIVE}/me/admin"))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(true)))
     }
@@ -56,7 +56,7 @@ class AliveControllerTest {
     @Test
     @WithMockUser(username = "baseuser", password = "bbbb", authorities = ["USER"])
     fun `Should say if I am NOT an admin`() {
-        this.mockMvc.perform(get("${ApiUrls.ALIVE}/me/am_I_admin"))
+        this.mockMvc.perform(get("${ApiUrls.ALIVE}/me/admin"))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(false)))
     }
