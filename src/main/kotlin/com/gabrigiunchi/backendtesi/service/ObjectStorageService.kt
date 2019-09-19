@@ -16,8 +16,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 @Service
-class ObjectStorageService
-{
+class ObjectStorageService {
 
     @Value("\${application.objectstorage.cos.host}")
     private lateinit var cosHost: String
@@ -44,40 +43,33 @@ class ObjectStorageService
 
     fun contains(image: String, bucket: String): Boolean = this.createClient().doesObjectExist(bucket, image)
 
-    fun download(id: String, bucket: String): ByteArray
-    {
+    fun download(id: String, bucket: String): ByteArray {
         val client = this.createClient()
-        if (!client.doesObjectExist(bucket, id))
-        {
+        if (!client.doesObjectExist(bucket, id)) {
             throw ResourceNotFoundException("image $id does not exist")
         }
 
         return client.getObject(bucket, id).objectContent.readAllBytes()
     }
 
-    fun upload(image: MultipartFile, id: String, bucket: String): ImageMetadata
-    {
+    fun upload(image: MultipartFile, id: String, bucket: String): ImageMetadata {
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
         this.createClient().putObject(bucket, id, image.inputStream, metadata).metadata
         return ImageMetadata(id, Date().time)
     }
 
-    fun delete(id: String, bucket: String)
-    {
+    fun delete(id: String, bucket: String) {
         val client = this.createClient()
-        if (!client.doesObjectExist(bucket, id))
-        {
+        if (!client.doesObjectExist(bucket, id)) {
             throw ResourceNotFoundException("image $id does not exist")
         }
 
         client.deleteObject(bucket, id)
     }
 
-    fun createClient(): AmazonS3
-    {
-        if (this.client == null)
-        {
+    fun createClient(): AmazonS3 {
+        if (this.client == null) {
             SDKGlobalConfiguration.IAM_ENDPOINT = this.cosAuthEndpoint
             val credentials = BasicIBMOAuthCredentials(this.cosApiKey, this.cosServiceCrn)
             val clientConfig = ClientConfiguration().withRequestTimeout(5000)

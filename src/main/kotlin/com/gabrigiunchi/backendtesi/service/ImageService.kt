@@ -32,16 +32,14 @@ open class ImageService(
         val images = this.imageDAO.findByDrawableAndBucket(this.getEntity(entityId), this.bucketName)
                 .filter { it.type == ImageType.avatar }
 
-        if (images.isEmpty())
-        {
+        if (images.isEmpty()) {
             this.logger.info("Avatar $entityId not found in bucket $bucketName, returning default avatar")
             return DEFAULT_AVATAR_METADATA
         }
         return ImageMetadata(images.first().id, images.first().lastModified)
     }
 
-    fun getAvatar(entityId: Int): ByteArray
-    {
+    fun getAvatar(entityId: Int): ByteArray {
         this.logger.info("Get avatar $entityId in bucket $bucketName")
         return this.objectStorageService.download(this.getAvatarMetadata(entityId).id, this.bucketName)
     }
@@ -66,16 +64,14 @@ open class ImageService(
         if (images.isNotEmpty()) {
             this.deleteImage(images.first().id)
             this.logger.info("Successfully deleted avatar of entity $entity in bucket $bucketName")
-        } else
-        {
+        } else {
             this.logger.info("Avatar of entity #$entity not found in bucket $bucketName")
         }
     }
 
     /**************************** IMAGES *******************************************/
 
-    fun getImagesOfEntity(entityId: Int): List<ImageMetadata>
-    {
+    fun getImagesOfEntity(entityId: Int): List<ImageMetadata> {
         this.logger.info("Get metadata of entity #$entityId in bucket $bucketName")
         return this.drawableDAO.findById(entityId)
                 .map {

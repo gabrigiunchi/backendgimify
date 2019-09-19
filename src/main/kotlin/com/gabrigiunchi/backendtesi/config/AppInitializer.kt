@@ -95,8 +95,7 @@ class AppInitializer {
 
     fun initApp() {
         TimeZone.setDefault(TimeZone.getTimeZone(this.zoneId))
-        when
-        {
+        when {
             this.initDB -> this.initDB()
             this.initUsers -> this.initUsers()
             else -> this.logger.info("DB not initialized")
