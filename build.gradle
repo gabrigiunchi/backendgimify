@@ -10,7 +10,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'com.gabrigiunchi'
 version = '0.0.1'
-sourceCompatibility = '1.12'
+sourceCompatibility = '1.11'
 
 repositories {
     mavenCentral()
@@ -30,8 +30,8 @@ dependencies {
     implementation 'com.sun.xml.bind:jaxb-impl:2.2.11'
     implementation 'io.jsonwebtoken:jjwt:0.9.0'
     implementation 'commons-codec:commons-codec:1.11'
-    implementation 'io.springfox:springfox-swagger2:2.9.2'
-    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    implementation("io.springfox:springfox-swagger2:$swagger_version")
+    implementation("io.springfox:springfox-swagger-ui:$swagger_version")
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'com.h2database:h2'

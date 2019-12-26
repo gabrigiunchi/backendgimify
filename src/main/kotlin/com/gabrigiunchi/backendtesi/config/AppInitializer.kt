@@ -130,7 +130,7 @@ class AppInitializer {
                 this.userService.createRegularUser("tonan", "pinguino", "Antonella", "Tondi", "giutondi@alice.it"),
                 this.userService.createRegularUser("martinonfermarti", "aaaa", "Martina", "Bandini", "bandins95m@gmail.com"),
                 this.userService.createRegularUser("mattistrong", "aaaa", "Mattia", "Francisconi", "mattiafrancisconi@yahoo.it"),
-                this.userService.createRegularUser("baseuser", "bbbb", "User", "Anonimo", "prova@gmail.com"))
+                this.userService.createRegularUser("baseuser", "bbbb", "User", "Unknown", "baseuser@fakemail.com"))
         )
         this.randomUsers = this.userDAO.saveAll(
                 (1..15).map {
