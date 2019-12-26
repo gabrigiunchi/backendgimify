@@ -32,17 +32,17 @@ spring:
     hikari:
       max-active: 5
     max-active: 5
-    password: 8c6xE9fXjX&y
+    password: 33m1cw7r4dc9j+6h
     tomcat:
       max-active: 5
-    url: jdbc:db2://dashdb-entry-yp-lon02-01.services.eu-gb.bluemix.net:50000/BLUDB
-    username: dash101399
+    url: jdbc:db2://dashdb-txn-sbox-yp-lon02-01.services.eu-gb.bluemix.net:50000/BLUDB
+    username: mmj32786
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
-        default_schema: DASH101399
+        default_schema: MMJ32786
         dialect: org.hibernate.dialect.DB2Dialect
         jdbc:
           time_zone: UTC
