@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.dao.AssetDAO
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.dao.CityDAO
@@ -16,7 +16,8 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-class AssetTest : AbstractControllerTest() {
+class AssetTest : BaseTest()
+{
 
     @Autowired
     private lateinit var assetDAO: AssetDAO

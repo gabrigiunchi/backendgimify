@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.*
@@ -21,7 +21,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.OffsetDateTime
 
-class ReservationControllerTest : AbstractControllerTest() {
+class ReservationControllerTest : BaseTest()
+{
 
     @Autowired
     private lateinit var reservationDAO: ReservationDAO

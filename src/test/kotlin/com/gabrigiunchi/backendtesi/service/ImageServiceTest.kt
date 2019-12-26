@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi.service
 
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.dao.CityDAO
@@ -25,7 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mock.web.MockMultipartFile
 import java.util.*
 
-class ImageServiceTest : AbstractControllerTest() {
+class ImageServiceTest : BaseTest()
+{
     private val bucketName = "bucket"
 
     @Autowired

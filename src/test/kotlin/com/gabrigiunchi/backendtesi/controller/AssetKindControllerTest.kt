@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.model.entities.AssetKind
@@ -15,13 +15,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class AssetKindControllerTest : AbstractControllerTest() {
+class AssetKindControllerTest : BaseTest()
+{
 
     @Autowired
     private lateinit var assetKindDAO: AssetKindDAO
 
     @Before
-    fun clearDB() {
+    fun clearDB()
+    {
         this.assetKindDAO.deleteAll()
     }
 

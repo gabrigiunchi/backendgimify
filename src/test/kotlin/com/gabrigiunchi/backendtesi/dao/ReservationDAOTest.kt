@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.dao
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
@@ -11,7 +11,8 @@ import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.OffsetDateTime
 
-class ReservationDAOTest : AbstractControllerTest() {
+class ReservationDAOTest : BaseTest()
+{
 
     @Autowired
     private lateinit var reservationDAO: ReservationDAO

@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.ImageDAO
@@ -33,7 +33,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
-class AvatarControllerTest : AbstractControllerTest() {
+class AvatarControllerTest : BaseTest()
+{
 
     @Value("\${application.objectstorage.avatarsbucket}")
     private var bucketName = ""

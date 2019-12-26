@@ -10,7 +10,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'com.gabrigiunchi'
 version = '0.0.1'
-sourceCompatibility = '1.11'
+sourceCompatibility = '1.12'
 
 repositories {
     mavenCentral()

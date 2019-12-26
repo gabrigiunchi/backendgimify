@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
@@ -21,7 +21,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.DayOfWeek
 
-class TimetableControllerTest : AbstractControllerTest() {
+class TimetableControllerTest : BaseTest()
+{
 
     @Autowired
     private lateinit var gymDAO: GymDAO

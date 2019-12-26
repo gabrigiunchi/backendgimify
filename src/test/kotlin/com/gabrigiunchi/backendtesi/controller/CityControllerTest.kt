@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.controller
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.CityDAO
@@ -22,7 +22,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.ZoneId
 
-class CityControllerTest : AbstractControllerTest() {
+class CityControllerTest : BaseTest()
+{
 
     @Autowired
     private lateinit var cityDAO: CityDAO
@@ -31,7 +32,8 @@ class CityControllerTest : AbstractControllerTest() {
     private lateinit var mockMapsService: MapsService
 
     @Before
-    fun clearDB() {
+    fun clearDB()
+    {
         Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(LatLng(10.0, 10.0))
         Mockito.`when`(mockMapsService.getTimezone(LatLng(10.0, 10.0))).thenReturn(ZoneId.of("UTC"))
         this.cityDAO.deleteAll()

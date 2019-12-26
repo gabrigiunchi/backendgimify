@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.service
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
@@ -13,7 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mock.web.MockMultipartFile
 import java.util.*
 
-class ObjectStorageServiceTest : AbstractControllerTest() {
+class ObjectStorageServiceTest : BaseTest()
+{
 
     private val bucketName = "bucket"
 
@@ -23,7 +24,8 @@ class ObjectStorageServiceTest : AbstractControllerTest() {
     private val mockObjectStorage = MockObjectStorage()
 
     @Before
-    fun init() {
+    fun init()
+    {
         this.mockObjectStorage.clear()
         this.amazonS3 = Mockito.mock(AmazonS3::class.java)
         this.objectStorageService = Mockito.spy(this.objectStorageService)

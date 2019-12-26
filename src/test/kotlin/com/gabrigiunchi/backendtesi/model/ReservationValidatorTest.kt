@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.exceptions.*
@@ -17,7 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.OffsetDateTime
 
-class ReservationValidatorTest : AbstractControllerTest() {
+class ReservationValidatorTest : BaseTest()
+{
 
 
     @Autowired

@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
@@ -19,7 +19,8 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
-class TimetableTest : AbstractControllerTest() {
+class TimetableTest : BaseTest()
+{
 
     @Autowired
     private lateinit var gymDAO: GymDAO

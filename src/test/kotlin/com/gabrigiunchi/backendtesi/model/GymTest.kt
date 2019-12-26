@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.model
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.model.entities.City
@@ -11,7 +11,8 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-class GymTest : AbstractControllerTest() {
+class GymTest : BaseTest()
+{
 
     @Autowired
     private lateinit var gymDAO: GymDAO
@@ -20,7 +21,8 @@ class GymTest : AbstractControllerTest() {
     private lateinit var cityDAO: CityDAO
 
     @Before
-    fun clearDB() {
+    fun clearDB()
+    {
         this.cityDAO.deleteAll()
         this.gymDAO.deleteAll()
     }

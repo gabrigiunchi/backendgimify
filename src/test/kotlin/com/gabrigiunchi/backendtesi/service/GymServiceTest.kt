@@ -1,6 +1,6 @@
 package com.gabrigiunchi.backendtesi.service
 
-import com.gabrigiunchi.backendtesi.AbstractControllerTest
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.CommentDAO
@@ -20,7 +20,8 @@ import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 
-class GymServiceTest : AbstractControllerTest() {
+class GymServiceTest : BaseTest()
+{
 
     @Autowired
     private lateinit var gymDAO: GymDAO
