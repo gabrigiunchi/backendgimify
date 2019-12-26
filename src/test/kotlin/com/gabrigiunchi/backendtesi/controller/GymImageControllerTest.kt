@@ -1,13 +1,9 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.ImageDAO
-import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.ImageService
@@ -32,17 +28,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
-class GymImageControllerTest : BaseTest()
-{
+class GymImageControllerTest : BaseTest() {
 
     @Value("\${application.objectstorage.gymphotosbucket}")
     private var bucketName = ""
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
 
     @SpyBean
     private lateinit var objectStorageService: ObjectStorageService
@@ -235,11 +224,6 @@ class GymImageControllerTest : BaseTest()
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("entity -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
-    }
-
-    private fun mockGym(): Gym {
-        val city = this.cityDAO.save(MockEntities.mockCities[0])
-        return this.gymDAO.save(Gym("gym1", "address1", city))
     }
 
     private fun mockImage(name: String, content: String): MockMultipartFile {

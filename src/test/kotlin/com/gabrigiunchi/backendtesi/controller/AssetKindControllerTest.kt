@@ -2,28 +2,20 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
 import com.gabrigiunchi.backendtesi.model.entities.AssetKind
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class AssetKindControllerTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
-
+class AssetKindControllerTest : BaseTest() {
     @Before
-    fun clearDB()
-    {
+    fun clearDB() {
         this.assetKindDAO.deleteAll()
     }
 

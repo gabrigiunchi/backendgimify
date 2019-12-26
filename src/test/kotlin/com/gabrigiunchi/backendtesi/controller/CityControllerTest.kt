@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.CityDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
@@ -14,7 +13,6 @@ import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -22,18 +20,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.ZoneId
 
-class CityControllerTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
+class CityControllerTest : BaseTest() {
     @MockBean
     private lateinit var mockMapsService: MapsService
 
     @Before
-    fun clearDB()
-    {
+    fun clearDB() {
         Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(LatLng(10.0, 10.0))
         Mockito.`when`(mockMapsService.getTimezone(LatLng(10.0, 10.0))).thenReturn(ZoneId.of("UTC"))
         this.cityDAO.deleteAll()
@@ -51,7 +43,7 @@ class CityControllerTest : BaseTest()
 
     @Test
     fun `Should get a city by its id`() {
-        val city = this.mockCity()
+        val city = this.mockCity
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/${city.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -63,7 +55,7 @@ class CityControllerTest : BaseTest()
 
     @Test
     fun `Should get a city by its name`() {
-        val city = this.mockCity()
+        val city = this.mockCity
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/name/${city.name}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
@@ -176,7 +168,7 @@ class CityControllerTest : BaseTest()
 
     @Test
     fun `Should delete a city`() {
-        val city = this.mockCity()
+        val city = this.mockCity
         Assertions.assertThat(this.cityDAO.findById(city.id).isPresent).isTrue()
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.CITIES}/${city.id}")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -193,9 +185,5 @@ class CityControllerTest : BaseTest()
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
-    }
-
-    private fun mockCity(): City {
-        return this.cityDAO.save(MockEntities.mockCities[0])
     }
 }

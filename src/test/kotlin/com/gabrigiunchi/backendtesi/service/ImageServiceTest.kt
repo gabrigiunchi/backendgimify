@@ -2,15 +2,11 @@ package com.gabrigiunchi.backendtesi.service
 
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.MockObjectStorage
-import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.DrawableDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
@@ -25,8 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mock.web.MockMultipartFile
 import java.util.*
 
-class ImageServiceTest : BaseTest()
-{
+class ImageServiceTest : BaseTest() {
     private val bucketName = "bucket"
 
     @Autowired
@@ -35,11 +30,7 @@ class ImageServiceTest : BaseTest()
     @Autowired
     private lateinit var imageDAO: ImageDAO
 
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
+    private lateinit var mockGym: Gym
 
     @Autowired
     private lateinit var objectStorageService: ObjectStorageService
@@ -49,6 +40,7 @@ class ImageServiceTest : BaseTest()
 
     @Before
     fun init() {
+        this.mockGym = this.mockGym()
         this.mockObjectStorage.clear()
         this.amazonS3 = Mockito.mock(AmazonS3::class.java)
         this.objectStorageService = Mockito.spy(this.objectStorageService)
@@ -262,11 +254,4 @@ class ImageServiceTest : BaseTest()
         this.objectStorageService.upload(image, name, this.bucketName)
         return image
     }
-
-    private val mockGym: Gym
-        get() = this.gymDAO.save(Gym("gym1", "address1", this.mockCity))
-
-    private val mockCity: City
-        get() = this.cityDAO.save(MockEntities.mockCities[0])
-
 }

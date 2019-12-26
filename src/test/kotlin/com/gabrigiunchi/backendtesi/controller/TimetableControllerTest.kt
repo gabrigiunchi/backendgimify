@@ -3,11 +3,8 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
-import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import org.assertj.core.api.Assertions
@@ -21,17 +18,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.DayOfWeek
 
-class TimetableControllerTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
+class TimetableControllerTest : BaseTest() {
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
 
     @Before
     fun clearDB() {
@@ -273,9 +263,4 @@ class TimetableControllerTest : BaseTest()
         )
         return this.timetableDAO.save(Timetable(gym = gym, openings = openings, closingDays = closingDays))
     }
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(MockEntities.mockCities[0])))
-    }
-
 }

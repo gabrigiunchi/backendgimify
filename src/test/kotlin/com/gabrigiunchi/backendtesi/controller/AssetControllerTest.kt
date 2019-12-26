@@ -3,38 +3,18 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.AssetDAO
-import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
-import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.Asset
-import com.gabrigiunchi.backendtesi.model.entities.AssetKind
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class AssetControllerTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
+class AssetControllerTest : BaseTest() {
     @Before
     fun clearDB() {
         this.assetDAO.deleteAll()
@@ -190,7 +170,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should not get an asset by gym and kind if the gym does not exist`() {
-        val kind = this.createAssetKind()
+        val kind = this.mockAssetKind()
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSETS}/gym/-1/kind/${kind.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
@@ -200,7 +180,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should create an asset`() {
-        val asset = AssetDTOInput("ciclette2", this.createAssetKind().id, this.createGym().id)
+        val asset = AssetDTOInput("ciclette2", this.mockAssetKind().id, this.createGym().id)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -211,7 +191,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should update an asset`() {
-        val kind = this.createAssetKind()
+        val kind = this.mockAssetKind()
         val gym = this.createGym()
         val savedAsset = this.assetDAO.save(Asset("ciclette2", kind, gym))
         val assetDTOInput = AssetDTOInput("newName", kind.id, gym.id)
@@ -225,7 +205,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should not update an asset if it does not exist`() {
-        val asset = AssetDTOInput("aaa", this.createAssetKind().id, this.createGym().id)
+        val asset = AssetDTOInput("aaa", this.mockAssetKind().id, this.createGym().id)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -235,8 +215,8 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should not update an asset if the gym does not exist`() {
-        val asset = this.assetDAO.save(Asset("dsa", this.createAssetKind(), this.createGym()))
-        val assetDTO = AssetDTOInput("aaa", this.createAssetKind().id, -1)
+        val asset = this.assetDAO.save(Asset("dsa", this.mockAssetKind(), this.createGym()))
+        val assetDTO = AssetDTOInput("aaa", this.mockAssetKind().id, -1)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/${asset.id}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(assetDTO)))
@@ -246,7 +226,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should not update an asset if the asset kind does not exist`() {
-        val asset = this.assetDAO.save(Asset("dsa", this.createAssetKind(), this.createGym()))
+        val asset = this.assetDAO.save(Asset("dsa", this.mockAssetKind(), this.createGym()))
         val assetDTO = AssetDTOInput("aaa", -1, this.createGym().id)
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.ASSETS}/${asset.id}")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -257,7 +237,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should not create an asset if its name already exists inside the gym`() {
-        val asset = this.assetDAO.save(Asset("ciclette2", this.createAssetKind(), this.createGym()))
+        val asset = this.assetDAO.save(Asset("ciclette2", this.mockAssetKind(), this.createGym()))
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(AssetDTOInput(asset))))
@@ -267,7 +247,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should not create an asset if the gym does not exist`() {
-        val asset = AssetDTOInput("aaa", this.createAssetKind().id, -1)
+        val asset = AssetDTOInput("aaa", this.mockAssetKind().id, -1)
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.ASSETS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(asset)))
@@ -287,7 +267,7 @@ class AssetControllerTest : BaseTest()
 
     @Test
     fun `Should delete an asset`() {
-        val kind = this.createAssetKind()
+        val kind = this.mockAssetKind()
         val asset = Asset("ciclette2", kind, this.createGym())
         val savedId = this.assetDAO.save(asset).id
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.ASSETS}/$savedId")
@@ -308,9 +288,5 @@ class AssetControllerTest : BaseTest()
     private fun createGym(): Gym {
         val city = this.cityDAO.save(MockEntities.mockCities[0])
         return this.gymDAO.save(Gym("gym1", "address1", city))
-    }
-
-    private fun createAssetKind(): AssetKind {
-        return this.assetKindDAO.save(MockEntities.assetKinds[0])
     }
 }

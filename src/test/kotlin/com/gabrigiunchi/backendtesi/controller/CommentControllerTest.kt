@@ -1,17 +1,11 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.CommentDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.Comment
 import com.gabrigiunchi.backendtesi.model.entities.Gym
-import com.gabrigiunchi.backendtesi.model.entities.User
-import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -23,23 +17,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.OffsetDateTime
 
-class CommentControllerTest : BaseTest()
-{
+class CommentControllerTest : BaseTest() {
 
     @Autowired
     private lateinit var commentDAO: CommentDAO
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
-    @Autowired
-    private lateinit var userService: UserService
 
     @Before
     fun clearDB() {
@@ -527,15 +508,5 @@ class CommentControllerTest : BaseTest()
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andDo(MockMvcResultHandlers.print())
-    }
-
-    /************************************** UTILS *********************************************************************/
-
-    private fun mockUser(username: String = "gabrigiunchi"): User {
-        return this.userDAO.save(this.userService.createRegularUser(username, "aaaa", "Gabriele", "Giunchi"))
-    }
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(MockEntities.mockCities[0])))
     }
 }

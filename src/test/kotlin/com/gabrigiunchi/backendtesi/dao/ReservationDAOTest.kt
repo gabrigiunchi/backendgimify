@@ -4,36 +4,16 @@ import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
-import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.OffsetDateTime
 
-class ReservationDAOTest : BaseTest()
-{
+class ReservationDAOTest : BaseTest() {
 
     @Autowired
     private lateinit var reservationDAO: ReservationDAO
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
-
-    @Autowired
-    private lateinit var userService: UserService
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
 
     @Before
     fun clearDB() {
@@ -115,9 +95,5 @@ class ReservationDAOTest : BaseTest()
         val gym = this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(City(CityEnum.MIAMI))))
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, 20))
         return this.assetDAO.save(Asset(name, kind, gym))
-    }
-
-    private fun mockUser(username: String): User {
-        return this.userDAO.save(this.userService.createRegularUser(username, "pass", "Gabriele", "Giunchi"))
     }
 }

@@ -1,11 +1,7 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.MockEntities
-import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
-import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.time.LocalInterval
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.model.time.Timetable
@@ -19,17 +15,10 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
-class TimetableTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
+class TimetableTest : BaseTest() {
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
 
     @Before
     fun clearDB() {
@@ -166,9 +155,5 @@ class TimetableTest : BaseTest()
                 RepeatedLocalInterval("2019-01-01T00:00:00", "2019-01-01T23:59:59", RepetitionType.YEARLY)
         )
         return Timetable(gym = gym, openings = openings, closingDays = closingDays)
-    }
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(MockEntities.mockCities[0])))
     }
 }

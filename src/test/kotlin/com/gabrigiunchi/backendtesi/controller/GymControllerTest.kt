@@ -1,18 +1,16 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.*
+import com.gabrigiunchi.backendtesi.dao.CommentDAO
+import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.entities.Comment
 import com.gabrigiunchi.backendtesi.model.entities.Gym
-import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import com.gabrigiunchi.backendtesi.service.MapsService
-import com.gabrigiunchi.backendtesi.service.UserService
 import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
@@ -26,21 +24,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class GymControllerTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var userService: UserService
-
+class GymControllerTest : BaseTest() {
     @Autowired
     private lateinit var commentDAO: CommentDAO
 
@@ -317,17 +301,4 @@ class GymControllerTest : BaseTest()
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
                 .andDo(MockMvcResultHandlers.print())
     }
-
-    /******************************** UTILS ****************************************************/
-
-    private fun mockUser(): User {
-        return this.userDAO.save(this.userService.createRegularUser("adsa", "jns", "jnj", "njnj"))
-    }
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address1", this.mockCity))
-    }
-
-    private val mockCity: City
-        get() = this.cityDAO.save(MockEntities.mockCities[0])
 }

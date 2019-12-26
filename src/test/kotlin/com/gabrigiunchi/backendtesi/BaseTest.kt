@@ -1,12 +1,16 @@
 package com.gabrigiunchi.backendtesi
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.gabrigiunchi.backendtesi.dao.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.entities.Asset
 import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.time.RepeatedLocalInterval
 import com.gabrigiunchi.backendtesi.service.MailService
+import com.gabrigiunchi.backendtesi.service.UserService
 import org.junit.Assert
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -28,8 +32,7 @@ import javax.transaction.Transactional
 @AutoConfigureMockMvc
 @Transactional
 @WithMockUser(username = "gabrigiunchi", password = "aaaa", authorities = ["ADMINISTRATOR"])
-abstract class BaseTest
-{
+abstract class BaseTest {
 
     @Autowired
     protected lateinit var mockMvc: MockMvc
@@ -40,30 +43,44 @@ abstract class BaseTest
     protected lateinit var mappingJackson2HttpMessageConverter: HttpMessageConverter<Any>
 
     @Autowired
-    internal fun setConverters(converters: Array<HttpMessageConverter<Any>>)
-    {
+    protected lateinit var userService: UserService
+
+    @Autowired
+    protected lateinit var userDAO: UserDAO
+
+    @Autowired
+    protected lateinit var gymDAO: GymDAO
+
+    @Autowired
+    protected lateinit var cityDAO: CityDAO
+
+    @Autowired
+    protected lateinit var assetKindDAO: AssetKindDAO
+
+    @Autowired
+    protected lateinit var assetDAO: AssetDAO
+
+    @Autowired
+    internal fun setConverters(converters: Array<HttpMessageConverter<Any>>) {
         this.mappingJackson2HttpMessageConverter = listOf(*converters).stream()
                 .filter { hmc -> hmc is MappingJackson2HttpMessageConverter }.findAny().get()
         Assert.assertNotNull("the JSON message converter must not be null", this.mappingJackson2HttpMessageConverter)
     }
 
     @Before
-    fun mockEmail()
-    {
+    fun mockEmail() {
         Mockito.`when`(this.mailService.sendEmail(
                 Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())
         ).thenReturn(true)
     }
 
     @Throws(IOException::class)
-    protected fun json(o: Any): String
-    {
+    protected fun json(o: Any): String {
         return ObjectMapper().writeValueAsString(o)
     }
 
     @Throws(IOException::class)
-    protected fun json(gym: Gym): String
-    {
+    protected fun json(gym: Gym): String {
         return ObjectMapper().writeValueAsString(mapOf(
                 Pair("id", gym.id.toString()),
                 Pair("name", gym.name),
@@ -73,8 +90,7 @@ abstract class BaseTest
 
 
     @Throws(IOException::class)
-    protected fun json(reservation: ReservationDTOInput): String
-    {
+    protected fun json(reservation: ReservationDTOInput): String {
         return ObjectMapper().writeValueAsString(mapOf(
                 Pair("userID", reservation.userID),
                 Pair("assetID", reservation.assetID),
@@ -83,8 +99,7 @@ abstract class BaseTest
     }
 
     @Throws(IOException::class)
-    protected fun json(city: City): String
-    {
+    protected fun json(city: City): String {
         return ObjectMapper().writeValueAsString(mapOf(
                 Pair("id", city.id.toString()),
                 Pair("name", city.name),
@@ -92,8 +107,7 @@ abstract class BaseTest
     }
 
     @Throws(IOException::class)
-    protected fun json(timetable: TimetableDTO): String
-    {
+    protected fun json(timetable: TimetableDTO): String {
         return ObjectMapper().writeValueAsString(mapOf(
                 Pair("gymId", timetable.gymId.toString()),
                 Pair("closingDays", timetable.closingDays),
@@ -102,28 +116,41 @@ abstract class BaseTest
         )
     }
 
-    fun toMap(repeatedInterval: RepeatedLocalInterval): Map<String, String>
-    {
+    fun toMap(repeatedInterval: RepeatedLocalInterval): Map<String, String> {
         val map = mutableMapOf(
                 Pair("id", repeatedInterval.id.toString()),
                 Pair("start", repeatedInterval.start.toString()),
                 Pair("end", repeatedInterval.end.toString()),
                 Pair("repetitionType", repeatedInterval.repetitionType.toString()))
 
-        if (repeatedInterval.repetitionEnd != null)
-        {
+        if (repeatedInterval.repetitionEnd != null) {
             map += Pair("repetitionEnd", repeatedInterval.repetitionEnd.toString())
         }
 
         return map
     }
 
+    /******************* MOCK ENTITIES UTILS *******************************/
 
-    fun toMap(city: City): Map<String, String>
-    {
+    fun toMap(city: City): Map<String, String> {
         return mapOf(
                 Pair("id", city.id.toString()),
                 Pair("zoneId", city.zoneId.toString()),
                 Pair("name", city.name))
     }
+
+    protected fun mockUser(username: String = "gabrigiunchi"): User {
+        return this.userDAO.save(this.userService.createRegularUser(username, "jns", "jnj", "njnj"))
+    }
+
+    protected fun mockGym(): Gym {
+        return this.gymDAO.save(Gym("gym1", "address1", this.mockCity))
+    }
+
+    protected val mockCity: City
+        get() = this.cityDAO.save(MockEntities.mockCities[0])
+
+    protected fun mockAssetKind() = this.assetKindDAO.save(MockEntities.assetKinds.first())
+
+    protected fun mockAsset(gym: Gym) = this.assetDAO.save(Asset("ciclette2", this.mockAssetKind(), gym))
 }

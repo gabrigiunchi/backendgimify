@@ -2,14 +2,14 @@ package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
-import com.gabrigiunchi.backendtesi.dao.*
+import com.gabrigiunchi.backendtesi.dao.ReservationDAO
+import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.exceptions.*
 import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.rules.ReservationValidator
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
 import com.gabrigiunchi.backendtesi.service.ReservationService
-import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
@@ -17,24 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.OffsetDateTime
 
-class ReservationValidatorTest : BaseTest()
-{
-
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
+class ReservationValidatorTest : BaseTest() {
 
     @Autowired
     private lateinit var reservationValidator: ReservationValidator
@@ -44,9 +27,6 @@ class ReservationValidatorTest : BaseTest()
 
     @Autowired
     private lateinit var reservationDAO: ReservationDAO
-
-    @Autowired
-    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO

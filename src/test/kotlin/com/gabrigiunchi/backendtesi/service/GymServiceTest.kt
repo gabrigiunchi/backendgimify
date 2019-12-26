@@ -1,17 +1,10 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.MockEntities
-import com.gabrigiunchi.backendtesi.dao.CityDAO
 import com.gabrigiunchi.backendtesi.dao.CommentDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
-import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.GymDTOInput
-import com.gabrigiunchi.backendtesi.model.entities.City
 import com.gabrigiunchi.backendtesi.model.entities.Comment
-import com.gabrigiunchi.backendtesi.model.entities.Gym
-import com.gabrigiunchi.backendtesi.model.entities.User
 import com.google.maps.model.LatLng
 import org.assertj.core.api.Assertions
 import org.junit.Before
@@ -20,26 +13,12 @@ import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 
-class GymServiceTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
+class GymServiceTest : BaseTest() {
     @Autowired
     private lateinit var commentDAO: CommentDAO
 
     @Autowired
     private lateinit var gymService: GymService
-
-    @Autowired
-    private lateinit var userService: UserService
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
 
     @MockBean
     private lateinit var mockMapsService: MapsService
@@ -85,15 +64,4 @@ class GymServiceTest : BaseTest()
         Mockito.`when`(mockMapsService.geocode(Mockito.anyString())).thenReturn(null)
         this.gymService.saveGym(GymDTOInput("gym", "dnsadas", this.mockCity.id))
     }
-
-    private fun mockUser(): User {
-        return this.userDAO.save(this.userService.createRegularUser("adsa", "jns", "jnj", "njnj"))
-    }
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address1", this.mockCity))
-    }
-
-    private val mockCity: City
-        get() = this.cityDAO.save(MockEntities.mockCities[0])
 }

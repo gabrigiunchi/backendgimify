@@ -1,46 +1,20 @@
 package com.gabrigiunchi.backendtesi.service
 
-import com.gabrigiunchi.backendtesi.BackendtesiApplication
+import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
-import com.gabrigiunchi.backendtesi.dao.AssetDAO
-import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
-import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceAlreadyExistsException
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.AssetDTOInput
-import com.gabrigiunchi.backendtesi.model.entities.Asset
 import com.gabrigiunchi.backendtesi.model.entities.Gym
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import javax.transaction.Transactional
 
-@RunWith(SpringJUnit4ClassRunner::class)
-@SpringBootTest(classes = [BackendtesiApplication::class])
-@AutoConfigureMockMvc
-@Transactional
-class AssetServiceTest {
+class AssetServiceTest : BaseTest() {
 
     @Autowired
     private lateinit var assetService: AssetService
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
 
     @Before
     fun clearDB() {
@@ -137,13 +111,4 @@ class AssetServiceTest {
         Assertions.assertThat(this.assetDAO.findById(asset2.id)).isPresent
         this.assetService.updateAsset(AssetDTOInput("ciclette3", kind.id, gyms[0].id), asset1.id)
     }
-
-    private fun mockAssetKind() = this.assetKindDAO.save(MockEntities.assetKinds.first())
-
-    private fun mockGym(): Gym {
-        val city = this.cityDAO.save(MockEntities.mockCities[0])
-        return this.gymDAO.save(Gym("gym1", "address1", city))
-    }
-
-    private fun mockAsset(gym: Gym) = this.assetDAO.save(Asset("ciclette2", this.mockAssetKind(), gym))
 }

@@ -3,10 +3,8 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.config.security.JwtTokenProvider
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.ValidateUserDTO
 import com.gabrigiunchi.backendtesi.model.entities.UserRole
-import com.gabrigiunchi.backendtesi.service.UserService
 import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
@@ -17,15 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-class LoginControllerTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var userService: UserService
-
+class LoginControllerTest : BaseTest() {
     @Autowired
     private lateinit var tokenProvider: JwtTokenProvider
 

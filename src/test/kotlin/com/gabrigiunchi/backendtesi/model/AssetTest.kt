@@ -1,35 +1,14 @@
 package com.gabrigiunchi.backendtesi.model
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.dao.AssetDAO
-import com.gabrigiunchi.backendtesi.dao.AssetKindDAO
-import com.gabrigiunchi.backendtesi.dao.CityDAO
-import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.model.entities.Asset
 import com.gabrigiunchi.backendtesi.model.entities.AssetKind
-import com.gabrigiunchi.backendtesi.model.entities.City
-import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.type.AssetKindEnum
-import com.gabrigiunchi.backendtesi.model.type.CityEnum
 import org.assertj.core.api.Assertions
 import org.junit.Before
 import org.junit.Test
-import org.springframework.beans.factory.annotation.Autowired
 
-class AssetTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
+class AssetTest : BaseTest() {
 
     @Before
     fun clearDB() {
@@ -61,9 +40,4 @@ class AssetTest : BaseTest()
         Assertions.assertThat(this.gymDAO.count()).isEqualTo(1)
         Assertions.assertThat(this.assetKindDAO.count()).isEqualTo(0)
     }
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("Gym1", "Via 2", this.cityDAO.save(City(CityEnum.MIAMI))))
-    }
-
 }

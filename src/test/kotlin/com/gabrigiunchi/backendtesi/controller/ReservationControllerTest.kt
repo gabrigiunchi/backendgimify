@@ -3,7 +3,8 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
-import com.gabrigiunchi.backendtesi.dao.*
+import com.gabrigiunchi.backendtesi.dao.ReservationDAO
+import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.*
 import com.gabrigiunchi.backendtesi.model.time.Timetable
@@ -21,26 +22,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.OffsetDateTime
 
-class ReservationControllerTest : BaseTest()
-{
+class ReservationControllerTest : BaseTest() {
 
     @Autowired
     private lateinit var reservationDAO: ReservationDAO
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
@@ -753,14 +738,6 @@ class ReservationControllerTest : BaseTest()
 
 
     /************************************** UTILS *******************************************************************/
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(MockEntities.mockCities[0])))
-    }
-
-    private fun mockUser(username: String = "gabrigiunchi"): User {
-        return this.userDAO.save(User(username, "aaaa", "Gabriele", "Giunchi", "mail@mail.com"))
-    }
 
     private fun mockAsset(gym: Gym, name: String = "asset"): Asset {
         return this.assetDAO.save(Asset(name, this.assetKindDAO.save(MockEntities.assetKinds.first()), gym))

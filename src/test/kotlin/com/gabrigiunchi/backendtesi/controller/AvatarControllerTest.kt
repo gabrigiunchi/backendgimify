@@ -4,13 +4,11 @@ import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.ImageDAO
-import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.ImageService
 import com.gabrigiunchi.backendtesi.service.ObjectStorageService
-import com.gabrigiunchi.backendtesi.service.UserService
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
@@ -33,8 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.util.*
 
-class AvatarControllerTest : BaseTest()
-{
+class AvatarControllerTest : BaseTest() {
 
     @Value("\${application.objectstorage.avatarsbucket}")
     private var bucketName = ""
@@ -49,12 +46,6 @@ class AvatarControllerTest : BaseTest()
 
     @Autowired
     private lateinit var context: ApplicationContext
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var avatarDAO: ImageDAO

@@ -2,7 +2,8 @@ package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.MockEntities
-import com.gabrigiunchi.backendtesi.dao.*
+import com.gabrigiunchi.backendtesi.dao.ReservationDAO
+import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.exceptions.*
 import com.gabrigiunchi.backendtesi.model.dto.input.ReservationDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.*
@@ -15,32 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import java.time.OffsetDateTime
 
-class ReservationServiceTest : BaseTest()
-{
-
-    @Autowired
-    private lateinit var assetDAO: AssetDAO
-
-    @Autowired
-    private lateinit var gymDAO: GymDAO
-
-    @Autowired
-    private lateinit var cityDAO: CityDAO
-
-    @Autowired
-    private lateinit var userDAO: UserDAO
-
-    @Autowired
-    private lateinit var assetKindDAO: AssetKindDAO
+class ReservationServiceTest : BaseTest() {
 
     @Autowired
     private lateinit var reservationService: ReservationService
 
     @Autowired
     private lateinit var reservationDAO: ReservationDAO
-
-    @Autowired
-    private lateinit var userService: UserService
 
     @Autowired
     private lateinit var timetableDAO: TimetableDAO
@@ -782,9 +764,5 @@ class ReservationServiceTest : BaseTest()
     private fun mockAsset(maxReservationTime: Int = 20): Asset {
         val kind = this.assetKindDAO.save(AssetKind(AssetKindEnum.CICLE, maxReservationTime))
         return this.assetDAO.save(Asset("ciclett1", kind, this.gym!!))
-    }
-
-    private fun mockGym(): Gym {
-        return this.gymDAO.save(Gym("gym1", "address", this.cityDAO.save(MockEntities.mockCities[0])))
     }
 }
