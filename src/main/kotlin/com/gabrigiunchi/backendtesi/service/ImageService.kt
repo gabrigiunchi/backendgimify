@@ -17,7 +17,7 @@ open class ImageService(
         private val drawableDAO: DrawableDAO,
         private val imageDAO: ImageDAO,
         private val objectStorageService: ObjectStorageService,
-        private val bucketName: String) {
+        var bucketName: String) {
 
     companion object {
         val DEFAULT_AVATAR_METADATA = ImageMetadata("default", ImageType.unknown, "", 0)

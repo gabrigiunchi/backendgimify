@@ -65,7 +65,7 @@ class ImageServiceTest : BaseTest() {
     }
 
     @Test
-    fun `Should get an image by name`() {
+    fun `Should download an image by name`() {
         val name = "njdajsnd.aaa"
         val content = "ndjansa"
         this.createMockImage(name, content)
@@ -228,6 +228,39 @@ class ImageServiceTest : BaseTest() {
         this.imageService.updateImage(gym2.id, this.createMockImage(name, "content"), name, ImageType.profile)
     }
 
+    @Test
+    fun `Should associate an existing image to an entity`() {
+        val imageId = "asdasda"
+        val user = this.mockUser("gabrigiunchi")
+        val image = this.imageDAO.save(Image(imageId, ImageType.avatar, user, bucketName))
+        val result = this.imageService.associateExistingImageToEntity(user.id, ImageType.avatar, imageId)
+        Assertions.assertThat(result.bucketName).isEqualTo(bucketName)
+        Assertions.assertThat(result.id).isEqualTo(imageId)
+        Assertions.assertThat(result.type).isEqualTo(ImageType.avatar)
+        Assertions.assertThat(this.imageDAO.findByDrawableAndBucket(user, bucketName).toList()).isEqualTo(listOf(image))
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not associate an existing image to an entity if the entity does not exist`() {
+        val imageId = "asdasda"
+        val user = this.mockUser("gabrigiunchi")
+        this.imageDAO.save(Image(imageId, ImageType.avatar, user, bucketName))
+        this.imageService.associateExistingImageToEntity(-1, ImageType.avatar, imageId)
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not associate an existing image to an entity if the image does not exist`() {
+        val user = this.mockUser("gabrigiunchi")
+        this.imageService.associateExistingImageToEntity(user.id, ImageType.avatar, "asas")
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not associate an existing image to an entity if the image does not exist in the bucket`() {
+        val imageId = "asdasda"
+        val user = this.mockUser("gabrigiunchi")
+        this.imageDAO.save(Image(imageId, ImageType.avatar, user, "dasdahdsj"))
+        this.imageService.associateExistingImageToEntity(user.id, ImageType.avatar, imageId)
+    }
 
     private fun createMockImage(name: String, content: String): MockMultipartFile {
         val image = MockMultipartFile(name, content.toByteArray())
