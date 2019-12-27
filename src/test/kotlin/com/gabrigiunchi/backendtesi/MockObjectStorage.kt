@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.PutObjectResult
 import com.ibm.cloud.objectstorage.services.s3.model.S3Object
@@ -21,7 +22,7 @@ class MockObjectStorage {
     }
 
     fun add(image: MockMultipartFile, name: String): PutObjectResult {
-        this.objects[name] = Pair(ImageMetadata(name, Date().time), image)
+        this.objects[name] = Pair(ImageMetadata(name, ImageType.unknown, "", Date().time), image)
         val putObjectResult = PutObjectResult()
         putObjectResult.metadata = ObjectMetadata()
         putObjectResult.metadata.lastModified = Date()

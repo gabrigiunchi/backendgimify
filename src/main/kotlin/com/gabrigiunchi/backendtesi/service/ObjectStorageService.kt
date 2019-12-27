@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.ibm.cloud.objectstorage.ClientConfiguration
 import com.ibm.cloud.objectstorage.SDKGlobalConfiguration
 import com.ibm.cloud.objectstorage.auth.AWSStaticCredentialsProvider
@@ -39,7 +40,7 @@ class ObjectStorageService {
             this.createClient()
                     .listObjectsV2(bucket, prefix)
                     .objectSummaries
-                    .map { summary -> ImageMetadata(summary.key, summary.lastModified.time) }
+                    .map { summary -> ImageMetadata(summary.key, ImageType.unknown, bucket, summary.lastModified.time) }
 
     fun contains(image: String, bucket: String): Boolean = this.createClient().doesObjectExist(bucket, image)
 
@@ -56,7 +57,7 @@ class ObjectStorageService {
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
         this.createClient().putObject(bucket, id, image.inputStream, metadata).metadata
-        return ImageMetadata(id, Date().time)
+        return ImageMetadata(id, ImageType.avatar, "", Date().time)
     }
 
     fun delete(id: String, bucket: String) {

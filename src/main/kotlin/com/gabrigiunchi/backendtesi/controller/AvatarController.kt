@@ -2,6 +2,7 @@ package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.dao.UserDAO
 import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.AvatarService
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -88,6 +89,16 @@ class AvatarController(
         val user = this.getLoggedUser()
         this.logger.info("PUT avatar for logged user (#${user.id})")
         return ResponseEntity(this.avatarService.setAvatar(user.id, avatar), HttpStatus.CREATED)
+    }
+
+
+    @RequestMapping("/me/use/{imageId}", method = [RequestMethod.POST, RequestMethod.PUT])
+    fun changeMyAvatarWithADefaultOne(@PathVariable imageId: String): ResponseEntity<ImageMetadata> {
+        val user = this.getLoggedUser()
+        this.logger.info("PUT avatar for logged user (#${user.id}), use image $imageId")
+        return ResponseEntity(
+                this.avatarService.associateExistingImageToEntity(user.id, ImageType.avatar, imageId),
+                HttpStatus.CREATED)
     }
 
     @DeleteMapping("/me")

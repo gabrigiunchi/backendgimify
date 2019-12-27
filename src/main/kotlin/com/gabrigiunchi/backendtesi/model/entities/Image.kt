@@ -23,4 +23,18 @@ open class Image(
 
     constructor(id: String, type: ImageType, drawable: Drawable, bucket: String) :
             this(id, type, drawable, Date().time, bucket)
+
+    constructor(image: Image, entity: Drawable) : this(
+            image.id,
+            image.type,
+            entity,
+            image.bucket
+    )
+
+    constructor(image: Image, type: ImageType, entity: Drawable) : this(
+            image.id,
+            type,
+            entity,
+            image.bucket
+    )
 }

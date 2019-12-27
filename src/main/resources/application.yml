@@ -2,8 +2,8 @@ application:
   email:
     sendgrid:
       apikey: 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
-  initDB: false
-  initUsers: false
+  initDB: true
+  initUsers: true
   mail:
     enabled: false
   maxReservationsPerDay: 2
@@ -39,7 +39,7 @@ spring:
     username: mmj32786
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         default_schema: MMJ32786
