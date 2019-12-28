@@ -236,6 +236,34 @@ class AvatarControllerTest : BaseTest() {
     }
 
     @Test
+    fun `Should change my avatar using a default one`() {
+        val imageMetadata = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        Mockito.doReturn(imageMetadata)
+                .`when`(this.imageService)
+                .associateExistingImageToEntity(this.bucketName, this.mockUser.id, ImageType.avatar, imageMetadata.id)
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/me/use/${imageMetadata.id}"))
+                .andExpect(MockMvcResultMatchers.status().isCreated)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(imageMetadata.id)))
+
+        Mockito.verify(this.imageService)
+                .associateExistingImageToEntity(this.bucketName, this.mockUser.id, ImageType.avatar, imageMetadata.id)
+    }
+
+    @Test
+    fun `Should change my avatar using a default one if the image does not exist`() {
+        val imageMetadata = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        Mockito.doCallRealMethod()
+                .`when`(this.imageService)
+                .associateExistingImageToEntity(this.bucketName, this.mockUser.id, ImageType.avatar, imageMetadata.id)
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/me/use/${imageMetadata.id}"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message",
+                        Matchers.`is`("Image #dasdasda not found")))
+    }
+
+    @Test
     fun `Should delete my avatar`() {
         Mockito.doReturn(Image("dasdasda", ImageType.avatar, this.mockUser, 0, this.bucketName))
                 .`when`(this.imageService)
