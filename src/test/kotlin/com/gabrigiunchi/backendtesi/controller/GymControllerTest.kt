@@ -113,7 +113,7 @@ class GymControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/city/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -122,7 +122,7 @@ class GymControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -161,7 +161,7 @@ class GymControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(gymDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -173,7 +173,7 @@ class GymControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(dto)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -219,7 +219,7 @@ class GymControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(gym)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -255,7 +255,7 @@ class GymControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -298,7 +298,7 @@ class GymControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/-1/rating")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 }

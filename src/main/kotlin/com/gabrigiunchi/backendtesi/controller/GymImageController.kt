@@ -60,7 +60,7 @@ class GymImageController(
     fun getMetadataOfPhoto(@PathVariable imageId: String): ResponseEntity<Image> {
         this.logger.info("GET metadata of image $imageId")
         return ResponseEntity.ok(this.gymImageDAO.findById(imageId)
-                .orElseThrow { ResourceNotFoundException("image $imageId does not exist") })
+                .orElseThrow { ResourceNotFoundException(Image::class.java, imageId) })
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")

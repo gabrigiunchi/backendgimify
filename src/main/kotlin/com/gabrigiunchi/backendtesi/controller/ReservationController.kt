@@ -45,7 +45,7 @@ class ReservationController(
         this.logger.info("GET reservation #$id")
         return this.reservationDAO.findById(id)
                 .map { ResponseEntity.ok(it) }
-                .orElseThrow { ResourceNotFoundException("reservation $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(Reservation::class.java, id) }
     }
 
     @GetMapping("/asset/{assetId}")
@@ -53,7 +53,7 @@ class ReservationController(
         this.logger.info("GET all reservations of asset #$assetId")
         return this.assetDAO.findById(assetId)
                 .map { ResponseEntity.ok(this.reservationDAO.findByAsset(it).map { r -> ReservationDTOOutput(r) }) }
-                .orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
+                .orElseThrow { ResourceNotFoundException(Asset::class.java, assetId) }
     }
 
     @GetMapping("/available/kind/{kindId}/from/{from}/to/{to}")
@@ -109,7 +109,7 @@ class ReservationController(
         this.logger.info("DELETE reservation #$id")
         this.reservationDAO.delete(
                 this.reservationDAO.findById(id)
-                        .orElseThrow { ResourceNotFoundException("reservation $id does not exist") }
+                        .orElseThrow { ResourceNotFoundException(Reservation::class.java, id) }
         )
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }

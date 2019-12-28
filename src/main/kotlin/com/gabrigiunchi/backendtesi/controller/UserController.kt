@@ -34,7 +34,7 @@ class UserController(private val userDAO: UserDAO, private val userService: User
         this.logger.info("GET user #$id")
         return this.userDAO.findById(id)
                 .map { ResponseEntity.ok(it) }
-                .orElseThrow { ResourceNotFoundException("user $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(User::class.java, id) }
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -61,7 +61,7 @@ class UserController(private val userDAO: UserDAO, private val userService: User
     @DeleteMapping("/{id}")
     fun deleteUser(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE user #$id")
-        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException(User::class.java, id) }
         this.userDAO.delete(user)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
@@ -70,7 +70,7 @@ class UserController(private val userDAO: UserDAO, private val userService: User
     @PatchMapping("/{id}/active/{active}")
     fun enableUser(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<Void> {
         this.logger.info("PATCH to set user #$id active=$active")
-        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException(User::class.java, id) }
         user.isActive = active
         this.userDAO.save(user)
         return ResponseEntity(HttpStatus.OK)
@@ -80,7 +80,7 @@ class UserController(private val userDAO: UserDAO, private val userService: User
     @PatchMapping("/{id}/notifications/active/{active}")
     fun enableUserNotifications(@PathVariable id: Int, @PathVariable active: Boolean): ResponseEntity<UserDTOOutput> {
         this.logger.info("PATCH to set user #$id notifications=$active")
-        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        val user = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException(User::class.java, id) }
         user.notificationsEnabled = active
         return ResponseEntity.ok(UserDTOOutput(this.userDAO.save(user)))
     }

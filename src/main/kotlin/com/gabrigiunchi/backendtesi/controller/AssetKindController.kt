@@ -30,7 +30,7 @@ class AssetKindController(
         this.logger.info("GET asset kind #$id")
         return this.assetKindDAO.findById(id)
                 .map { ResponseEntity.ok(it) }
-                .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(AssetKind::class.java, id) }
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -50,7 +50,7 @@ class AssetKindController(
         this.logger.info("PUT asset kind: ${assetKind.name}")
         return this.assetKindDAO.findById(id)
                 .map { ResponseEntity.ok(this.assetKindDAO.save(assetKind)) }
-                .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(AssetKind::class.java, id) }
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -67,7 +67,7 @@ class AssetKindController(
                     it.maxReservationTime = time
                     ResponseEntity.ok(this.assetKindDAO.save(it))
                 }
-                .orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(AssetKind::class.java, id) }
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -75,7 +75,8 @@ class AssetKindController(
     fun deleteAssetKind(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE asset kind #$id")
 
-        val kind = this.assetKindDAO.findById(id).orElseThrow { ResourceNotFoundException("asset kind $id does not exist") }
+        val kind = this.assetKindDAO.findById(id)
+                .orElseThrow { ResourceNotFoundException(AssetKind::class.java, id) }
         this.assetKindDAO.delete(kind)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }

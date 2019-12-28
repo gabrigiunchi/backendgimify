@@ -86,7 +86,7 @@ class GymImageControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.GYMS}/photos/-1/metadata")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("image -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Image #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -159,7 +159,7 @@ class GymImageControllerTest : BaseTest() {
         val name = "photo1.jpg"
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.GYMS}/photos/$name"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("image $name does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Image #$name not found")))
     }
 
     @Test

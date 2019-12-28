@@ -179,7 +179,7 @@ class AvatarControllerTest : BaseTest() {
         val name = "photo1.jpg"
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.AVATARS}/$name"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("image $name does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Image #$name not found")))
     }
 
     /************************** MY AVATAR *********************************************************/

@@ -70,7 +70,7 @@ class CityControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -80,7 +80,7 @@ class CityControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.CITIES}/name/$name")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city $name does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #$name not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -121,8 +121,8 @@ class CityControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.post(ApiUrls.CITIES)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(city)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city $name not found")))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #$name not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -149,7 +149,7 @@ class CityControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(cityDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -161,8 +161,8 @@ class CityControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.put("${ApiUrls.CITIES}/${savedCity.id}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(cityDTO)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city ${cityDTO.name} not found")))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #${cityDTO.name} not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -183,7 +183,7 @@ class CityControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.CITIES}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("city -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 }

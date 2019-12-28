@@ -7,6 +7,7 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.ChangePasswordDTO
 import com.gabrigiunchi.backendtesi.model.dto.input.UserDTOInput
 import com.gabrigiunchi.backendtesi.model.entities.User
+import com.gabrigiunchi.backendtesi.model.entities.UserRole
 import com.gabrigiunchi.backendtesi.model.type.UserRoleEnum
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -35,8 +36,11 @@ class UserService(
     }
 
     fun modifyUser(dto: UserDTOInput, id: Int): User {
-        val roles = dto.roles.map { this.userRoleDAO.findByName(it).orElseThrow { BadRequestException("user role $it does not exist") } }
-        val savedUser = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException("user $id does not exist") }
+        val roles = dto.roles.map {
+            this.userRoleDAO.findByName(it)
+                    .orElseThrow { ResourceNotFoundException(UserRole::class.java, it) }
+        }
+        val savedUser = this.userDAO.findById(id).orElseThrow { ResourceNotFoundException(User::class.java, id) }
         savedUser.username = dto.username
         savedUser.notificationsEnabled = dto.notificationsEnabled
         savedUser.isActive = dto.isActive

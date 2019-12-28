@@ -141,7 +141,7 @@ class ImageService(
                     this.imageDAO.delete(it)
                     this.logger.info("Successfully deleted image $imageId in bucket $bucket")
                     it
-                }.orElseThrow { ResourceNotFoundException("image $imageId does not exist") }
+                }.orElseThrow { ResourceNotFoundException(Image::class.java, imageId) }
     }
 
     /******************************** UTILS *******************************************/

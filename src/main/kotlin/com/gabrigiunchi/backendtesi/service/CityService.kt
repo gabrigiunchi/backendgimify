@@ -13,8 +13,11 @@ class CityService(private val cityDAO: CityDAO, private val mapsService: MapsSer
 
     fun getAllCities(): Iterable<City> = this.cityDAO.findAll()
 
-    fun getCityByName(name: String): City = this.cityDAO.findByName(name).orElseThrow { ResourceNotFoundException("city $name does not exist") }
-    fun getCityById(cityId: Int): City = this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
+    fun getCityByName(name: String): City = this.cityDAO.findByName(name)
+            .orElseThrow { ResourceNotFoundException(City::class.java, name) }
+
+    fun getCityById(cityId: Int): City = this.cityDAO.findById(cityId)
+            .orElseThrow { ResourceNotFoundException(City::class.java, cityId) }
 
     fun saveCity(city: CityDTOInput): City {
         if (this.cityDAO.findByName(city.name).isPresent) {
@@ -24,7 +27,7 @@ class CityService(private val cityDAO: CityDAO, private val mapsService: MapsSer
     }
 
     fun modifyCity(cityDTO: CityDTOInput, id: Int): City {
-        val city = this.cityDAO.findById(id).orElseThrow { ResourceNotFoundException("city $id does not exist") }
+        val city = this.cityDAO.findById(id).orElseThrow { ResourceNotFoundException(City::class.java, id) }
         city.name = cityDTO.name
         city.zoneId = this.getTimezone(cityDTO.name)
         return this.cityDAO.save(city)
@@ -32,13 +35,13 @@ class CityService(private val cityDAO: CityDAO, private val mapsService: MapsSer
 
 
     fun deleteCity(cityId: Int) {
-        val city = this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
+        val city = this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException(City::class.java, cityId) }
         this.cityDAO.delete(city)
     }
 
     private fun getTimezone(cityName: String): ZoneId {
         val latLng = this.mapsService.geocode(cityName)
-                ?: throw IllegalArgumentException("city $cityName not found")
+                ?: throw ResourceNotFoundException(City::class.java, cityName)
         return this.mapsService.getTimezone(latLng)
     }
 }

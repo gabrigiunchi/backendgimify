@@ -68,7 +68,7 @@ class CommentControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("comment -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Comment #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -103,7 +103,7 @@ class CommentControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/gym/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -138,7 +138,7 @@ class CommentControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/user/-1/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -183,7 +183,7 @@ class CommentControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/user/-1/gym/${gym.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -203,7 +203,7 @@ class CommentControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.COMMENTS}/user/${user.id}/gym/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -232,7 +232,7 @@ class CommentControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -244,7 +244,7 @@ class CommentControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(commentDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("gym -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -326,7 +326,7 @@ class CommentControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.COMMENTS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("comment -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Comment #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

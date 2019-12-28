@@ -7,6 +7,8 @@ import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.CommentDTOInput
 import com.gabrigiunchi.backendtesi.model.dto.output.CommentDTOOutput
 import com.gabrigiunchi.backendtesi.model.entities.Comment
+import com.gabrigiunchi.backendtesi.model.entities.Gym
+import com.gabrigiunchi.backendtesi.model.entities.User
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -37,7 +39,7 @@ class CommentController(
         this.logger.info("GET comment $id")
         return this.commentDAO.findById(id)
                 .map { ResponseEntity.ok(CommentDTOOutput(it)) }
-                .orElseThrow { ResourceNotFoundException("comment $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(Comment::class.java, id) }
     }
 
     @GetMapping("/gym/{gymId}/page/{page}/size/{size}")
@@ -47,7 +49,7 @@ class CommentController(
                 .map { gym ->
                     ResponseEntity.ok(this.commentDAO.findByGym(gym, this.pageRequest(page, size)).map { CommentDTOOutput(it) })
                 }
-                .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
     }
 
     @GetMapping("/user/{userId}/page/{page}/size/{size}")
@@ -57,14 +59,16 @@ class CommentController(
                 .map { user ->
                     ResponseEntity.ok(this.commentDAO.findByUser(user, this.pageRequest(page, size)).map { CommentDTOOutput(it) })
                 }
-                .orElseThrow { ResourceNotFoundException("user $userId does not exist") }
+                .orElseThrow { ResourceNotFoundException(User::class.java, userId) }
     }
 
     @GetMapping("/user/{userId}/gym/{gymId}")
     fun getCommentsByUserAndGym(@PathVariable userId: Int, @PathVariable gymId: Int): ResponseEntity<Collection<CommentDTOOutput>> {
         this.logger.info("GET comments of user $userId of gym $gymId")
-        val user = this.userDAO.findById(userId).orElseThrow { ResourceNotFoundException("user $userId does not exist") }
-        val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+        val user = this.userDAO.findById(userId)
+                .orElseThrow { ResourceNotFoundException(User::class.java, userId) }
+        val gym = this.gymDAO.findById(gymId)
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
         return ResponseEntity.ok(this.commentDAO.findByUserAndGym(user, gym).map { CommentDTOOutput(it) })
     }
 
@@ -72,8 +76,10 @@ class CommentController(
     @PostMapping
     fun createComment(@Valid @RequestBody commentDTO: CommentDTOInput): ResponseEntity<CommentDTOOutput> {
         this.logger.info("POST comment")
-        val user = this.userDAO.findById(commentDTO.userId).orElseThrow { ResourceNotFoundException("user ${commentDTO.userId} does not exist") }
-        val gym = this.gymDAO.findById(commentDTO.gymId).orElseThrow { ResourceNotFoundException("gym ${commentDTO.gymId} does not exist") }
+        val user = this.userDAO.findById(commentDTO.userId)
+                .orElseThrow { ResourceNotFoundException(User::class.java, commentDTO.userId) }
+        val gym = this.gymDAO.findById(commentDTO.gymId)
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, commentDTO.gymId) }
         return ResponseEntity(
                 CommentDTOOutput(this.commentDAO.save(Comment(user, gym, commentDTO.title, commentDTO.message, commentDTO.rating))),
                 HttpStatus.CREATED)
@@ -83,7 +89,8 @@ class CommentController(
     @DeleteMapping("/{id}")
     fun deleteCommentById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE comment $id")
-        val comment = this.commentDAO.findById(id).orElseThrow { ResourceNotFoundException("comment $id does not exist") }
+        val comment = this.commentDAO.findById(id)
+                .orElseThrow { ResourceNotFoundException(Comment::class.java, id) }
         this.commentDAO.delete(comment)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
@@ -124,7 +131,7 @@ class CommentController(
         this.logger.info("POST comment for logged user ${user.id})")
 
         val gym = this.gymDAO.findById(commentDTO.gymId)
-                .orElseThrow { ResourceNotFoundException("gym ${commentDTO.gymId} does not exist") }
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, commentDTO.gymId) }
 
         return ResponseEntity(
                 CommentDTOOutput(this.commentDAO.save(Comment(user, gym, commentDTO.title, commentDTO.message, commentDTO.rating))),

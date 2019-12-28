@@ -130,7 +130,7 @@ class ReservationService(
 
     @Throws(ResourceNotFoundException::class)
     private fun getAssetKind(kindId: Int): AssetKind {
-        return this.assetKindDAO.findById(kindId).orElseThrow { ResourceNotFoundException("asset kind $kindId does not exist") }
+        return this.assetKindDAO.findById(kindId).orElseThrow { ResourceNotFoundException(AssetKind::class.java, kindId) }
     }
 
     @Throws(ResourceNotFoundException::class)
@@ -141,20 +141,20 @@ class ReservationService(
 
     @Throws(ResourceNotFoundException::class)
     private fun getGym(gymId: Int): Gym =
-            this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+            this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
 
     @Throws(ResourceNotFoundException::class)
     private fun getCity(cityId: Int): City =
-            this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
+            this.cityDAO.findById(cityId).orElseThrow { ResourceNotFoundException(City::class.java, cityId) }
 
     @Throws(ResourceNotFoundException::class)
     private fun getUser(userID: Int): User {
-        return this.userDAO.findById(userID).orElseThrow { ResourceNotFoundException("user $userID does not exist") }
+        return this.userDAO.findById(userID).orElseThrow { ResourceNotFoundException(User::class.java, userID) }
     }
 
     @Throws(ResourceNotFoundException::class)
     private fun getAsset(assetId: Int): Asset =
-            this.assetDAO.findById(assetId).orElseThrow { ResourceNotFoundException("asset $assetId does not exist") }
+            this.assetDAO.findById(assetId).orElseThrow { ResourceNotFoundException(Asset::class.java, assetId) }
 
 
     private fun sendReservationConfirmationEmail(reservation: Reservation) {

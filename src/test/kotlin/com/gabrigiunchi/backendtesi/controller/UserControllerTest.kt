@@ -59,7 +59,7 @@ class UserControllerTest : BaseTest() {
         this.mockMvc.perform(get("${ApiUrls.USERS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -128,7 +128,7 @@ class UserControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(modified)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -140,8 +140,8 @@ class UserControllerTest : BaseTest() {
         mockMvc.perform(put("${ApiUrls.USERS}/${existing.id}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(modified)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user role aaaa does not exist")))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("UserRole #aaaa not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -161,7 +161,7 @@ class UserControllerTest : BaseTest() {
         mockMvc.perform(delete("${ApiUrls.USERS}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -189,7 +189,7 @@ class UserControllerTest : BaseTest() {
         mockMvc.perform(patch("${ApiUrls.USERS}/-1/active/false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -216,7 +216,7 @@ class UserControllerTest : BaseTest() {
         mockMvc.perform(patch("${ApiUrls.USERS}/-1/notifications/active/false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("user -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("User #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

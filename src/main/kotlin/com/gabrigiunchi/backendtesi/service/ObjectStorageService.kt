@@ -1,6 +1,7 @@
 package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.ibm.cloud.objectstorage.ClientConfiguration
@@ -47,7 +48,7 @@ class ObjectStorageService {
     fun download(id: String, bucket: String): ByteArray {
         val client = this.createClient()
         if (!client.doesObjectExist(bucket, id)) {
-            throw ResourceNotFoundException("image $id does not exist")
+            throw ResourceNotFoundException(Image::class.java, id)
         }
 
         return client.getObject(bucket, id).objectContent.readAllBytes()
@@ -63,7 +64,7 @@ class ObjectStorageService {
     fun delete(id: String, bucket: String) {
         val client = this.createClient()
         if (!client.doesObjectExist(bucket, id)) {
-            throw ResourceNotFoundException("image $id does not exist")
+            throw ResourceNotFoundException(Image::class.java, id)
         }
 
         client.deleteObject(bucket, id)

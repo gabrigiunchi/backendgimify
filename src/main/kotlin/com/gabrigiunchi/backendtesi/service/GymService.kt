@@ -27,12 +27,13 @@ class GymService(
     fun getAllGyms(page: Int, size: Int): Page<Gym> =
             this.gymDAO.findAll(PageRequest.of(page, size, Sort.by("name")))
 
-    fun getGymById(gymId: Int): Gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+    fun getGymById(gymId: Int): Gym = this.gymDAO.findById(gymId)
+            .orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
 
     fun getGymsByCity(cityId: Int): List<Gym> =
             this.cityDAO.findById(cityId)
                     .map { this.gymDAO.findByCity(it) }
-                    .orElseThrow { ResourceNotFoundException("city $cityId does not exist") }
+                    .orElseThrow { ResourceNotFoundException(City::class.java, cityId) }
 
     fun saveGym(gym: GymDTOInput): Gym {
         if (this.gymDAO.findByName(gym.name).isPresent) {
@@ -40,7 +41,7 @@ class GymService(
         }
 
         val city = this.cityDAO.findById(gym.cityId)
-                .orElseThrow { ResourceNotFoundException("city ${gym.cityId} does not exist") }
+                .orElseThrow { ResourceNotFoundException(City::class.java, gym.cityId) }
 
         val location = this.getCoordinatedOfGym(gym.address, city)
         return this.gymDAO.save(Gym(gym.name, gym.address, city, location.lat, location.lng))
@@ -48,10 +49,10 @@ class GymService(
 
     fun updateGym(gymDTO: GymDTOInput, id: Int): Gym {
         val city = this.cityDAO.findById(gymDTO.cityId)
-                .orElseThrow { ResourceNotFoundException("city ${gymDTO.cityId} does not exist") }
+                .orElseThrow { ResourceNotFoundException(City::class.java, gymDTO.cityId) }
 
         val savedGym = this.gymDAO.findById(id)
-                .orElseThrow { ResourceNotFoundException("gym $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, id) }
 
         if (savedGym.address != gymDTO.address) {
             savedGym.address = gymDTO.address
@@ -67,7 +68,7 @@ class GymService(
     }
 
     fun deleteGym(gymId: Int) {
-        val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+        val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
         val timetable = this.timetableDAO.findByGym(gym)
 
         if (timetable.isPresent) {
@@ -87,7 +88,7 @@ class GymService(
                     val sum = ratings.sum()
                     if (ratings.isEmpty()) -1.0 else sum / ratings.size.toDouble()
                 }
-                .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
     }
 
     private fun getCoordinatedOfGym(address: String, city: City): LatLng =

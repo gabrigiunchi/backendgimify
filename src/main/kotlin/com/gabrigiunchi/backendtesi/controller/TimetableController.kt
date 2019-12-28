@@ -4,6 +4,7 @@ import com.gabrigiunchi.backendtesi.dao.GymDAO
 import com.gabrigiunchi.backendtesi.dao.TimetableDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.dto.input.TimetableDTO
+import com.gabrigiunchi.backendtesi.model.entities.Gym
 import com.gabrigiunchi.backendtesi.model.time.Timetable
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
@@ -34,7 +35,7 @@ class TimetableController(
         this.logger.info("GET timetable #$id")
         return this.timetableDAO.findById(id)
                 .map { ResponseEntity.ok(it) }
-                .orElseThrow { ResourceNotFoundException("timetable $id does not exist") }
+                .orElseThrow { ResourceNotFoundException(Timetable::class.java, id) }
     }
 
     @GetMapping("/gym/{gymId}")
@@ -46,7 +47,7 @@ class TimetableController(
                             .map { timetable -> ResponseEntity.ok(timetable) }
                             .orElseThrow { ResourceNotFoundException("timetable does not exist for gym $gymId") }
                 }
-                .orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
@@ -54,7 +55,7 @@ class TimetableController(
     fun createTimetable(@Valid @RequestBody timetable: TimetableDTO): ResponseEntity<Timetable> {
         this.logger.info("CREATE timetable")
         val gym = this.gymDAO.findById(timetable.gymId)
-                .orElseThrow { ResourceNotFoundException("gym ${timetable.gymId} does not exist") }
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, timetable.gymId) }
 
         return ResponseEntity(this.timetableDAO.save(Timetable(-1, gym, timetable.openings, timetable.closingDays)), HttpStatus.CREATED)
     }
@@ -65,11 +66,11 @@ class TimetableController(
         this.logger.info("PUT timetable $id")
 
         if (this.timetableDAO.findById(id).isEmpty) {
-            throw ResourceNotFoundException("timetable $id does not exist")
+            throw ResourceNotFoundException(Timetable::class.java, id)
         }
 
         val gym = this.gymDAO.findById(timetableDTO.gymId)
-                .orElseThrow { ResourceNotFoundException("gym ${timetableDTO.gymId} does not exist") }
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, timetableDTO.gymId) }
 
         return ResponseEntity.ok(this.timetableDAO.save(Timetable(id, gym, timetableDTO.openings, timetableDTO.closingDays)))
     }
@@ -78,7 +79,8 @@ class TimetableController(
     @DeleteMapping("/{id}")
     fun deleteTimetableById(@PathVariable id: Int): ResponseEntity<Void> {
         this.logger.info("DELETE timetable #$id")
-        val timetable = this.timetableDAO.findById(id).orElseThrow { ResourceNotFoundException("timetable $id does not exist") }
+        val timetable = this.timetableDAO.findById(id)
+                .orElseThrow { ResourceNotFoundException(Timetable::class.java, id) }
         this.timetableDAO.delete(timetable)
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
@@ -87,7 +89,8 @@ class TimetableController(
     @DeleteMapping("/gym/{gymId}")
     fun deleteTimetableByGymId(@PathVariable gymId: Int): ResponseEntity<Void> {
         this.logger.info("DELETE timetable of gym #$gymId")
-        val gym = this.gymDAO.findById(gymId).orElseThrow { ResourceNotFoundException("gym $gymId does not exist") }
+        val gym = this.gymDAO.findById(gymId)
+                .orElseThrow { ResourceNotFoundException(Gym::class.java, gymId) }
         val timetable = this.timetableDAO.findByGym(gym).orElseThrow { ResourceNotFoundException("no timetable for gym $gymId") }
         this.timetableDAO.delete(timetable)
         return ResponseEntity(HttpStatus.NO_CONTENT)

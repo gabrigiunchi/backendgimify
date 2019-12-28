@@ -45,7 +45,7 @@ class AssetKindControllerTest : BaseTest() {
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.ASSET_KIND}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("AssetKind #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -81,7 +81,7 @@ class AssetKindControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(updatedKind)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("AssetKind #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -121,7 +121,7 @@ class AssetKindControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.ASSET_KIND}/-1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("AssetKind #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -142,7 +142,7 @@ class AssetKindControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.patch("${ApiUrls.ASSET_KIND}/-1/maxTime/10")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("asset kind -1 does not exist")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("AssetKind #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 

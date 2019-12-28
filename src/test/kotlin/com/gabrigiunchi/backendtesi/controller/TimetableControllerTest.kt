@@ -71,7 +71,7 @@ class TimetableControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("timetable -1 does not exist")))
+                        "$[0].message", Matchers.`is`("Timetable #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -82,7 +82,7 @@ class TimetableControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("gym -1 does not exist")))
+                        "$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -122,7 +122,7 @@ class TimetableControllerTest : BaseTest() {
                 .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("gym $gymId does not exist")))
+                        "$[0].message", Matchers.`is`("Gym #$gymId not found")))
                 .andDo(MockMvcResultHandlers.print())
 
         Assertions.assertThat(this.timetableDAO.count()).isEqualTo(0)
@@ -168,7 +168,7 @@ class TimetableControllerTest : BaseTest() {
                 .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("timetable -1 does not exist")))
+                        "$[0].message", Matchers.`is`("Timetable #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -188,7 +188,7 @@ class TimetableControllerTest : BaseTest() {
                 .content(json(timetableDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("gym -1 does not exist")))
+                        "$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -220,7 +220,7 @@ class TimetableControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("gym -1 does not exist")))
+                        "$[0].message", Matchers.`is`("Gym #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -241,7 +241,7 @@ class TimetableControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        "$[0].message", Matchers.`is`("timetable -1 does not exist")))
+                        "$[0].message", Matchers.`is`("Timetable #-1 not found")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
