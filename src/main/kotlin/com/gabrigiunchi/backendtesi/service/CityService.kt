@@ -41,7 +41,7 @@ class CityService(private val cityDAO: CityDAO, private val mapsService: MapsSer
 
     private fun getTimezone(cityName: String): ZoneId {
         val latLng = this.mapsService.geocode(cityName)
-                ?: throw ResourceNotFoundException(City::class.java, cityName)
+                ?: throw ResourceNotFoundException("City $cityName cannot be geocoded")
         return this.mapsService.getTimezone(latLng)
     }
 }

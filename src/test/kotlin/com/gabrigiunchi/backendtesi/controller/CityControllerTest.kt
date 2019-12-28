@@ -122,7 +122,8 @@ class CityControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(city)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #$name not found")))
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("City $name cannot be geocoded")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
@@ -162,7 +163,8 @@ class CityControllerTest : BaseTest() {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(cityDTO)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("City #${cityDTO.name} not found")))
+                .andExpect(MockMvcResultMatchers.jsonPath(
+                        "$[0].message", Matchers.`is`("City ${cityDTO.name} cannot be geocoded")))
                 .andDo(MockMvcResultHandlers.print())
     }
 
