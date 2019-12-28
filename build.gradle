@@ -26,23 +26,22 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security:$springboot_version")
     implementation("org.springframework.boot:spring-boot-starter-batch:$springboot_version")
     implementation("org.springframework.boot:spring-boot-starter-mail:$springboot_version")
-    implementation 'com.sun.xml.bind:jaxb-core:2.2.11'
-    implementation 'com.sun.xml.bind:jaxb-impl:2.2.11'
-    implementation 'io.jsonwebtoken:jjwt:0.9.0'
-    implementation 'commons-codec:commons-codec:1.11'
+    implementation("io.jsonwebtoken:jjwt:0.9.0")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation("commons-codec:commons-codec:1.11")
     implementation("io.springfox:springfox-swagger2:$swagger_version")
     implementation("io.springfox:springfox-swagger-ui:$swagger_version")
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    implementation 'com.h2database:h2'
-    implementation 'org.hibernate:hibernate-entitymanager:5.2.9.Final'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    implementation 'com.sendgrid:sendgrid-java:4.0.1'
-    implementation "com.ibm.cos:ibm-cos-java-sdk:2.1.0"
-    implementation 'com.google.maps:google-maps-services:0.9.3'
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.h2database:h2")
+    implementation("org.hibernate:hibernate-entitymanager:5.2.9.Final")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("com.sendgrid:sendgrid-java:4.0.1")
+    implementation("com.ibm.cos:ibm-cos-java-sdk:2.1.0")
+    implementation("com.google.maps:google-maps-services:0.9.3")
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 compileKotlin {

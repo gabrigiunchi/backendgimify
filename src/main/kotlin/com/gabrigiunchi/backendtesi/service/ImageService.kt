@@ -10,6 +10,7 @@ import com.gabrigiunchi.backendtesi.model.type.ImageType
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
@@ -142,7 +143,8 @@ open class ImageService(
     /******************************** UTILS *******************************************/
 
     fun getAllMetadata(page: Int, size: Int): Page<ImageMetadata> =
-            this.imageDAO.findByBucket(this.bucketName, PageRequest.of(page, size)).map { ImageMetadata(it) }
+            this.imageDAO.findByBucket(this.bucketName, PageRequest.of(page, size, Sort.by("id")))
+                    .map { ImageMetadata(it) }
 
     fun getAllMetadataWithPrefix(prefix: String): List<ImageMetadata> = this.objectStorageService.getAllMetadataWithPrefix(prefix, this.bucketName)
 
