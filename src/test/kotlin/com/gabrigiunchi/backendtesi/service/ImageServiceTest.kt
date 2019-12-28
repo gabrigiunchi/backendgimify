@@ -35,7 +35,9 @@ class ImageServiceTest : BaseTest() {
     @Autowired
     private lateinit var objectStorageService: ObjectStorageService
     private lateinit var amazonS3: AmazonS3
+
     private lateinit var imageService: ImageService
+
     private val mockObjectStorage = MockObjectStorage()
 
     @Before
@@ -45,14 +47,14 @@ class ImageServiceTest : BaseTest() {
         this.amazonS3 = Mockito.mock(AmazonS3::class.java)
         this.objectStorageService = Mockito.spy(this.objectStorageService)
         `when`(this.objectStorageService.createClient()).thenReturn(this.amazonS3)
-        this.imageService = ImageService(drawableDAO, imageDAO, this.objectStorageService, this.bucketName)
+        this.imageService = ImageService(drawableDAO, imageDAO, this.objectStorageService)
     }
 
     @Test
     fun `Should return all images metadata`() {
         val gym = this.mockGym
         this.imageDAO.saveAll((1..10).map { Image("image$it", ImageType.profile, gym, this.bucketName) })
-        val result = this.imageService.getAllMetadata(0, 100).content
+        val result = this.imageService.getAllMetadata(this.bucketName, 0, 100).content
         Assertions.assertThat(result.size).isEqualTo(10)
     }
 
@@ -69,14 +71,14 @@ class ImageServiceTest : BaseTest() {
         val name = "njdajsnd.aaa"
         val content = "ndjansa"
         this.createMockImage(name, content)
-        val result = this.imageService.download(name)
+        val result = this.imageService.download(this.bucketName, name)
         Assertions.assertThat(result.size).isGreaterThan(0)
         Assertions.assertThat(result).isEqualTo(content.toByteArray())
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when requesting an image if it does not exist`() {
-        this.imageService.download("nonexistingimage.fake")
+        this.imageService.download(this.bucketName, "nonexistingimage.fake")
     }
 
     @Test(expected = ResourceNotFoundException::class)
@@ -104,7 +106,7 @@ class ImageServiceTest : BaseTest() {
         val gym = this.mockGym
         val content = "ndjansa"
         this.createMockImage("fasda", content)
-        this.imageService.setAvatar(gym.id, this.createMockImage("djandjan", content))
+        this.imageService.setAvatar(this.bucketName, gym.id, this.createMockImage("djandjan", content))
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(1)
     }
 
@@ -115,7 +117,7 @@ class ImageServiceTest : BaseTest() {
         val content = "ndjansa"
         this.createMockImage(name, content)
         this.imageDAO.save(Image(name, ImageType.avatar, gym, this.bucketName))
-        val result = this.imageService.getAvatar(gym.id)
+        val result = this.imageService.getAvatar(this.bucketName, gym.id)
         Assertions.assertThat(result.size).isGreaterThan(0)
         Assertions.assertThat(result).isEqualTo(content.toByteArray())
     }
@@ -128,7 +130,7 @@ class ImageServiceTest : BaseTest() {
         this.createMockImage(name, content)
         this.imageDAO.save(Image(name, ImageType.avatar, gym, this.bucketName))
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(1)
-        this.imageService.deleteAvatar(gym.id)
+        this.imageService.deleteAvatar(this.bucketName, gym.id)
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(0)
     }
 
@@ -138,7 +140,7 @@ class ImageServiceTest : BaseTest() {
         val image = Image("image1", ImageType.avatar, gym, this.bucketName)
         this.imageDAO.save(image)
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(1)
-        val result = this.imageService.getAvatarMetadata(gym.id)
+        val result = this.imageService.getAvatarMetadata(this.bucketName, gym.id)
         Assertions.assertThat(result.id).isEqualTo(image.id)
         Assertions.assertThat(result.lastModified).isEqualTo(image.lastModified)
     }
@@ -146,7 +148,7 @@ class ImageServiceTest : BaseTest() {
     @Test
     fun `Should get the default avatar metadata`() {
         val gym = this.mockGym
-        val result = this.imageService.getAvatarMetadata(gym.id)
+        val result = this.imageService.getAvatarMetadata(this.bucketName, gym.id)
         Assertions.assertThat(result.id).isEqualTo(ImageService.DEFAULT_AVATAR_METADATA.id)
         Assertions.assertThat(result.lastModified).isEqualTo(ImageService.DEFAULT_AVATAR_METADATA.lastModified)
     }
@@ -154,8 +156,8 @@ class ImageServiceTest : BaseTest() {
     @Test
     fun `Should never create two avatars for the same entity`() {
         val gym = this.mockGym
-        this.imageService.setAvatar(gym.id, this.createMockImage("das", "jjnj"))
-        this.imageService.setAvatar(gym.id, this.createMockImage("sss", "aa"))
+        this.imageService.setAvatar(this.bucketName, gym.id, this.createMockImage("das", "jjnj"))
+        this.imageService.setAvatar(this.bucketName, gym.id, this.createMockImage("sss", "aa"))
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(1)
     }
 
@@ -168,7 +170,7 @@ class ImageServiceTest : BaseTest() {
         val gym = this.mockGym
         val saved = this.imageDAO.saveAll((1..4).map { Image("photo$it", ImageType.profile, gym, this.bucketName) }).toList()
 
-        val result = this.imageService.getImagesOfEntity(gym.id)
+        val result = this.imageService.getImagesOfEntity(this.bucketName, gym.id)
         Assertions.assertThat(result.size).isEqualTo(4)
         Assertions.assertThat(result[0].id).isEqualTo(saved[0].id)
         Assertions.assertThat(result.all { it.lastModified >= now }).isTrue()
@@ -176,7 +178,7 @@ class ImageServiceTest : BaseTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when requesting the photos of an entity if it does not exist`() {
-        this.imageService.getImagesOfEntity(-1)
+        this.imageService.getImagesOfEntity(this.bucketName, -1)
     }
 
     @Test
@@ -185,7 +187,7 @@ class ImageServiceTest : BaseTest() {
         val name = "photo1"
         val gym = this.mockGym
         val image = this.createMockImage(name, "dnansda")
-        this.imageService.updateImage(gym.id, image, name, ImageType.profile)
+        this.imageService.updateImage(this.bucketName, gym.id, image, name, ImageType.profile)
         val saved = this.imageDAO.findByDrawableAndBucket(gym, this.bucketName)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         Assertions.assertThat(saved.size).isEqualTo(1)
@@ -197,14 +199,15 @@ class ImageServiceTest : BaseTest() {
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should throw an exception when adding the photo of an entity if it does not exist`() {
-        this.imageService.updateImage(-1, this.createMockImage("name", "content"), "photo1", ImageType.profile)
+        this.imageService.updateImage(this.bucketName, -1,
+                this.createMockImage("name", "content"), "photo1", ImageType.profile)
     }
 
     @Test
     fun `Should add an image`() {
         val gym = this.mockGym
         val name = "name"
-        this.imageService.addImage(gym.id, this.createMockImage(name, "content"))
+        this.imageService.addImage(this.bucketName, gym.id, this.createMockImage(name, "content"))
         Assertions.assertThat(this.objectStorageService.contains(name, this.bucketName)).isTrue()
     }
 
@@ -212,9 +215,11 @@ class ImageServiceTest : BaseTest() {
     fun `Should override the photo of an entity`() {
         val gym = this.mockGym
         val name = "name"
-        this.imageService.updateImage(gym.id, this.createMockImage(name, "content"), name, ImageType.profile)
+        this.imageService.updateImage(this.bucketName, gym.id, this.createMockImage(name, "content"),
+                name, ImageType.profile)
         Assertions.assertThat(this.objectStorageService.contains(name, this.bucketName)).isTrue()
-        this.imageService.updateImage(gym.id, this.createMockImage(name, "content"), name, ImageType.profile)
+        this.imageService.updateImage(this.bucketName, gym.id, this.createMockImage(name, "content"),
+                name, ImageType.profile)
         Assertions.assertThat(this.objectStorageService.contains(name, this.bucketName)).isTrue()
     }
 
@@ -223,9 +228,9 @@ class ImageServiceTest : BaseTest() {
         val gym1 = this.mockGym
         val gym2 = this.gymDAO.save(Gym("gym2", "address2", gym1.city))
         val name = "name"
-        this.imageService.updateImage(gym1.id, this.createMockImage(name, "content"), name, ImageType.profile)
+        this.imageService.updateImage(this.bucketName, gym1.id, this.createMockImage(name, "content"), name, ImageType.profile)
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
-        this.imageService.updateImage(gym2.id, this.createMockImage(name, "content"), name, ImageType.profile)
+        this.imageService.updateImage(this.bucketName, gym2.id, this.createMockImage(name, "content"), name, ImageType.profile)
     }
 
     @Test
@@ -233,7 +238,7 @@ class ImageServiceTest : BaseTest() {
         val imageId = "asdasda"
         val user = this.mockUser("gabrigiunchi")
         val image = this.imageDAO.save(Image(imageId, ImageType.avatar, user, bucketName))
-        val result = this.imageService.associateExistingImageToEntity(user.id, ImageType.avatar, imageId)
+        val result = this.imageService.associateExistingImageToEntity(this.bucketName, user.id, ImageType.avatar, imageId)
         Assertions.assertThat(result.bucketName).isEqualTo(bucketName)
         Assertions.assertThat(result.id).isEqualTo(imageId)
         Assertions.assertThat(result.type).isEqualTo(ImageType.avatar)
@@ -245,13 +250,13 @@ class ImageServiceTest : BaseTest() {
         val imageId = "asdasda"
         val user = this.mockUser("gabrigiunchi")
         this.imageDAO.save(Image(imageId, ImageType.avatar, user, bucketName))
-        this.imageService.associateExistingImageToEntity(-1, ImageType.avatar, imageId)
+        this.imageService.associateExistingImageToEntity(this.bucketName, -1, ImageType.avatar, imageId)
     }
 
     @Test(expected = ResourceNotFoundException::class)
     fun `Should not associate an existing image to an entity if the image does not exist`() {
         val user = this.mockUser("gabrigiunchi")
-        this.imageService.associateExistingImageToEntity(user.id, ImageType.avatar, "asas")
+        this.imageService.associateExistingImageToEntity(this.bucketName, user.id, ImageType.avatar, "asas")
     }
 
     @Test(expected = ResourceNotFoundException::class)
@@ -259,7 +264,7 @@ class ImageServiceTest : BaseTest() {
         val imageId = "asdasda"
         val user = this.mockUser("gabrigiunchi")
         this.imageDAO.save(Image(imageId, ImageType.avatar, user, "dasdahdsj"))
-        this.imageService.associateExistingImageToEntity(user.id, ImageType.avatar, imageId)
+        this.imageService.associateExistingImageToEntity(this.bucketName, user.id, ImageType.avatar, imageId)
     }
 
     private fun createMockImage(name: String, content: String): MockMultipartFile {

@@ -140,7 +140,7 @@ abstract class BaseTest {
     }
 
     protected fun mockUser(username: String = "gabrigiunchi"): User {
-        return this.userDAO.save(this.userService.createRegularUser(username, "jns", "jnj", "njnj"))
+        return this.userDAO.save(this.userService.createRegularUser(username, "aaaa", "jnj", "njnj"))
     }
 
     protected fun mockGym(): Gym {

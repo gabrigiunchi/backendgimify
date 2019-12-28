@@ -1,35 +1,26 @@
 package com.gabrigiunchi.backendtesi.controller
 
 import com.gabrigiunchi.backendtesi.BaseTest
-import com.gabrigiunchi.backendtesi.MockObjectStorage
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.model.entities.Image
+import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.ImageService
-import com.gabrigiunchi.backendtesi.service.ObjectStorageService
-import com.ibm.cloud.objectstorage.services.s3.AmazonS3
-import com.ibm.cloud.objectstorage.services.s3.model.ListObjectsV2Result
-import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
-import com.ibm.cloud.objectstorage.services.s3.model.S3ObjectSummary
-import org.assertj.core.api.Assertions
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.beans.factory.getBean
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.context.ApplicationContext
+import org.springframework.data.domain.PageImpl
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import java.util.*
 
 class AvatarControllerTest : BaseTest() {
 
@@ -37,31 +28,24 @@ class AvatarControllerTest : BaseTest() {
     private var bucketName = ""
 
     @SpyBean
-    private lateinit var objectStorageService: ObjectStorageService
-
-    @MockBean
-    private lateinit var amazonS3: AmazonS3
-
-    private val mockObjectStorage = MockObjectStorage()
-
-    @Autowired
-    private lateinit var context: ApplicationContext
+    private lateinit var imageService: ImageService
 
     @Autowired
     private lateinit var avatarDAO: ImageDAO
 
+    private lateinit var mockUser: User
+
     @Before
     fun init() {
-        this.mockObjectStorage.clear()
-        this.amazonS3 = this.context.getBean(AmazonS3::class)
-        this.objectStorageService = this.context.getBean(ObjectStorageService::class)
-        Mockito.`when`(this.objectStorageService.createClient()).thenReturn(this.amazonS3)
+        this.userDAO.deleteAll()
+        this.mockUser = this.mockUser("gabrigiunchi")
     }
 
     @Test
     fun `Should get all avatars metadata`() {
-        val user = this.mockUser
-        (1..2).map { this.avatarDAO.save(Image("avatar$it", ImageType.avatar, user, this.bucketName)) }
+        val images = (1..2).map { ImageMetadata("avatar$it", ImageType.avatar, this.bucketName, 0) }
+        Mockito.doReturn(PageImpl(images)).`when`(this.imageService)
+                .getAllMetadata(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/page/0/size/10")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -70,29 +54,41 @@ class AvatarControllerTest : BaseTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].id", Matchers.`is`("avatar1")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].id", Matchers.`is`("avatar2")))
                 .andDo(MockMvcResultHandlers.print())
+
+        Mockito.verify(this.imageService).getAllMetadata(this.bucketName, 0, 10)
     }
 
     @Test
     fun `Should get the avatar metadata of a user`() {
         val user = this.mockUser
-        this.avatarDAO.save(Image("avatar1", ImageType.avatar, user, this.bucketName))
+        val image = this.avatarDAO.save(Image("avatar1", ImageType.avatar, user, this.bucketName))
+        Mockito.doReturn(ImageMetadata(image)).`when`(this.imageService)
+                .getAvatarMetadata(Mockito.anyString(), Mockito.anyInt())
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/metadata/user/${user.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`("avatar1")))
                 .andDo(MockMvcResultHandlers.print())
+
+        Mockito.verify(this.imageService)
+                .getAvatarMetadata(this.bucketName, user.id)
     }
 
     @Test
     fun `Should get the default avatar metadata if the user does not have an avatar`() {
         val user = this.mockUser
+        Mockito.doCallRealMethod().`when`(this.imageService)
+                .getAvatarMetadata(Mockito.anyString(), Mockito.anyInt())
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/metadata/user/${user.id}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`("default")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.lastModified", Matchers.`is`(0)))
                 .andDo(MockMvcResultHandlers.print())
+
+        Mockito.verify(this.imageService)
+                .getAvatarMetadata(this.bucketName, user.id)
     }
 
     @Test
@@ -119,20 +115,9 @@ class AvatarControllerTest : BaseTest() {
     @Test
     fun `Should get all presets avatars metadata`() {
         val prefix = "preset"
-        (1..2).map { this.mockImage("$it.png", "jdnsajdas") }
-        (1..2).map { this.mockImage("$prefix$it.png", "jdnsajdas") }
-        val objectListing = ListObjectsV2Result()
-        objectListing.objectSummaries.addAll(this.mockObjectStorage.getAllMetadata()
-                .filter { it.id.startsWith(prefix) }
-                .map { metadata ->
-                    val summary = S3ObjectSummary()
-                    summary.key = metadata.id
-                    summary.lastModified = Date(metadata.lastModified)
-                    summary
-                })
-
-        Assertions.assertThat(this.mockObjectStorage.getAllMetadata().size).isEqualTo(4)
-        Mockito.`when`(this.amazonS3.listObjectsV2(this.bucketName, prefix)).thenReturn(objectListing)
+        val images = (1..2).map { ImageMetadata("preset$it", ImageType.avatar, this.bucketName, 0) }
+        Mockito.doReturn(images).`when`(this.imageService)
+                .getAllMetadataWithPrefix(Mockito.anyString(), Mockito.anyString())
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/presets")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -141,34 +126,52 @@ class AvatarControllerTest : BaseTest() {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.startsWith(prefix)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.startsWith(prefix)))
                 .andDo(MockMvcResultHandlers.print())
+
+        Mockito.verify(this.imageService).getAllMetadataWithPrefix(this.bucketName, AvatarController.PRESET_PREFIX)
     }
 
     @Test
     fun `Should get an avatar`() {
         val name = "a.png"
         val content = "fdsda"
-        this.mockImage(name, content)
+        Mockito.doReturn(content.toByteArray()).`when`(this.imageService)
+                .download(Mockito.anyString(), Mockito.anyString())
+
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/$name")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(content)))
                 .andDo(MockMvcResultHandlers.print())
+
+        Mockito.verify(this.imageService).download(this.bucketName, name)
     }
 
     @Test
     fun `Should add an avatar`() {
-        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/${this.mockUser.id}")
-                .file(this.mockImage("adsada", "content")))
+        val image = this.mockImage("1", "dhajshdas")
+        val user = this.mockUser
+        Mockito.doReturn(ImageMetadata("1", ImageType.avatar, this.bucketName, 0))
+                .`when`(this.imageService)
+                .setAvatar(this.bucketName, user.id, image)
+        mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/${user.id}")
+                .file(image))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
+
+        Mockito.verify(this.imageService)
+                .setAvatar(this.bucketName, user.id, image)
     }
 
     @Test
     fun `Should delete an avatar`() {
         val name = "photo1.jpg"
-        this.mockImage(name, "dsjdas")
-        this.avatarDAO.save(Image(name, ImageType.avatar, this.mockUser, this.bucketName))
+        val image = Image(name, ImageType.avatar, this.mockUser, this.bucketName)
+        Mockito.doReturn(image)
+                .`when`(this.imageService)
+                .deleteImage(Mockito.anyString(), Mockito.anyString())
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.AVATARS}/$name"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
+
+        Mockito.verify(this.imageService).deleteImage(this.bucketName, name)
     }
 
     @Test
@@ -183,91 +186,68 @@ class AvatarControllerTest : BaseTest() {
 
     @Test
     fun `Should get my avatar`() {
-        val avatar = ImageService.DEFAULT_AVATAR_METADATA
-        val name = avatar.id
         val content = "dajndjsa"
-        this.mockImage(name, content)
+        Mockito.doReturn(content.toByteArray())
+                .`when`(this.imageService)
+                .getAvatar(Mockito.anyString(), Mockito.anyInt())
+
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/me")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.`is`(content)))
                 .andDo(MockMvcResultHandlers.print())
+
+        Mockito.verify(this.imageService)
+                .getAvatar(this.bucketName, this.mockUser.id)
     }
 
     @Test
     fun `Should get my avatar metadata`() {
-        val avatar = ImageService.DEFAULT_AVATAR_METADATA
-        val name = avatar.id
-        val content = "fdsda"
-        this.mockImage(name, content)
+        val avatar = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        Mockito.doReturn(avatar)
+                .`when`(this.imageService)
+                .getAvatarMetadata(Mockito.anyString(), Mockito.anyInt())
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/me/metadata")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk)
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(avatar.id)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.lastModified", Matchers.`is`(avatar.lastModified.toInt())))
                 .andDo(MockMvcResultHandlers.print())
+
+        Mockito.verify(this.imageService)
+                .getAvatarMetadata(this.bucketName, this.mockUser.id)
     }
 
     @Test
     fun `Should change my avatar`() {
-        val now = Date().time
-        this.userDAO.deleteAll()
-        val user = this.mockUser
-        val image = this.mockImage("name", "content")
-        val putObjectResult = this.mockObjectStorage.add(image, "name")
-
-        Mockito.`when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(putObjectResult)
+        val imageMetadata = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        val image = this.mockImage(imageMetadata.id, "dasdasjkd")
+        Mockito.doReturn(imageMetadata)
+                .`when`(this.imageService)
+                .setAvatar(this.bucketName, this.mockUser.id, image)
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/me")
                 .file(image))
                 .andExpect(MockMvcResultMatchers.status().isCreated)
-                .andExpect(MockMvcResultMatchers.jsonPath("$.lastModified", Matchers.greaterThanOrEqualTo(now)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(imageMetadata.id)))
 
-        val optionalSavedAvatar = this.avatarDAO.findByDrawableAndTypeAndBucket(user, ImageType.avatar, this.bucketName)
-        Assertions.assertThat(optionalSavedAvatar.isNotEmpty()).isTrue()
-        val savedMetadata = optionalSavedAvatar.first()
-        Assertions.assertThat(savedMetadata.drawable.id).isEqualTo(user.id)
-        Assertions.assertThat(savedMetadata.lastModified).isGreaterThanOrEqualTo(now)
+        Mockito.verify(this.imageService)
+                .setAvatar(this.bucketName, this.mockUser.id, image)
     }
 
     @Test
     fun `Should delete my avatar`() {
-        val name = mockUser.username
-        this.avatarDAO.save(Image(name, ImageType.avatar, this.mockUser, this.bucketName))
-        this.mockImage(name, "dsjdas")
+        Mockito.doReturn(Image("dasdasda", ImageType.avatar, this.mockUser, 0, this.bucketName))
+                .`when`(this.imageService)
+                .deleteAvatar(Mockito.anyString(), Mockito.anyInt())
+
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.AVATARS}/me"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent)
+
+        Mockito.verify(this.imageService)
+                .deleteAvatar(this.bucketName, this.mockUser.id)
     }
 
-    private fun mockImage(name: String, content: String): MockMultipartFile {
-        val image = MockMultipartFile("avatar", name, "text/plain", content.toByteArray())
-        val metadata = ObjectMetadata()
-        metadata.contentLength = image.size
-        metadata.lastModified = Date()
-
-        val putObjectResult = this.mockObjectStorage.add(image, name)
-
-        Mockito.`when`(this.amazonS3.putObject(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(putObjectResult)
-
-        Mockito.`when`(this.amazonS3.getObjectMetadata(Mockito.anyString(), Mockito.anyString())).thenReturn(metadata)
-
-        Mockito.`when`(this.amazonS3.doesObjectExist(this.bucketName, name))
-                .thenReturn(this.mockObjectStorage.contains(name))
-
-        Mockito.`when`(this.amazonS3.getObject(this.bucketName, name))
-                .thenReturn(this.mockObjectStorage.getImage(name))
-
-        Mockito.`when`(this.amazonS3.deleteObject(this.bucketName, name))
-                .then { this.mockObjectStorage.delete(name) }
-
-        return image
-    }
-
-    val mockUser: User
-        get() {
-            this.userDAO.deleteAll()
-            return this.userDAO.save(this.userService.createAdminUser("gabrigiunchi", "aaaa", "", ""))
-        }
+    private fun mockImage(name: String, content: String): MockMultipartFile =
+            MockMultipartFile("avatar", name, "text/plain", content.toByteArray())
 }
