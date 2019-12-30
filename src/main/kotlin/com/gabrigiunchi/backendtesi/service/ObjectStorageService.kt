@@ -11,9 +11,11 @@ import com.ibm.cloud.objectstorage.oauth.BasicIBMOAuthCredentials
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3
 import com.ibm.cloud.objectstorage.services.s3.AmazonS3ClientBuilder
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.time.Duration
 import java.util.*
 
 @Service
@@ -34,6 +36,8 @@ class ObjectStorageService {
     @Value("\${application.objectstorage.cos.location}")
     private lateinit var cosLocation: String
 
+    private val logger = LoggerFactory.getLogger(ObjectStorageService::class.java)
+    private var lastUpdate = 0L
     private var client: AmazonS3? = null
 
     fun getAllMetadataWithPrefix(prefix: String, bucket: String): List<Image> =
@@ -70,7 +74,11 @@ class ObjectStorageService {
     }
 
     fun createClient(): AmazonS3 {
-        if (this.client == null) {
+        this.logger.info("Creating ObjectStorage client")
+        val now = Date().time
+
+        if ((now - this.lastUpdate) > Duration.ofMinutes(5).toMillis()) {
+            this.logger.info("ObjectStorage client needs refresh, creating a new instance")
             SDKGlobalConfiguration.IAM_ENDPOINT = this.cosAuthEndpoint
             val credentials = BasicIBMOAuthCredentials(this.cosApiKey, this.cosServiceCrn)
             val clientConfig = ClientConfiguration().withRequestTimeout(5000)
@@ -81,6 +89,10 @@ class ObjectStorageService {
                             this.cosHost, this.cosLocation))
                     .withPathStyleAccessEnabled(true)
                     .withClientConfiguration(clientConfig).build()
+
+            this.lastUpdate = now
+        } else {
+            this.logger.info("ObjectStorage client does not need refresh, returning cached instance")
         }
 
         return this.client!!

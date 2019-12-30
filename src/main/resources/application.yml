@@ -17,7 +17,7 @@ application:
       location: eu-de
     gymphotosbucket: gymphotos
   reservationThresholdInDays: 14
-  version: 3.0.6
+  version: 3.0.7
   zoneId: UTC
 google:
   apikey: AIzaSyBiClW-tzn_XUpFDNs6c5PjwGtE61xaW6A
