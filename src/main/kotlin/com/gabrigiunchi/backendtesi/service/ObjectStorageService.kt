@@ -58,7 +58,7 @@ class ObjectStorageService {
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
         this.createClient().putObject(bucket, id, image.inputStream, metadata).metadata
-        return ImageMetadata(id, ImageType.avatar, "", Date().time)
+        return ImageMetadata(id, ImageType.avatar, bucket, Date().time)
     }
 
     fun delete(id: String, bucket: String) {
