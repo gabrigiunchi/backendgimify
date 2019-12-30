@@ -1,7 +1,7 @@
 package com.gabrigiunchi.backendtesi
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
-import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
+import com.gabrigiunchi.backendtesi.model.entities.Image
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.ibm.cloud.objectstorage.services.s3.model.ObjectMetadata
 import com.ibm.cloud.objectstorage.services.s3.model.PutObjectResult
@@ -11,10 +11,10 @@ import org.springframework.mock.web.MockMultipartFile
 import java.util.*
 
 class MockObjectStorage {
-    private val objects = HashMap<String, Pair<ImageMetadata, MockMultipartFile>>()
+    private val objects = HashMap<String, Pair<Image, MockMultipartFile>>()
 
-    fun getAllMetadata(): List<ImageMetadata> {
-        return this.objects.values.map(Pair<ImageMetadata, MockMultipartFile>::first).toList()
+    fun getAllMetadata(): List<Image> {
+        return this.objects.values.map(Pair<Image, MockMultipartFile>::first).toList()
     }
 
     fun contains(image: String): Boolean {
@@ -22,7 +22,7 @@ class MockObjectStorage {
     }
 
     fun add(image: MockMultipartFile, name: String): PutObjectResult {
-        this.objects[name] = Pair(ImageMetadata(name, ImageType.unknown, "", Date().time), image)
+        this.objects[name] = Pair(Image(name, ImageType.unknown, "", Date().time), image)
         val putObjectResult = PutObjectResult()
         putObjectResult.metadata = ObjectMetadata()
         putObjectResult.metadata.lastModified = Date()

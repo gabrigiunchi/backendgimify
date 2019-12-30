@@ -2,7 +2,6 @@ package com.gabrigiunchi.backendtesi.service
 
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.entities.Image
-import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.ibm.cloud.objectstorage.ClientConfiguration
 import com.ibm.cloud.objectstorage.SDKGlobalConfiguration
@@ -37,11 +36,11 @@ class ObjectStorageService {
 
     private var client: AmazonS3? = null
 
-    fun getAllMetadataWithPrefix(prefix: String, bucket: String): List<ImageMetadata> =
+    fun getAllMetadataWithPrefix(prefix: String, bucket: String): List<Image> =
             this.createClient()
                     .listObjectsV2(bucket, prefix)
                     .objectSummaries
-                    .map { summary -> ImageMetadata(summary.key, ImageType.unknown, bucket, summary.lastModified.time) }
+                    .map { summary -> Image(summary.key, ImageType.unknown, bucket, summary.lastModified.time) }
 
     fun contains(image: String, bucket: String): Boolean = this.createClient().doesObjectExist(bucket, image)
 
@@ -54,11 +53,11 @@ class ObjectStorageService {
         return client.getObject(bucket, id).objectContent.readAllBytes()
     }
 
-    fun upload(image: MultipartFile, id: String, bucket: String): ImageMetadata {
+    fun upload(image: MultipartFile, id: String, bucket: String): Image {
         val metadata = ObjectMetadata()
         metadata.contentLength = image.size
         this.createClient().putObject(bucket, id, image.inputStream, metadata).metadata
-        return ImageMetadata(id, ImageType.avatar, bucket, Date().time)
+        return Image(id, ImageType.avatar, bucket, Date().time)
     }
 
     fun delete(id: String, bucket: String) {

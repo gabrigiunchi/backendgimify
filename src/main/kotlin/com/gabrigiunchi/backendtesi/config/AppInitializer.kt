@@ -212,15 +212,15 @@ class AppInitializer {
         this.logger.info("Init gyms' images")
         for (i in 1..this.gyms.size) {
             val gym = this.gyms[i - 1]
-            this.imageDAO.saveAll(((1..4).map { Image("gym$i $it.jpg", ImageType.profile, gym, this.gymBucket) }))
-            this.imageDAO.save(Image("avatargym$i.jpg", ImageType.avatar, gym, this.gymBucket))
+            this.imageDAO.saveAll(((1..4).map { Image.create("gym$i $it.jpg", ImageType.profile, this.gymBucket, gym) }))
+            this.imageDAO.save(Image.create("avatargym$i.jpg", ImageType.avatar, this.gymBucket, gym))
         }
 
         this.logger.info("Init users' images")
         for (i in 0 until this.randomUsers.size) {
             val user = this.randomUsers[i]
             val avatarId = "preset${(i % 17) + 1}.png"
-            this.imageDAO.save(Image(avatarId, ImageType.avatar, user, this.userBucket))
+            this.imageDAO.save(Image.create(avatarId, ImageType.avatar, this.userBucket, user))
         }
     }
 

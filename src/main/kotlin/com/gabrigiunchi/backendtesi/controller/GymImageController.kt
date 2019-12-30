@@ -3,7 +3,6 @@ package com.gabrigiunchi.backendtesi.controller
 import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.exceptions.ResourceNotFoundException
 import com.gabrigiunchi.backendtesi.model.entities.Image
-import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.ImageService
 import org.slf4j.LoggerFactory
@@ -27,13 +26,13 @@ class GymImageController(
 
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/photos/page/{page}/size/{size}")
-    fun getAllMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<ImageMetadata>> {
+    fun getAllMetadata(@PathVariable page: Int, @PathVariable size: Int): ResponseEntity<Page<Image>> {
         this.logger.info("GET all images")
         return ResponseEntity.ok(this.gymImageService.getAllMetadata(this.bucketName, page, size))
     }
 
     @GetMapping("/{id}/photos")
-    fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<ImageMetadata>> {
+    fun getPhotoMetadataOfGym(@PathVariable id: Int): ResponseEntity<Collection<Image>> {
         this.logger.info("GET photos of gym $id")
         return ResponseEntity.ok(this.gymImageService.getImagesOfEntity(this.bucketName, id))
     }
@@ -45,7 +44,7 @@ class GymImageController(
     }
 
     @GetMapping("/{id}/avatar/metadata")
-    fun getAvatarMetadataOfGym(@PathVariable id: Int): ResponseEntity<ImageMetadata> {
+    fun getAvatarMetadataOfGym(@PathVariable id: Int): ResponseEntity<Image> {
         this.logger.info("GET avatar metadata of gym $id")
         return ResponseEntity.ok(this.gymImageService.getAvatarMetadata(this.bucketName, id))
     }
@@ -67,7 +66,7 @@ class GymImageController(
     @RequestMapping("/{id}/photos/{name}", method = [RequestMethod.POST, RequestMethod.PUT])
     fun addPhoto(@PathVariable id: Int,
                  @PathVariable name: String,
-                 @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
+                 @RequestBody image: MultipartFile): ResponseEntity<Image> {
         this.logger.info("POST photo of gym $id")
         return ResponseEntity(this.gymImageService.updateImage(this.bucketName, id, image, name, ImageType.profile), HttpStatus.CREATED)
     }
@@ -76,7 +75,7 @@ class GymImageController(
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @RequestMapping("/{id}/avatar", method = [RequestMethod.POST, RequestMethod.PUT])
     fun setAvatar(@PathVariable id: Int,
-                  @RequestBody image: MultipartFile): ResponseEntity<ImageMetadata> {
+                  @RequestBody image: MultipartFile): ResponseEntity<Image> {
         this.logger.info("POST avatar of gym $id")
         return ResponseEntity(this.gymImageService.setAvatar(this.bucketName, id, image), HttpStatus.CREATED)
     }

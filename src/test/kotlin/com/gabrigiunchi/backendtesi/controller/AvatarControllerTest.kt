@@ -4,7 +4,6 @@ import com.gabrigiunchi.backendtesi.BaseTest
 import com.gabrigiunchi.backendtesi.constants.ApiUrls
 import com.gabrigiunchi.backendtesi.dao.ImageDAO
 import com.gabrigiunchi.backendtesi.model.entities.Image
-import com.gabrigiunchi.backendtesi.model.entities.ImageMetadata
 import com.gabrigiunchi.backendtesi.model.entities.User
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import com.gabrigiunchi.backendtesi.service.ImageService
@@ -43,7 +42,7 @@ class AvatarControllerTest : BaseTest() {
 
     @Test
     fun `Should get all avatars metadata`() {
-        val images = (1..2).map { ImageMetadata("avatar$it", ImageType.avatar, this.bucketName, 0) }
+        val images = (1..2).map { Image("avatar$it", ImageType.avatar, this.bucketName, 0) }
         Mockito.doReturn(PageImpl(images)).`when`(this.imageService)
                 .getAllMetadata(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())
 
@@ -62,7 +61,7 @@ class AvatarControllerTest : BaseTest() {
     fun `Should get the avatar metadata of a user`() {
         val user = this.mockUser
         val image = this.avatarDAO.save(Image("avatar1", ImageType.avatar, user, this.bucketName))
-        Mockito.doReturn(ImageMetadata(image)).`when`(this.imageService)
+        Mockito.doReturn(image).`when`(this.imageService)
                 .getAvatarMetadata(Mockito.anyString(), Mockito.anyInt())
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/metadata/user/${user.id}")
@@ -115,7 +114,7 @@ class AvatarControllerTest : BaseTest() {
     @Test
     fun `Should get all presets avatars metadata`() {
         val prefix = "preset"
-        val images = (1..2).map { ImageMetadata("preset$it", ImageType.avatar, this.bucketName, 0) }
+        val images = (1..2).map { Image("preset$it", ImageType.avatar, this.bucketName, 0) }
         Mockito.doReturn(images).`when`(this.imageService)
                 .getAllMetadataWithPrefix(Mockito.anyString(), Mockito.anyString())
 
@@ -150,7 +149,7 @@ class AvatarControllerTest : BaseTest() {
     fun `Should add an avatar`() {
         val image = this.mockImage("1", "dhajshdas")
         val user = this.mockUser
-        Mockito.doReturn(ImageMetadata("1", ImageType.avatar, this.bucketName, 0))
+        Mockito.doReturn(Image("1", ImageType.avatar, this.bucketName, 0))
                 .`when`(this.imageService)
                 .setAvatar(this.bucketName, user.id, image)
         mockMvc.perform(MockMvcRequestBuilders.multipart("${ApiUrls.AVATARS}/${user.id}")
@@ -164,7 +163,7 @@ class AvatarControllerTest : BaseTest() {
     @Test
     fun `Should delete an avatar`() {
         val name = "photo1.jpg"
-        val image = Image(name, ImageType.avatar, this.mockUser, this.bucketName)
+        val image = Image.create(name, ImageType.avatar, this.bucketName, this.mockUser)
         Mockito.doReturn(image)
                 .`when`(this.imageService)
                 .deleteImage(Mockito.anyString(), Mockito.anyString())
@@ -203,7 +202,7 @@ class AvatarControllerTest : BaseTest() {
 
     @Test
     fun `Should get my avatar metadata`() {
-        val avatar = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        val avatar = Image("dasdasda", ImageType.avatar, this.bucketName, 1)
         Mockito.doReturn(avatar)
                 .`when`(this.imageService)
                 .getAvatarMetadata(Mockito.anyString(), Mockito.anyInt())
@@ -220,7 +219,7 @@ class AvatarControllerTest : BaseTest() {
 
     @Test
     fun `Should change my avatar`() {
-        val imageMetadata = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        val imageMetadata = Image("dasdasda", ImageType.avatar, this.bucketName, 1)
         val image = this.mockImage(imageMetadata.id, "dasdasjkd")
         Mockito.doReturn(imageMetadata)
                 .`when`(this.imageService)
@@ -237,7 +236,7 @@ class AvatarControllerTest : BaseTest() {
 
     @Test
     fun `Should change my avatar using a default one`() {
-        val imageMetadata = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        val imageMetadata = Image("dasdasda", ImageType.avatar, this.bucketName, 1)
         Mockito.doReturn(imageMetadata)
                 .`when`(this.imageService)
                 .associateExistingImageToEntity(this.bucketName, this.mockUser.id, ImageType.avatar, imageMetadata.id)
@@ -252,7 +251,7 @@ class AvatarControllerTest : BaseTest() {
 
     @Test
     fun `Should change my avatar using a default one if the image does not exist`() {
-        val imageMetadata = ImageMetadata("dasdasda", ImageType.avatar, this.bucketName, 1)
+        val imageMetadata = Image("dasdasda", ImageType.avatar, this.bucketName, 1)
         Mockito.doCallRealMethod()
                 .`when`(this.imageService)
                 .associateExistingImageToEntity(this.bucketName, this.mockUser.id, ImageType.avatar, imageMetadata.id)

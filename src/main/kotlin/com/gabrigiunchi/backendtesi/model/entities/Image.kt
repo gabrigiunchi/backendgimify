@@ -16,25 +16,22 @@ open class Image(
 
         @ManyToOne
         @OnDelete(action = OnDeleteAction.CASCADE)
-        val drawable: Drawable,
+        var drawable: Drawable?,
 
         val lastModified: Long,
         val bucket: String) {
 
+    companion object {
+        fun copy(image: Image, entity: Drawable, type: ImageType = image.type): Image =
+                Image(image.id, type, entity, image.lastModified, image.bucket)
+
+        fun create(id: String, type: ImageType, bucket: String, entity: Drawable? = null) =
+                Image(id, type, entity, Date().time, bucket)
+    }
+
     constructor(id: String, type: ImageType, drawable: Drawable, bucket: String) :
             this(id, type, drawable, Date().time, bucket)
 
-    constructor(image: Image, entity: Drawable) : this(
-            image.id,
-            image.type,
-            entity,
-            image.bucket
-    )
-
-    constructor(image: Image, type: ImageType, entity: Drawable) : this(
-            image.id,
-            type,
-            entity,
-            image.bucket
-    )
+    constructor(id: String, type: ImageType, bucket: String, lastModified: Long) :
+            this(id, type, null, lastModified, bucket)
 }

@@ -192,7 +192,7 @@ class ImageServiceTest : BaseTest() {
         Assertions.assertThat(this.mockObjectStorage.contains(name)).isTrue()
         Assertions.assertThat(saved.size).isEqualTo(1)
         Assertions.assertThat(saved[0].id).isEqualTo(name)
-        Assertions.assertThat(saved[0].drawable.id).isEqualTo(gym.id)
+        Assertions.assertThat(saved[0].drawable!!.id).isEqualTo(gym.id)
         Assertions.assertThat(saved[0].lastModified).isGreaterThanOrEqualTo(now)
         Assertions.assertThat(saved[0].type).isEqualTo(ImageType.profile)
     }
@@ -239,7 +239,7 @@ class ImageServiceTest : BaseTest() {
         val user = this.mockUser("gabrigiunchi")
         val image = this.imageDAO.save(Image(imageId, ImageType.avatar, user, bucketName))
         val result = this.imageService.associateExistingImageToEntity(this.bucketName, user.id, ImageType.avatar, imageId)
-        Assertions.assertThat(result.bucketName).isEqualTo(bucketName)
+        Assertions.assertThat(result.bucket).isEqualTo(bucketName)
         Assertions.assertThat(result.id).isEqualTo(imageId)
         Assertions.assertThat(result.type).isEqualTo(ImageType.avatar)
         Assertions.assertThat(this.imageDAO.findByDrawableAndBucket(user, bucketName).toList()).isEqualTo(listOf(image))
