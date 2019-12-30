@@ -264,7 +264,7 @@ class AvatarControllerTest : BaseTest() {
 
     @Test
     fun `Should delete my avatar`() {
-        Mockito.doReturn(Image("dasdasda", ImageType.avatar, this.mockUser, 0, this.bucketName))
+        Mockito.doReturn(Image("dasdasda", ImageType.avatar, this.bucketName, 0, this.mockUser))
                 .`when`(this.imageService)
                 .deleteAvatar(Mockito.anyString(), Mockito.anyInt())
 
