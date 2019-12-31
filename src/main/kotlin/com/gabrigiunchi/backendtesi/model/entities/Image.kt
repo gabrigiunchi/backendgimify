@@ -1,5 +1,6 @@
 package com.gabrigiunchi.backendtesi.model.entities
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.gabrigiunchi.backendtesi.model.type.ImageType
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -17,6 +18,7 @@ open class Image(
         val lastModified: Long,
         @ManyToOne
         @OnDelete(action = OnDeleteAction.CASCADE)
+        @JsonIgnore
         var drawable: Drawable?) {
 
     companion object {
@@ -26,9 +28,6 @@ open class Image(
         fun create(id: String, type: ImageType, bucket: String, entity: Drawable? = null) =
                 Image(id, type, bucket, Date().time, entity)
     }
-
-    constructor(id: String, type: ImageType, drawable: Drawable, bucket: String) :
-            this(id, type, bucket, Date().time, drawable)
 
     constructor(id: String, type: ImageType, bucket: String, lastModified: Long) :
             this(id, type, bucket, lastModified, null)

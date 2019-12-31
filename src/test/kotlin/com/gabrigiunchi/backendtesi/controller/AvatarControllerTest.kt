@@ -60,7 +60,7 @@ class AvatarControllerTest : BaseTest() {
     @Test
     fun `Should get the avatar metadata of a user`() {
         val user = this.mockUser
-        val image = this.avatarDAO.save(Image("avatar1", ImageType.avatar, user, this.bucketName))
+        val image = this.avatarDAO.save(Image.create("avatar1", ImageType.avatar, this.bucketName, user))
         Mockito.doReturn(image).`when`(this.imageService)
                 .getAvatarMetadata(Mockito.anyString(), Mockito.anyInt())
 
@@ -93,7 +93,7 @@ class AvatarControllerTest : BaseTest() {
     @Test
     fun `Should not get the avatar metadata of a user if the user does not exist`() {
         val user = this.mockUser
-        this.avatarDAO.save(Image("avatar1", ImageType.avatar, user, this.bucketName))
+        this.avatarDAO.save(Image.create("avatar1", ImageType.avatar, this.bucketName, user))
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/metadata/user/-1")
                 .contentType(MediaType.APPLICATION_JSON))

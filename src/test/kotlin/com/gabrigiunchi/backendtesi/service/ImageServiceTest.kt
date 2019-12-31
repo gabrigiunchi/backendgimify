@@ -53,7 +53,7 @@ class ImageServiceTest : BaseTest() {
     @Test
     fun `Should return all images metadata`() {
         val gym = this.mockGym
-        this.imageDAO.saveAll((1..10).map { Image("image$it", ImageType.profile, gym, this.bucketName) })
+        this.imageDAO.saveAll((1..10).map { Image.create("image$it", ImageType.profile, this.bucketName, gym) })
         val result = this.imageService.getAllMetadata(this.bucketName, 0, 100).content
         Assertions.assertThat(result.size).isEqualTo(10)
     }
@@ -116,7 +116,7 @@ class ImageServiceTest : BaseTest() {
         val name = "njdajsnd.aaa"
         val content = "ndjansa"
         this.createMockImage(name, content)
-        this.imageDAO.save(Image(name, ImageType.avatar, gym, this.bucketName))
+        this.imageDAO.save(Image.create(name, ImageType.avatar, this.bucketName, gym))
         val result = this.imageService.getAvatar(this.bucketName, gym.id)
         Assertions.assertThat(result.size).isGreaterThan(0)
         Assertions.assertThat(result).isEqualTo(content.toByteArray())
@@ -128,7 +128,7 @@ class ImageServiceTest : BaseTest() {
         val content = "ndjansa"
         val name = "image1"
         this.createMockImage(name, content)
-        this.imageDAO.save(Image(name, ImageType.avatar, gym, this.bucketName))
+        this.imageDAO.save(Image.create(name, ImageType.avatar, this.bucketName, gym))
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(1)
         this.imageService.deleteAvatar(this.bucketName, gym.id)
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(0)
@@ -137,7 +137,7 @@ class ImageServiceTest : BaseTest() {
     @Test
     fun `Should get an avatar metadata`() {
         val gym = this.mockGym
-        val image = Image("image1", ImageType.avatar, gym, this.bucketName)
+        val image = Image.create("image1", ImageType.avatar, this.bucketName, gym)
         this.imageDAO.save(image)
         Assertions.assertThat(this.imageDAO.count()).isEqualTo(1)
         val result = this.imageService.getAvatarMetadata(this.bucketName, gym.id)
@@ -168,7 +168,8 @@ class ImageServiceTest : BaseTest() {
     fun `Should return the photos of an entity`() {
         val now = Date().time
         val gym = this.mockGym
-        val saved = this.imageDAO.saveAll((1..4).map { Image("photo$it", ImageType.profile, gym, this.bucketName) }).toList()
+        val saved = this.imageDAO.saveAll(
+                (1..4).map { Image.create("photo$it", ImageType.profile, this.bucketName, gym) }).toList()
 
         val result = this.imageService.getImagesOfEntity(this.bucketName, gym.id)
         Assertions.assertThat(result.size).isEqualTo(4)
@@ -237,7 +238,7 @@ class ImageServiceTest : BaseTest() {
     fun `Should associate an existing image to an entity`() {
         val imageId = "asdasda"
         val user = this.mockUser("gabrigiunchi")
-        val image = this.imageDAO.save(Image(imageId, ImageType.avatar, user, bucketName))
+        val image = this.imageDAO.save(Image.create(imageId, ImageType.avatar, bucketName, user))
         val result = this.imageService.associateExistingImageToEntity(this.bucketName, user.id, ImageType.avatar, imageId)
         Assertions.assertThat(result.bucket).isEqualTo(bucketName)
         Assertions.assertThat(result.id).isEqualTo(imageId)
@@ -249,7 +250,7 @@ class ImageServiceTest : BaseTest() {
     fun `Should not associate an existing image to an entity if the entity does not exist`() {
         val imageId = "asdasda"
         val user = this.mockUser("gabrigiunchi")
-        this.imageDAO.save(Image(imageId, ImageType.avatar, user, bucketName))
+        this.imageDAO.save(Image.create(imageId, ImageType.avatar, bucketName, user))
         this.imageService.associateExistingImageToEntity(this.bucketName, -1, ImageType.avatar, imageId)
     }
 
@@ -263,7 +264,7 @@ class ImageServiceTest : BaseTest() {
     fun `Should not associate an existing image to an entity if the image does not exist in the bucket`() {
         val imageId = "asdasda"
         val user = this.mockUser("gabrigiunchi")
-        this.imageDAO.save(Image(imageId, ImageType.avatar, user, "dasdahdsj"))
+        this.imageDAO.save(Image.create(imageId, ImageType.avatar, "dasdahdsj", user))
         this.imageService.associateExistingImageToEntity(this.bucketName, user.id, ImageType.avatar, imageId)
     }
 
