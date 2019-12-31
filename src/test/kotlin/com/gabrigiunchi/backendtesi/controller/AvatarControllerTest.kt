@@ -30,6 +30,9 @@ class AvatarControllerTest : BaseTest() {
     private lateinit var imageService: ImageService
 
     @Autowired
+    private lateinit var imageDAO: ImageDAO
+
+    @Autowired
     private lateinit var avatarDAO: ImageDAO
 
     private lateinit var mockUser: User
@@ -179,6 +182,37 @@ class AvatarControllerTest : BaseTest() {
         mockMvc.perform(MockMvcRequestBuilders.delete("${ApiUrls.AVATARS}/$name"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound)
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Image #$name not found")))
+    }
+
+    @Test
+    fun `Should return the metadata of an image`() {
+        val image = this.imageDAO
+                .saveAll((1..10).map { Image.create("image$it", ImageType.profile, this.bucketName) })
+                .toList()[2]
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/${image.id}/metadata"))
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.`is`(image.id)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.bucket", Matchers.`is`(image.bucket)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.type", Matchers.`is`(image.type.name)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.lastModified", Matchers.`is`(image.lastModified)))
+    }
+
+    @Test
+    fun `Should not return the metadata of an image if it does not exist`() {
+        val name = "dasjkdhaksj"
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/$name/metadata"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Image #$name not found")))
+    }
+
+    @Test
+    fun `Should not return the metadata of an image if it does not exist in the bucket`() {
+        val image = this.imageDAO
+                .saveAll((1..10).map { Image.create("image$it", ImageType.profile, "jdhsajkdhas") })
+                .toList()[2]
+        mockMvc.perform(MockMvcRequestBuilders.get("${ApiUrls.AVATARS}/${image.id}/metadata"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound)
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].message", Matchers.`is`("Image #${image.id} not found")))
     }
 
     /************************** MY AVATAR *********************************************************/

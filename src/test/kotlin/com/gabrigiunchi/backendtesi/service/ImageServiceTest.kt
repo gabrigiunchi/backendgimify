@@ -59,6 +59,28 @@ class ImageServiceTest : BaseTest() {
     }
 
     @Test
+    fun `Should return the metadata of an image`() {
+        val images = this.imageDAO
+                .saveAll((1..10).map { Image.create("image$it", ImageType.profile, this.bucketName) })
+                .toList()
+        val result = this.imageService.getMetadataOfImage(this.bucketName, images[2].id)
+        Assertions.assertThat(result).isEqualTo(images[2])
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not return the metadata of an image if it does not exist`() {
+        this.imageService.getMetadataOfImage(this.bucketName, "dasjdhasd")
+    }
+
+    @Test(expected = ResourceNotFoundException::class)
+    fun `Should not return the metadata of an image if it does not exist in the bucket`() {
+        val images = this.imageDAO
+                .saveAll((1..10).map { Image.create("image$it", ImageType.profile, this.bucketName) })
+                .toList()
+        this.imageService.getMetadataOfImage("djsahdjkashd", images[2].id)
+    }
+
+    @Test
     fun `Should upload an image`() {
         val name = "kjdnajs.dasda"
         this.createMockImage(name, "dnansda")

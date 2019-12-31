@@ -146,6 +146,9 @@ class ImageService(
     fun getAllMetadata(bucket: String, page: Int, size: Int): Page<Image> =
             this.imageDAO.findByBucket(bucket, PageRequest.of(page, size, Sort.by("id")))
 
+    fun getMetadataOfImage(bucket: String, id: String): Image =
+            this.imageDAO.findByIdAndBucket(id, bucket).orElseThrow { ResourceNotFoundException(Image::class.java, id) }
+
     fun getAllMetadataWithPrefix(bucket: String, prefix: String): List<Image> =
             this.objectStorageService.getAllMetadataWithPrefix(prefix, bucket)
 
